@@ -37,12 +37,7 @@ private function resetActiveElement():void {
 	
 	// Reset other stuff related to the active video
 	clearVideo();
-	identityVideo.visible = false;
-	identityVideo.close();
-	showBeforeIdentity = true;
 	progress.setSections([]);
-	subtitles.suppportedLocales = {}; subtitlesMenu.options = [];
-	liveStreamsMenu.value = null;
 }
 
 private function setActiveElementToLiveStream(stream:Object, startPlaying:Boolean=false):void {
@@ -61,8 +56,6 @@ private function setActiveElementToLiveStream(stream:Object, startPlaying:Boolea
 	activeElement.put('skip', false);
 	activeElement.put('live', true);
 	activeElement.put('one', props.get('site_url') + stream.one); 
-	supportedFormats = ['live'];
-	formatsMenu.options = [];
 	activeElement.put('photoSource', props.get('site_url') + stream.large_download);
 	activeElement.put('videoSource', stream.rtmp_stream);
 	video.source = getFullVideoSource();
@@ -72,14 +65,10 @@ private function setActiveElementToLiveStream(stream:Object, startPlaying:Boolea
 
 	// Aspect ratios
 	activeElement.put('aspectRatio', stream.thumbnail_large_aspect_ratio*1.0);
-	video.aspectRatio = identityVideo.aspectRatio = 0;
+	video.aspectRatio = 0;
 	
 	// Make embed code current
 	updateCurrentVideoEmbedCode();
-	
-	// We want the tray and possible the info box to show up when a new element starts playing
-	infoShow();
-	trayShow();
 	
 	// Note that we've loaded the video 
 	reportEvent('load');
@@ -109,41 +98,6 @@ private function setActiveElement(i:int, startPlaying:Boolean=false, start:Numbe
   	activeElement.put('start', start);
   	activeElement.put('skip', skip);
 
-	activeElement.put('beforeDownloadType', o.before_download_type);
-	activeElement.put('beforeDownloadUrl', props.get('site_url') + o.before_download_url.replace(new RegExp('video_small', 'img'), (h264() ? 'video_medium' : 'video_small')));
-	activeElement.put('beforeLink', o.before_link); 
-	activeElement.put('afterDownloadType', o.after_download_type); 
-	activeElement.put('afterDownloadUrl', props.get('site_url') + o.after_download_url.replace(new RegExp('video_small', 'img'), (h264() ? 'video_medium' : 'video_small')));
-	activeElement.put('afterLink', o.after_link);
-	activeElement.put('afterText', o.after_text); 
-	
-	// Get sections and show, otherwise reset
-	if(!skip) {
-		if(o.subtitles_p && props.get('enableSubtitles')) {
-			try {
-				doAPI('/api/photo/subtitle/list', {photo_id:o.photo_id, token:o.token, subtitle_format:'json', stripped_p:'1'}, function(sub:Object):void{
-					var locales:Object = {};
-					var defaultLocale:String = '';
-					var localeMenu:Array = [];
-					localeMenu.push({value:'', label:'No subtitles'});
-					for (var i:int=0; i<sub.subtitles.length; i++) {
-						locales[sub.subtitles[i].locale] = {href:props.get('site_url') + sub.subtitles[i].href, language:sub.subtitles[i].language, locale:sub.subtitles[i].locale};
-						localeMenu.push({value:sub.subtitles[i].locale, label:sub.subtitles[i].language});
-						if(sub.subtitles[i].default_p) defaultLocale = sub.subtitles[i].locale; 
-					}
-					// Let the subtitles component know about this
-					subtitles.suppportedLocales = locales;
-					subtitles.locale = (props.get('subtitlesOnByDefault') ? defaultLocale : '');
-					// Create a menu from the same options
-					subtitlesMenu.options = localeMenu;
-					subtitlesMenu.value = subtitles.locale;
-				});
-			} catch(e:Error) {subtitles.suppportedLocales = {}; subtitlesMenu.options = [];}
-		} else {
-			subtitles.suppportedLocales = {}; subtitlesMenu.options = [];
-		}
-	}
-	
 	// Get subtitles and show, otherwise reset
 	if(o.sections_p) {
 		try {
@@ -170,8 +124,6 @@ private function setActiveElement(i:int, startPlaying:Boolean=false, start:Numbe
 	var ar:Number = parseInt(o.large_width) / parseInt(o.large_height);
   	activeElement.put('aspectRatio', ar);
 	video.aspectRatio = ar;
-	identityVideo.aspectRatio = (props.getBoolean('maintainIdentityAspectRatio') ? 0 : ar)
-	
  
  	if(video_p) {
  		image.source = null;
@@ -184,10 +136,6 @@ private function setActiveElement(i:int, startPlaying:Boolean=false, start:Numbe
 	// Make embed code current
 	updateCurrentVideoEmbedCode();
 
-	// We want the tray and possible the info box to show up when a new element starts playing
-	infoShow();
-	trayShow();
-
 	// Note that we've loaded the video 
 	reportEvent('load');
 
@@ -197,30 +145,7 @@ private function setActiveElement(i:int, startPlaying:Boolean=false, start:Numbe
 private function prepareSupportedFormats(o:Object):void {
 	// Reset list
 	supportedFormats = [];
-
-	// Build list of supported formats and their URLs
-	if (!h264() && typeof(o.video_small_download)!='undefined'&&o.video_small_download.length>0) {
-		supportedFormats.push({format:'video_small', pseudo:false, label: 'Low (180p)', source:props.get('site_url') + o.video_small_download});
-	}
-	if (h264()&&typeof(o.video_mobile_high_download)!='undefined'&&o.video_mobile_high_download.length>0) {
-		supportedFormats.push({format:'video_mobile_high', pseudo:true, label: 'Low (180p)', source:props.get('site_url') + o.video_mobile_high_download}); 
-	}
-	if (h264()&&typeof(o.video_medium_download)!='undefined'&&o.video_medium_download.length>0) {
-		supportedFormats.push({format:'video_medium', pseudo:true, label: 'Standard (360p)', source:props.get('site_url') + o.video_medium_download}); 
-	}
-	if (h264()&&typeof(o.video_hd_download)!='undefined'&&o.video_hd_download.length>0) {
-		supportedFormats.push({format:'video_hd', pseudo:true, label: 'HD (720p)', source:props.get('site_url') + o.video_hd_download}); 
-	}
-	if (h264()&&typeof(o.video_1080p_download)!='undefined'&&o.video_1080p_download.length>0&&o.video_1080p_size>0) {
-		supportedFormats.push({format:'video_1080p', pseudo:true, label: 'Full HD (1080p)', source:props.get('site_url') + o.video_1080p_download}); 
-	}
-	
-	// We'll want a menu for this
-	var _formats:Array = [];
-	for (var i:Object in supportedFormats) {
-		_formats.push({value:supportedFormats[i].format, label:supportedFormats[i].label});
-	}
-	formatsMenu.options = _formats;	
+	supportedFormats.push({format:'video_medium', pseudo:true, label: 'Standard (360p)', source:props.get('site_url') + o.video_medium_download});
 }
 public function setVideoFormat(format:String):void {
 	var o:Object = null;
@@ -265,7 +190,6 @@ private function createItemsArray(p:Object) : Array {
 private function clearVideo():void {
 	video.source = null; video.visible = false;
 	image.source = null; image.visible = false;
-	if(identityVideo.playing) {identityVideo.stop(); identityVideo.dispatchEvent(new Event('complete', true));}
     if(video.playing) {video.stop(); video.close();}
 }
 private function previousElement():Boolean {
@@ -285,7 +209,7 @@ private function showImageElement():void {
 	video.visible=false;
 	videoControls.visible=progress.visible=false;
 	
-	image.visible=true;
+	//image.visible=true;
 }
 private function showVideoElement():void {
 	video.visible=false;
@@ -293,25 +217,16 @@ private function showVideoElement():void {
 	progress.visible=(!video.isLive);
 	
 	image.source = activeElement.get('photoSource');
-	image.visible=true;
+	//image.visible=true;
 }
 
 public function playVideoElement():void {
 	if(!activeElement.get('video_p')) return;
 	image.visible=false;
-	video.visible=true;
-	videoControls.visible=true;
+	//video.visible=true;
+	//videoControls.visible=true;
 	progress.visible=(!video.isLive);
 	video.source = getFullVideoSource();
-	if(showBeforeIdentity) {
-		// For some reason, this seems to trigger pre-buffering of the video; which is good.
-		video.play();
-		video.pause();
-		// We'll only do this once for every element, otherwise the preroll will start on every pause/play.
-		showBeforeIdentity = false;
-		handleIdentity('before', function():void {playVideoElement();});
-		return;
-	}
 	video.play();
 }
 private function pauseVideoElement():void {

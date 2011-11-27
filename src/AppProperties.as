@@ -67,7 +67,7 @@ private function initLoadURL():void{
 	
 	// Determine a load parameters
 	var loadParameters:Array = new Array();
-	var options:Array = ['photo_id', 'token', 'user_id', 'search', 'tag', 'tags', 'tag_mode', 'album_id', 'year', 'month', 'day', 'datemode', 'video_p', 'audio_p', 'video_encoded_p', 'order', 'orderby', 'p', 'size', 'rand', 'liveevent_id', 'liveevent_stream_id'];
+	var options:Array = ['photo_id', 'token', 'user_id', 'search', 'tag', 'tags', 'tag_mode', 'album_id', 'year', 'month', 'day', 'datemode', 'video_p', 'audio_p', 'video_encoded_p', 'order', 'orderby', 'p', 'rand', 'liveevent_id', 'liveevent_stream_id'];
 	for (var i:int=0; i<options.length; i++) {
 		var opt:String = options[i];
 		if (FlexGlobals.topLevelApplication.parameters[opt]) {
@@ -77,6 +77,7 @@ private function initLoadURL():void{
 	if (defaultPhotoId.length) loadParameters.push('photo_id=' + encodeURI(defaultPhotoId)); 
 	if (defaultAlbumId.length) loadParameters.push('album_id=' + encodeURI(defaultAlbumId));
 	loadParameters.push('player_id=' + encodeURI(playerId));
+	loadParameters.push('size=1');
 	
 	// Use load parameters to build JSON source
 	var jsonSource:String = props.get('site_url') + '/api/photo/list?raw&format=json&' + loadParameters.join('&');
@@ -120,34 +121,6 @@ private function initProperties(settings:Object):void {
 	  	}
 	}
 
-	// Test logoSource
-	if (props.get('logoSource')=='no logo' || props.get('logoSource')=='') {
-		props.put('showLogo', false);
-		props.put('logoSource', '');	
-	}
-	if(props.get('showLogo')) {
-		var logoRequest:URLRequest = new URLRequest((props.get('logoSource') as String));
-		var logoLoader:URLLoader = new URLLoader();
-		logoLoader.addEventListener(SecurityErrorEvent.SECURITY_ERROR, function(event:SecurityErrorEvent):void {
-			props.put('logoSource', ''); props.put('showLogo', false);
-		});
-		logoLoader.addEventListener(IOErrorEvent.IO_ERROR, function httpStatusHandler(e:Event):void {
-			props.put('logoSource', ''); props.put('showLogo', false);
-		});
-		logoLoader.load(logoRequest);
-	}
-
-	// Logo position
-	var pos:String = props.get('logoPosition').toString();
-	props.put('logoAlign', (new RegExp('left').test(pos) ? 'left' : 'right'));
-	props.put('logoVAlign', (new RegExp('top').test(pos) ? 'top' : 'bottom'));
-
-	// Tray and information timeout
-	trayTimer.delay = props.getNumber('trayTimeout');
-	trayTimer.reset();
-	infoTimer.delay = props.getNumber('infoTimeout');
-	infoTimer.reset();
-	
 	// Make the embed code current
 	updateCurrentVideoEmbedCode();
 	
@@ -175,8 +148,6 @@ private function initProperties(settings:Object):void {
 		} else {
 			streamOptions = {featured_p:1};
 		}
-		liveStreamsMenu.options = [];
-		liveStreamsMenu.value = null;
 		try {
 			doAPI('/api/liveevent/stream/list', streamOptions, function(s:Object):void{
 				var streams:Array = s.streams;
@@ -185,7 +156,6 @@ private function initProperties(settings:Object):void {
 					streams.forEach(function(stream:Object, i:int, ignore:Object):void{
 						streamMenu.push({value:stream, label:stream.name});
 					});
-					liveStreamsMenu.options = streamMenu;
 					
 					if(prioritizeLiveStreams) {
 						setActiveElementToLiveStream(streams[0], false);
@@ -195,33 +165,6 @@ private function initProperties(settings:Object):void {
 				}
 			});
 		} catch(e:Error) {}
-	}
-}
-
-private function getRecommendationSource():String {
-	if(!context || !context.photos) return(props.get('site_url') + '/api/photo/list?raw&format=json&size=20');
-	
-	if(context.photos.length==1) {
-		// There's only one video to play, we'll need to construct recommendation in another fashion.
-		var recommendationSource:String;
-		var method:String = new String(props.get('recommendationMethod'));
-		switch (method) {
-			case 'site-new':
-			case 'channel-new':
-				recommendationSource = props.get('site_url') + '/api/photo/list?raw&format=json&size=20&orderby=uploaded&order=desc';
-				break;
-			case 'site-popular':
-			case 'channel-popular':
-			case 'similar':
-			default:
-				recommendationSource = props.get('site_url') + '/api/photo/list?raw&format=json&size=20&orderby=rank&order=desc';
-				break;
-		}
-		if (playerId.length) recommendationSource += '&player_id=' + encodeURI(playerId);
-		if (context.photos[0].album_id!='' && (method=='channel-new' || method=='channel-popular')) recommendationSource += '&album_id=' + context.photos[0].album_id;
-		return(recommendationSource);
-	} else {
-		return(new String(props.get('jsonSource')));
 	}
 }
 

@@ -4,71 +4,91 @@
 	horizontalScrollPolicy="off" 
 	verticalScrollPolicy="off"
 	useHandCursor="true" 
-	buttonMode="true" 
-	height="28"
-	top="2" 
-	cornerRadius="2" 
-	borderStyle="solid" 
-	borderThickness="0" 
-	backgroundColor="{(styleManager.getColorName(props.get('trayBackgroundColor')) as Number)}" 
-	backgroundAlpha="{(props.get('trayAlpha') as Number)}" 
-	mouseOver="videoDragHandle.visible=true" 
-	mouseOut="videoDragHandle.visible=false" 
+	buttonMode="true"
+	x="50"
+	height="76"
+	width="290"
 	click="seekVideoTo(timeFromPoint(this.contentMouseX));" 
 	initialize="init()"
 	>
+	
+	<mx:Image 
+		source="@Embed(source='assets/buttons/progress.png')"
+		x="0"
+		y="22"
+		/>
+	
 	<!-- VideoProgress -->
 	<mx:Canvas id="videoProgress"
-		top="11" 
-		left="10" 
-		right="10" 
-		height="6" 
+		top="30" 
+		left="29"  
+		height="16"
+		width="240"
 		resize="drawSections();"
-		backgroundColor="0xCCCCCC" 
-		backgroundAlpha="0.6">
+		>
 		<mx:Canvas id="videoBufferProgress" 
 			x="0" 
-			height="6" 
-			backgroundColor="white" 
-			backgroundAlpha="0.2" 
+			height="16"
+			backgroundImage="@Embed(source='assets/buttons/buffer.png')"
+			borderStyle="solid"
+			borderThickness="0"
+			cornerRadius="2" 
 			/>
 		<mx:Canvas id="videoPlayProgress" 
 			x="0"
-			height="6" 
-			backgroundColor="{(styleManager.getColorName(props.get('trayBackgroundColor')) as Number)}" 
-			backgroundAlpha="0.6" 
+			height="16"
 			/>
 	</mx:Canvas>					
 
+	<mx:Label 
+		top="29"
+		left="32"
+		selectable="false" 
+		fontFamily="Verdana, Helvetica, Arial" 
+		fontSize="11" 
+		color="white"
+		text="0:00"
+		/>
+	<mx:Label 
+		top="29"
+		right="22"
+		selectable="false" 
+		fontFamily="Verdana, Helvetica, Arial" 
+		fontSize="11" 
+		color="white"
+		text="{formatTime(activeElement.getNumber('start') + activeElement.getNumber('length'))}"
+		/>
+	
+	
 	<!-- Sections -->
 	<mx:Canvas id="sectionContainer" top="0" left="0" width="100%" height="100%" horizontalScrollPolicy="off"></mx:Canvas>
 	
 	<!-- videoTime -->
-	<mx:HBox id="videoDragHandle"
-		 visible="false" 
-		 y="{(this.height-videoTimeLabel.height)/2}" 
-		 width="{videoTimeLabel.width}"
-		 height="{videoTimeLabel.height}"
-		 backgroundColor="0xFFFFFF" 
-		 cornerRadius="2" 
-		 borderStyle="solid" 
-		 borderColor="white"
-		 clipContent="false"
-		 useHandCursor="true"
-		 buttonMode="true"
+	<mx:Canvas id="videoDragHandle"
+		x="5"
+		top="20"
+		width="50"
+		height="56"
+		clipContent="false"
+		useHandCursor="true"
+		buttonMode="true"
+		visible="false"
 		>
-		<mx:VBox id="videoTime"
-			 clipContent="false"
-			>
-			<mx:Label id="videoTimeLabel" 
-				selectable="false" 
-				fontFamily="Helvetica, Arial" 
-				fontSize="9" 
-				height="12" 
-				color="black"
-				/>
-		</mx:VBox>	
-	</mx:HBox>
+		<mx:Canvas
+			width="2"
+			height="36"
+			backgroundColor="#d32128"
+			horizontalCenter="0"
+			/>
+		<mx:Label id="videoTimeLabel"
+			top="36"
+			selectable="false" 
+			fontFamily="Verdana, Helvetica, Arial" 
+			fontSize="10" 
+			color="black"
+			horizontalCenter="0"
+			/>
+	</mx:Canvas>
 	
 	<mx:Script>
 		<![CDATA[
@@ -111,11 +131,11 @@
 				}
 			}
 			private function timeFromPoint(x:int):int {
-				return Math.round((x-5)/videoProgress.width*activeElement.getNumber('length'));
+				return Math.round((x-videoProgress.x)/videoProgress.width*_targetVideo.totalTime);
 			}
             public function seekVideoTo(time:int):void {
             	if(!_targetVideo) return;
-            	if(time>activeElement.getNumber('length')) return;
+            	if(time>_targetVideo.totalTime) return;
             	var approxBufferTime:Number = (_targetVideo.totalTime * (_targetVideo.bytesLoaded/_targetVideo.bytesTotal)) + activeElement.getNumber('start');
         		_targetVideo.bufferTime = 2; // default buffer time is two secs
             	if(time>new Number(activeElement.get('start')) && time<approxBufferTime) {
@@ -134,15 +154,16 @@
             }
             private function updateBuffer(e:Event):void {
             	if(!_targetVideo) return;
-            	videoBufferProgress.x = activeElement.getNumber('start') / activeElement.getNumber('length') * videoProgress.width;
+            	videoBufferProgress.x = activeElement.getNumber('start') / _targetVideo.totalTime * videoProgress.width;
             	videoBufferProgress.width = _targetVideo.bytesLoaded/_targetVideo.bytesTotal*(videoProgress.width-videoBufferProgress.x);
             }
             private function updatePlay(e:Event):void {
             	if(!_targetVideo) return;
-				videoPlayProgress.x = activeElement.getNumber('start') / activeElement.getNumber('length') * videoProgress.width;
+				videoPlayProgress.x = activeElement.getNumber('start') / _targetVideo.totalTime * videoProgress.width;
 				videoPlayProgress.width  = _targetVideo.playheadTime/_targetVideo.totalTime*(videoProgress.width-videoPlayProgress.x);
+				videoDragHandle.visible = true;
 				if(scrubberStartMouseX<0) {
-					videoDragHandle.x = 5 + videoPlayProgress.x + videoPlayProgress.width - (videoDragHandle.width/2);
+					videoDragHandle.x = videoProgress.x + videoPlayProgress.x + videoPlayProgress.width - (videoDragHandle.width/2);
 					videoTimeLabel.text = formatTime(_targetVideo.playheadTime + activeElement.getNumber('start'));
 				}
             }
@@ -183,7 +204,7 @@
 					section.width = 12;
 					section.height = 12;
 					section.y = 8;
-					section.x = 8 + ((s.start_time/activeElement.getNumber('length')) * videoProgress.width);
+					section.x = 8 + ((s.start_time/_targetVideo.totalTime) * videoProgress.width);
 					section.title = s.title;
 					section.startTime = s.start_time;
 					
