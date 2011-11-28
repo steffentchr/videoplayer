@@ -10,7 +10,7 @@
 	layout="absolute" 
 	verticalScrollPolicy="off" 
 	horizontalScrollPolicy="off"
-	preloader="preload.CustomPreloader" 
+	preloader="preload.CustomPreloader"
 	backgroundAlpha="0"
 	width="100%" 
 	height="100%" 

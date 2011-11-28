@@ -56,7 +56,7 @@
 		fontFamily="Verdana, Helvetica, Arial" 
 		fontSize="11" 
 		color="white"
-		text="{formatTime(activeElement.getNumber('start') + activeElement.getNumber('length'))}"
+		text="{formatTime(activeElement.getNumber('length'))}"
 		/>
 	
 	
@@ -105,15 +105,14 @@
 			private function init():void {
 				this.addEventListener(MouseEvent.MOUSE_MOVE, function(e:MouseEvent){
 					if(scrubberStartMouseX<0) return;
-					videoDragHandle.x = scrubberStartX + (e.stageX-scrubberStartMouseX);
 					var x = scrubberStartX + (e.stageX-scrubberStartMouseX);
-					videoTimeLabel.text = formatTime(timeFromPoint(x));
+					videoDragHandle.x = Math.min(Math.max(x,5),245);
+					videoTimeLabel.text = formatTime(timeFromPoint(videoDragHandle.x + (videoDragHandle.width/2.0)));
 				});
 				this.addEventListener(MouseEvent.MOUSE_UP, function(e:MouseEvent){
 					if(scrubberStartMouseX<0) return;
 					scrubberStartMouseX = scrubberStartX = -1;
-					var x = scrubberStartX + (e.stageX-scrubberStartMouseX);
-					seekVideoTo(timeFromPoint(x));
+					seekVideoTo(timeFromPoint(videoDragHandle.x + (videoDragHandle.width/2.0)));
 				});
 				videoDragHandle.addEventListener(MouseEvent.MOUSE_DOWN, function(e:MouseEvent){
 					scrubberStartX = videoDragHandle.x;
@@ -131,11 +130,11 @@
 				}
 			}
 			private function timeFromPoint(x:int):int {
-				return Math.round((x-videoProgress.x)/videoProgress.width*_targetVideo.totalTime);
+				return Math.round((x-videoProgress.x)/videoProgress.width*activeElement.getNumber('length'));
 			}
             public function seekVideoTo(time:int):void {
             	if(!_targetVideo) return;
-            	if(time>_targetVideo.totalTime) return;
+            	if(time>activeElement.getNumber('length')) return;
             	var approxBufferTime:Number = (_targetVideo.totalTime * (_targetVideo.bytesLoaded/_targetVideo.bytesTotal)) + activeElement.getNumber('start');
         		_targetVideo.bufferTime = 2; // default buffer time is two secs
             	if(time>new Number(activeElement.get('start')) && time<approxBufferTime) {
@@ -154,15 +153,15 @@
             }
             private function updateBuffer(e:Event):void {
             	if(!_targetVideo) return;
-            	videoBufferProgress.x = activeElement.getNumber('start') / _targetVideo.totalTime * videoProgress.width;
+            	videoBufferProgress.x = activeElement.getNumber('start') / activeElement.getNumber('length') * videoProgress.width;
             	videoBufferProgress.width = _targetVideo.bytesLoaded/_targetVideo.bytesTotal*(videoProgress.width-videoBufferProgress.x);
             }
             private function updatePlay(e:Event):void {
             	if(!_targetVideo) return;
-				videoPlayProgress.x = activeElement.getNumber('start') / _targetVideo.totalTime * videoProgress.width;
+				videoPlayProgress.x = activeElement.getNumber('start') / activeElement.getNumber('length') * videoProgress.width;
 				videoPlayProgress.width  = _targetVideo.playheadTime/_targetVideo.totalTime*(videoProgress.width-videoPlayProgress.x);
 				videoDragHandle.visible = true;
-				if(scrubberStartMouseX<0) {
+				if(scrubberStartMouseX<0 && e.currentTarget.state==VideoEvent.PLAYING) {
 					videoDragHandle.x = videoProgress.x + videoPlayProgress.x + videoPlayProgress.width - (videoDragHandle.width/2);
 					videoTimeLabel.text = formatTime(_targetVideo.playheadTime + activeElement.getNumber('start'));
 				}
@@ -204,7 +203,7 @@
 					section.width = 12;
 					section.height = 12;
 					section.y = 8;
-					section.x = 8 + ((s.start_time/_targetVideo.totalTime) * videoProgress.width);
+					section.x = 8 + ((s.start_time/activeElement.getNumber('length')) * videoProgress.width);
 					section.title = s.title;
 					section.startTime = s.start_time;
 					
