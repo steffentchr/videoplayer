@@ -207,12 +207,18 @@
 				hoverSource="@Embed(source='assets/buttons/play-hover.png')"
 				visible="{(cleanVideoState!='playing')}" 
 				click="playVideoElement()"
+				accessibilityName="Afspil klip"
+				name="Afspil klip"
+				toolTip="Afspil klip"
 				/>
 			<com:PlayerButton id="pauseImage" 
 				imageSource="@Embed(source='assets/buttons/pause.png')"
 				hoverSource="@Embed(source='assets/buttons/pause-hover.png')"
 				visible="{(cleanVideoState=='playing')}" 
 				click="pauseVideoElement()"
+				accessibilityName="Pause"
+				name="Pause"
+				toolTip="Pause"
 				/>
 		</mx:Canvas>					
 	</mx:Canvas>
