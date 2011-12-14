@@ -1,4 +1,5 @@
 import flash.events.ErrorEvent;
+
 import mx.events.VideoEvent;
 [Bindable] public var numVideoElements:int = 0;
 [Bindable] public var currentElementIndex:int = 0;
@@ -14,6 +15,8 @@ private function initActiveElement():void {
  
 private function resetActiveElement():void {
   	activeElement.put('photo_id', '');
+	activeElement.put('tree_id', '');
+	activeElement.put('token', '');
 	activeElement.put('video_p', false);
   	activeElement.put('title', '');
   	activeElement.put('content', '');
@@ -101,6 +104,8 @@ private function setActiveElement(i:int, startPlaying:Boolean=false, start:Numbe
   	var content:String = o.content_text.replace(new RegExp('(<([^>]+)>)', 'ig'), '');
   	var hasInfo:Boolean =  (title.length>0 || content.length>0);
   	activeElement.put('photo_id', o.photo_id);
+	activeElement.put('tree_id', o.tree_id);
+	activeElement.put('token', o.token);
   	activeElement.put('title', title);
   	activeElement.put('content', content);
   	activeElement.put('hasInfo', hasInfo);
@@ -110,10 +115,10 @@ private function setActiveElement(i:int, startPlaying:Boolean=false, start:Numbe
   	activeElement.put('skip', skip);
 
 	activeElement.put('beforeDownloadType', o.before_download_type);
-	activeElement.put('beforeDownloadUrl', props.get('site_url') + o.before_download_url.replace(new RegExp('video_small', 'img'), (h264() ? 'video_medium' : 'video_small')));
+	activeElement.put('beforeDownloadUrl', transformURL(o.before_download_url));
 	activeElement.put('beforeLink', o.before_link); 
-	activeElement.put('afterDownloadType', o.after_download_type); 
-	activeElement.put('afterDownloadUrl', props.get('site_url') + o.after_download_url.replace(new RegExp('video_small', 'img'), (h264() ? 'video_medium' : 'video_small')));
+	activeElement.put('afterDownloadType', o.after_download_type);
+	activeElement.put('afterDownloadUrl', transformURL(o.after_download_url));
 	activeElement.put('afterLink', o.after_link);
 	activeElement.put('afterText', o.after_text); 
 
@@ -310,10 +315,9 @@ public function playVideoElement():void {
 	videoControls.visible=true;
 	progress.visible=(!video.isLive);
 	video.source = getFullVideoSource();
+	video.stop();
+	video.pause();
 	if(showBeforeIdentity) {
-		// For some reason, this seems to trigger pre-buffering of the video; which is good.
-		video.play();
-		video.pause();
 		// We'll only do this once for every element, otherwise the preroll will start on every pause/play.
 		showBeforeIdentity = false;
 		handleIdentity('before', function():void {playVideoElement();});
@@ -328,7 +332,10 @@ private function pauseVideoElement():void {
 }
 
 private function getFullVideoSource():String {
-	var joinChar:String = (/\?/.test(activeElement.getString('videoSource')) ? '&' : '?');
-	return(activeElement.getString('videoSource') + joinChar + 'start=' + encodeURIComponent(activeElement.getString('start')) + '&skip=' + encodeURIComponent(activeElement.getString('skip')));
+	return('rtmp://fl2.sz.xlcdn.com/vod/_definst_/sz/PBS-23Video/' + [activeElement.get('tree_id'), activeElement.get('photo_id'), activeElement.get('token'), 'video_medium.mp4'].join('-'));
 }            
 
+private function transformURL(u:String):String {
+	var m:Array = u.split('/');
+	return('rtmp://fl2.sz.xlcdn.com/vod/_definst_/sz/PBS-23Video/' + [m[1], m[2], m[3], m[4]+'.mp4'].join('-'));
+}            

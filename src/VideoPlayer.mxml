@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- 
-  Demonic for 23 Video
+  PBS / TV Malta / Streamzilla 
   Benjamin Bernhard, benjamin@23company.com
   Steffen Tiedemann Christensen, steffen@23company.com
 -->
@@ -39,7 +39,7 @@
 			import flash.utils.setTimeout;
 			
 			// Default domain (used when testing from localhost)
-			private var defaultDomain:String = 'reference.23.steffentchr.dk';
+			private var defaultDomain:String = 'tvm.23video.com';
 			// Default photo_id (used to if you want a specific photo/video to be shown, otherwise empty)
 			private var defaultPhotoId:String = '';
 			private var defaultAlbumId:String = '';
@@ -225,6 +225,7 @@
             	}
             }
 			private function onVideoStateChange(evt:Event):void {
+				trace('identityVideo = ' + identityVideo.visible);
 				if(evt.currentTarget.state==VideoEvent.PLAYING || evt.currentTarget.state==VideoEvent.SEEKING) {
 					cleanVideoState = 'playing';
 				} else if(evt.currentTarget.state==VideoEvent.LOADING || evt.currentTarget.state==VideoEvent.BUFFERING) {

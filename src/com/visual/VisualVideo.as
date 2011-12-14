@@ -65,7 +65,7 @@ package com.visual {
 		public function get displayMode():String {return(_displayMode);}
 		
 		// Is this an RTMP stream?
-		public function get isLive():Boolean {return(isRTMP);}
+		public function get isLive():Boolean {return(false);}
 		public function get isRTMP():Boolean {
 			if(_source) {
 				return(/^rtmp:\/\//.test(_source.toLowerCase()));
@@ -74,7 +74,8 @@ package com.visual {
 			}
 		}
 		private function splitRTMPSource():Array {
-			var match:Array = _source.match(/^(.+\/)([^\/]+)/);
+			var match:Array = _source.match(/^(.+_definst_\/)(.+)/);
+			trace(match[1], match[2]);
 			if(match.length==3) {
 				return [match[1], match[2]];
 			} else {
@@ -131,7 +132,7 @@ package com.visual {
 		
 		public function get playheadTime():Number {return(this.stream ? this.stream.time : 0);}
 		public function set playheadTime(pht:Number):void {
-			if(!this.connection&&!this.stream) return;
+			if(!this.connection||!this.stream) return;
 			if(pht<0||pht>totalTime) return;
 			if(isLive) return;
 			this.stream.seek(pht);
@@ -291,11 +292,19 @@ package com.visual {
 					}
 					break;
 				case "NetStream.Buffer.Empty":
-					if(isPlaying) this.state = VideoEvent.BUFFERING;
+					if(this.completed) { 
+						isPlaying = false;
+						this.state = VideoEvent.STOPPED;
+						if(this.completed) dispatchVideoEvent(VideoEvent.COMPLETE);
+					} else {
+						if(isPlaying) this.state = VideoEvent.BUFFERING;
+					}
 					break;
 				case "NetStream.Seek.Notify":
 				case "NetStream.Unpause.Notify":
+					break;
 				case "NetStream.Buffer.Full":
+					if(isPlaying) this.state = VideoEvent.PLAYING;
 					break;
 				case "NetStream.Play.Start":
 					isPlaying = true;
@@ -306,9 +315,6 @@ package com.visual {
 					this.state = VideoEvent.PAUSED;
 					break;
 				case "NetStream.Play.Stop":
-					isPlaying = false;
-					this.state = VideoEvent.STOPPED;
-					if(this.completed) dispatchVideoEvent(VideoEvent.COMPLETE);
 					break;
 			}
 		}			

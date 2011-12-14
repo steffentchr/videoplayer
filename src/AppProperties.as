@@ -41,7 +41,7 @@ public var propDefaults:Object = {
 	enableSubtitles: true,
 	subtitlesOnByDefault: false,
 	subtitlesDesign: 'bars',
-	playlistClickMode:'link',
+	playlistClickMode:'inline',
 	enableLiveStreams: true,
 	
 	start: parseFloat('0'),
