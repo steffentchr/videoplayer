@@ -33,6 +33,7 @@ private function resetActiveElement(skip:Boolean=false):void {
 	activeElement.put('afterText', '');
 	activeElement.put('length', '0');
 	activeElement.put('start', '0');
+	omniture.videoOffset = 0;
 	activeElement.put('skip', '0');
 	activeElement.put('live', false);
 	
@@ -63,6 +64,7 @@ private function setActiveElementToLiveStream(stream:Object, startPlaying:Boolea
 	activeElement.put('link', stream.one);
 	activeElement.put('length', 0); 
 	activeElement.put('start', 0);
+	omniture.videoOffset = 0;
 	activeElement.put('skip', false);
 	activeElement.put('live', true);
 	activeElement.put('one', props.get('site_url') + stream.one); 
@@ -113,6 +115,7 @@ private function setActiveElement(i:int, startPlaying:Boolean=false, start:Numbe
   	activeElement.put('link', o.one);
   	activeElement.put('length', o.video_length); 
   	activeElement.put('start', start);
+	omniture.videoOffset = start;
   	activeElement.put('skip', skip);
 
 	// PlayFlow
@@ -123,11 +126,6 @@ private function setActiveElement(i:int, startPlaying:Boolean=false, start:Numbe
 	activeElement.put('afterDownloadUrl', props.get('site_url') + o.after_download_url.replace(new RegExp('video_small', 'img'), (h264() ? 'video_medium' : 'video_small')));
 	activeElement.put('afterLink', o.after_link);
 	activeElement.put('afterText', o.after_text); 
-	
-	// Add VAST 2.0 and Google InStream support
-	activeElement.put('playflowInstreamVideo', o.playflow_instream_video||props.getString('playflowInstreamVideo'));
-	activeElement.put('playflowInstreamOverlay', o.playflow_instream_overlay||props.getString('playflowInstreamOverlay'));
-	bootstrapAds();
 
 	// Photo source
 	activeElement.put('photoSource', props.get('site_url') + o.large_download);
@@ -246,7 +244,10 @@ public function setVideoFormat(format:String):void {
 		}
 	}
 	if(!o) o=supportedFormats[supportedFormats.length-1];
-	if(!o.pseudo) activeElement.put('start', 0);
+	if(!o.pseudo) {
+		activeElement.put('start', 0);
+		omniture.videoOffset = 0;
+	}	
 	activeElement.put('videoSource', o.source);
 	currentVideoFormat = o.format;
 }
@@ -312,9 +313,11 @@ private function showVideoElement():void {
 }
 
 public function playVideoElement():void {
+	clearQuestion();
 	if(!activeElement.get('video_p')) return;
 	if(video.completed) {
 		activeElement.put('start', 0);
+		omniture.videoOffset = 0;
 		video.playheadTime = 0;		
 	}
 	video.visible=true;

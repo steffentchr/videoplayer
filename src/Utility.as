@@ -56,9 +56,24 @@ public function reportEvent(event:String):void {
 		var photo_id:int = context.photos[currentElementIndex].photo_id;
 		doAPI('/api/analytics/report/event', expandReportObject({photo_id:photo_id, event:event, uuid:uuid}), function():void{});
 	} catch(e:Error) {}
+	try {
+		if(event=='load'){
+			omniture.load(activeElement.getString('title') + ' (' + activeElement.getString('photo_id') + ')', activeElement.getNumber('length'));
+		}
+	} catch(e:Error) {}	
 }
 
 public function goToUrl(url:String, target:String = '_top'):void {
 	if(!new RegExp('\:\/\/').test(url)) url = props.get('site_url') + url;
     navigateToURL(new URLRequest(url), target);
+}
+
+public function answerQuestion(answer:String):void {
+	questionButtons.visible=false; 
+	questionAnswer.visible=true;
+}
+
+public function clearQuestion():void {
+	questionButtons.visible=true; 
+	questionAnswer.visible=false;
 }

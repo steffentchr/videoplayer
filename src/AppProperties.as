@@ -10,18 +10,18 @@ import mx.utils.URLUtil;
 private var prioritizeLiveStreams:Boolean = false;
 public var propDefaults:Object = {
 	backgroundColor: 'black',
-	trayBackgroundColor: 'black',
+	trayBackgroundColor: '#1498E0',
 	trayTextColor: 'white',
 	trayFont: 'Helvetica, Arial, sans-serif',
 	trayTitleFontSize: parseFloat('15'),
 	trayTitleFontWeight: 'bold',
 	trayContentFontSize: parseFloat('11'),
 	trayContentFontWeight: 'normal',
-	trayAlpha: parseFloat('0.8'),
+	trayAlpha: parseFloat('1'),
 	showTray: true,
 	showDescriptions: false,
 	logoSource: '',
-	showBigPlay: false,
+	showBigPlay: true,
 	showLogo: true,
 	showShare: true,
 	showBrowse: true,
@@ -45,7 +45,7 @@ public var propDefaults:Object = {
 	enableSubtitles: true,
 	subtitlesOnByDefault: false,
 	subtitlesDesign: 'bars',
-	playlistClickMode:'link',
+	playlistClickMode:'inline',
 	enableLiveStreams: true,
 	playflowInstreamVideo: '',
 	playflowInstreamOverlay: '',
@@ -246,53 +246,4 @@ private function updateCurrentVideoEmbedCode():void {
 		// A safety net for bad code
 		props.put('currentVideoEmbedCode', props.getString('embedCode'));
 	}  
-}
-
-private function bootstrapAds():void {
-	// Clean up
-	visualAdContainer.removeAllChildren();
-	ads = null;
-	
-	// Is there advertising=
-	if(activeElement.getString('playflowInstreamVideo').length==0 && activeElement.getString('playflowInstreamOverlay').length==0) return;
-		
-	// Attach VisualAd element to the stage, and make sure it's sized correctly
-	ads = new VisualAds();
-	visualAdContainer.addChild((ads as UIComponent));
-	
-	// Make sure it's sized correctly
-	var fitSize:Function = function():void{
-		ads.width = visualAdContainer.width;
-		ads.height = visualAdContainer.height;
-	}
-	fitSize();
-	visualAdContainer.addEventListener(ResizeEvent.RESIZE, fitSize);
-	
-	// Interface with the app through events
-	ads.addEventListener('contentPauseRequested', function():void{
-		if(props.getBoolean('identityAllowClose') && props.getBoolean('identityCountdown')) {
-			adMessage.visible = true;
-			adMessage.message = '';
-			adMessage.addEventListener(Event.CLOSE, function(e:Event):void{
-					ads.stop();
-				});
-		}
-		forceHideTray = true;
-		playListHide()
-		trayHide();
-		pauseVideoElement();
-	});
-	ads.addEventListener('contentResumeRequested', function():void{
-		forceHideTray = false;
-		adMessage.visible = false;
-		trayShow();
-		playVideoElement();
-	});
-	
-	// Append sources
-	var a:Array;
-	a = activeElement.getString('playflowInstreamVideo').split('|');
-	if(a.length==3) ads.push('video', decodeURIComponent(a[0]), decodeURIComponent(a[1]), decodeURIComponent(a[2]));
-	a = activeElement.getString('playflowInstreamOverlay').split('|');
-	if(a.length==3) ads.push('overlay', decodeURIComponent(a[0]), decodeURIComponent(a[1]), decodeURIComponent(a[2]));
 }

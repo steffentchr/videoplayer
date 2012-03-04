@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- 
-  Squares for 23
-  Benjamin Bernhard, benjamin@23company.com
-  Steffen Tiedemann Christensen, steffen@23company.com
+  Telenor Player
+  - Track yes/no
 -->
 <mx:Application 
 	xmlns:mx="http://www.adobe.com/2006/mxml" 
@@ -20,19 +19,8 @@
 	keyDown="trayShow()"
 	>
 	<mx:Style>
-     @font-face {
-        src:url("assets/fonts/HelveticaNeue.ttc");
-        fontFamily: Helvetica;
-        advancedAntiAliasing: true;
-     }		
-     @font-face {
-        src:url("assets/fonts/HelveticaNeue.ttc");
-        fontFamily: Helvetica;
-        fontWeight: bold;
-        advancedAntiAliasing: true;
-     }		
      Application {
-     	fontFamily: Helvetica;
+     	fontFamily: Helvetica,Arial;
      }
 	</mx:Style>
  	<mx:Script source="Utility.as"></mx:Script>
@@ -49,7 +37,8 @@
 			import com.SmoothImage;
 			import com.adobe.serialization.json.JSONParseError;
 			import com.philemonworks.flex.util.HashCollection;
-			import com.visual.VisualAds;
+			import com.visual.VisualOmniture;
+			public var omniture:VisualOmniture = null;
 			
 			import flash.display.StageDisplayState;
 			import flash.external.ExternalInterface;
@@ -57,7 +46,7 @@
 			import flash.utils.setTimeout;
 			
 			// Default domain (used when testing from localhost)
-			private var defaultDomain:String = 'reference.23.steffentchr.dk';
+			private var defaultDomain:String = 'telenor.23video.com';
 			// Default photo_id (used to if you want a specific photo/video to be shown, otherwise empty)
 			private var defaultPhotoId:String = '';
 			private var defaultAlbumId:String = '';
@@ -100,6 +89,8 @@
 				try {if(video.playing) reportPlay('end', video.playheadTime)} catch(e:Error){}
 			}
 			public function load():void {
+				omniture = new VisualOmniture(this,video);
+				
 				// Are we using a specific player, or just the default? (if so, we want to specify the player id to get the correct video settings)
 				var testCustomPlayer:Array = new RegExp('/([0-9]+)\.swf').exec(FlexGlobals.topLevelApplication.url);
 				if (testCustomPlayer && testCustomPlayer.length>1) playerId = testCustomPlayer[1]; 
@@ -429,20 +420,23 @@
 			/> 
 	</mx:Box>
 
-	<mx:Canvas id="visualAdContainer" 
-			   horizontalScrollPolicy="off"
-			   verticalScrollPolicy="off"
-			   clipContent="true"
-			   width="100%" 
-			   height="{(FlexGlobals.topLevelApplication.height - (tray.visible ? 62 : 0))}" /> 
-	<com:OverlayMessage id="adMessage"
-			   fontFamily="{props.get('trayFont')}" 
-			   color="{(styleManager.getColorName(props.get('trayTextColor')) as Number)}" 
-			   backgroundColor="{(styleManager.getColorName(props.get('trayBackgroundColor')) as Number)}" 
-			   allowClose="{props.get('identityAllowClose')}"
-			   visible="false"
-			   />
-
+	<mx:Canvas id="question" width="100%" height="100%" backgroundColor="black" verticalScrollPolicy="off" horizontalScrollPolicy="off" visible="{showPlayList}" includeInLayout="{playListContainer.visible}">		
+		<mx:Canvas id="questionButtons" width="100%" height="{question.height-tray.height}" verticalScrollPolicy="off" horizontalScrollPolicy="off">
+			<mx:VBox verticalScrollPolicy="off" horizontalScrollPolicy="off" verticalCenter="0" horizontalCenter="0" horizontalAlign="center" verticalGap="15">
+				<mx:Image source="@Embed(source='assets/buttons/telenor-question.png')" />
+				<mx:HBox horizontalGap="15">
+					<mx:Image source="@Embed(source='assets/buttons/telenor-yes.png')" buttonMode="true" click="answerQuestion('yes');" />
+					<mx:Image source="@Embed(source='assets/buttons/telenor-no.png')" buttonMode="true" click="answerQuestion('no');"/>
+				</mx:HBox>
+			</mx:VBox>
+		</mx:Canvas>
+		<mx:Canvas id="questionAnswer" width="100%" height="{question.height-tray.height}" verticalScrollPolicy="off" horizontalScrollPolicy="off" visible="false">
+			<mx:VBox verticalScrollPolicy="off" horizontalScrollPolicy="off" verticalCenter="0" horizontalCenter="0" horizontalAlign="center">
+				<mx:Image source="@Embed(source='assets/buttons/telenor-answer.png')" buttonMode="true" click="goToUrl('http://www.telenor.dk');" />
+			</mx:VBox>
+		</mx:Canvas>	
+	</mx:Canvas>
+		
 	<!-- Tray -->
 	<mx:VBox id="tray" 
 		width="{video.width-20}" 
@@ -604,7 +598,7 @@
 							color="{(styleManager.getColorName(props.get('trayTextColor')) as Number)}" 
 							paddingTop="2"
 							visible="{video.width-featureButtons.width>100}"
-							height="17"
+							height="21"
 							includeInLayout="true"
 							width="{progressContainer.width-featureButtons.width-13}"
 							/>
@@ -639,13 +633,6 @@
 				    			/>
 
 
-							<!-- InfoBtn -->
-							<com:PlayerButton id="infoImage" 
-											  imageSource="@Embed(source='assets/buttons/info.swf')"
-											  visible="{(activeElement.get('hasInfo') as Boolean) &amp;&amp; (props.get('showDescriptions') as Boolean)}" 
-											  click="infoToggle();"
-											  />
-							
 							<!-- HDbutton-->
 							<com:PlayerButton id="hdBtn" 
 											  imageSource="@Embed(source='assets/buttons/hd.swf')"
@@ -688,12 +675,6 @@
 											  click="video.volume=1"
 											  />
 							
-							<!-- Link -->
-							<com:PlayerButton id="linkBtn" 
-											  imageSource="@Embed(source='assets/buttons/link.swf')"
-											  visible="{(props.get('showShare') as Boolean)}" 
-											  click="{goToUrl(activeElement.get('link') + '?player_id=' + props.get('player_id'))}"
-											  />
 							<!-- Twitter -->
 							<com:PlayerButton id="twitterBtn" 
 											  imageSource="@Embed(source='assets/buttons/twitter.swf')"
@@ -742,21 +723,6 @@
 						 paddingBottom="20"
 						 click="{reportEvent('callToActionClick');}"
 						 />
-			<mx:HBox 
-				visible="{(props.get('showShare') as Boolean)}"
-				width="100%"
-				paddingTop="10" 
-				borderColor="#666666"
-				borderStyle="solid"
-				borderSides="top"
-				borderThickness="1"
-				>
-				<com:ActionButton
-					text="Share this video" 
-					iconSource="@Embed(source='assets/buttons/share.swf')"
-					click="embedPanel.visible=props.get('showShare') &amp;&amp; !embedPanel.visible; identityPanel.close();"
-					/>
-			</mx:HBox>
 		</com:TextPanel> 
 		<!-- / Text panel for post-roll -->
 	</mx:Canvas>
