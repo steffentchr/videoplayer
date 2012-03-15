@@ -29,6 +29,8 @@ public function h264():Boolean {
 }
 
 public function expandReportObject(o:Object):Object {
+	o['source'] = props.getString('source');
+	o['referer'] = props.getString('referer');
 	o['user_player_type'] = 'flash';
 	o['user_player_resolution'] = Capabilities.screenResolutionX + "x" + Capabilities.screenResolutionY;
 	o['user_player_version'] = Capabilities.version;
