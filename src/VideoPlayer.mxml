@@ -2,6 +2,7 @@
 <!-- 
   Telenor Player
   - Track yes/no
+  - Custom links
 -->
 <mx:Application 
 	xmlns:mx="http://www.adobe.com/2006/mxml" 
@@ -16,7 +17,6 @@
 	height="100%" 
 	creationComplete="init(); resizeTray();" 
 	resize="resizeTray();" 
-	keyDown="trayShow()"
 	>
 	<mx:Style>
      Application {
@@ -136,7 +136,6 @@
 						}, (props.getBoolean('browseMode') ? 0 : 5000));
 					}
 				}
-				trayShow();
 				applicationLoaded = true;
 			}
 			
@@ -168,42 +167,16 @@
 				
 				if(props.get('browseMode')) {
 					showPlayList = true;
-					trayShow();
 				}
             }
 			private function playListShow():void {
 				if (!props.get('showTray') || !props.get('showBrowse') || !enablePlayList) return;
 				showPlayList = true;
-				trayShow();
             }
 			private function playListHide():void {
 				showPlayList = false;
-				trayShow();
             }
-            private function trayShow():void {
-            	if(forceHideTray || !props.get('showTray')) {tray.visible=false; return;}
-            	trayTimer.reset(); trayTimer.start();
-            	tray.visible = true;
-            }            
-            private function trayHide():void {
-            	if (showPlayList) return;
-            	trayTimer.stop();
-            	if(props.getNumber('trayTimeout')<=0) return;
-                tray.visible = false;
-            }            
-			private var trayTimer:Timer = new Timer(3000,1);
-			private var infoTimer:Timer = new Timer(3000,1);
             private function prepareTimers():void {
-            	// TRAY AND POSSIBLY PLAYLIST
-            	// Hide when the timer completes
-				trayTimer.addEventListener(TimerEvent.TIMER_COMPLETE, function():void {trayHide();});
-				// Reset timer when the mouse moves in the application
-				FlexGlobals.topLevelApplication.addEventListener(MouseEvent.MOUSE_MOVE, function():void {trayShow();});
-            	
-            	// INFORMATION BOX WITH TITLE AND DESCRIPTION
-            	// Hide when the timer completes
-				infoTimer.addEventListener(TimerEvent.TIMER_COMPLETE, function():void{infoHide();});
-				
 				// PLAY EVENTS
 				// Report plays back to analytics continously
 				setInterval(function():void{
@@ -212,20 +185,6 @@
 						}catch(e:ErrorEvent){}
 					}, 30000);
             }             
-            private function infoHide():void {
-            	if(props.getNumber('infoTimeout')<=0) return;
-				descriptions.visible = false;
-            }
-            private function infoShow(timeout:Boolean=true):void {
-				if(!activeElement.get('hasInfo') || !props.get('showDescriptions')) {descriptions.visible = false; return;}
-				infoTimer.stop();
-				descriptions.visible = true;
-				if(timeout) infoTimer.start();
-            }
-            private function infoToggle():void {				
-				if(descriptions.visible) infoHide();
-				else infoShow(false); // no timeout, since this a manual action
-            }
             private function onPlayListDone():void {
             	if(props.get('loop')) { 
             		load();
@@ -436,16 +395,21 @@
 			</mx:VBox>
 		</mx:Canvas>	
 	</mx:Canvas>
-		
+	</mx:Canvas>
+
+	
+	
+	
 	<!-- Tray -->
 	<mx:VBox id="tray" 
-		width="{video.width-20}" 
+		width="100%" 
 		horizontalScrollPolicy="off" 
 		verticalScrollPolicy="off" 
-		horizontalCenter="0"
 		verticalGap="1"
-		visible="false"
-		bottom="10"
+		visible="true"
+		bottom="0"
+		left="0"
+		right="0"
 		>
 
 		<!-- PlayList -->
@@ -505,36 +469,6 @@
 				fontSize="11" /> 
 		</mx:VBox>
 		<!-- /Embed panel -->
-		
-		<!-- Words panel -->
-		<mx:VBox id="descriptions" 
-			width="100%" 
-			horizontalGap="1" 
-			horizontalScrollPolicy="off" 
-			verticalScrollPolicy="off" 
-			visible="false"
-			backgroundColor="{(styleManager.getColorName(props.get('trayBackgroundColor')) as Number)}" 
-			backgroundAlpha="{(props.get('trayAlpha') as Number)}" 
-			includeInLayout="{descriptions.visible}"
-			fontFamily="{props.get('trayFont')}" 
-			color="{(styleManager.getColorName(props.get('trayTextColor')) as Number)}" 
-			>
-			<mx:Text id="trayContent" 
-				paddingLeft="10" 
-				paddingTop="5" 
-				fontSize="{(props.get('trayContentFontSize') as Number)}" 
-				fontWeight="{props.get('trayContentFontWeight')}" 
-				color="{(styleManager.getColorName(props.get('trayTextColor')) as Number)}" 
-				htmlText="{activeElement.get('content')}" 
-				truncateToFit="true" 
-				maxWidth="{FlexGlobals.topLevelApplication.width}" 
-				updateComplete="trayContent.visible = (trayContent.text.length>0);" 
-				height="{(props.get('trayContentFontSize') as Number)*4.8}" 
-				width="{descriptions.width - 15}"
-				/>
-		</mx:VBox>
-		<!-- /Words panel -->
-		
 	
 		<mx:VBox 
 			id="videoControls"
@@ -578,7 +512,7 @@
 					paddingRight="8"
 					horizontalScrollPolicy="off" 
 					verticalScrollPolicy="off" 
-					width="{video.width-61}"
+					width="{tray.width-61}"
 					height="45"
 					clipContent="false"
 					>
@@ -725,5 +659,4 @@
 						 />
 		</com:TextPanel> 
 		<!-- / Text panel for post-roll -->
-	</mx:Canvas>
 </mx:Application>

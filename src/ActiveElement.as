@@ -19,6 +19,8 @@ private function resetActiveElement(skip:Boolean=false):void {
   	activeElement.put('title', '');
   	activeElement.put('content', '');
   	activeElement.put('link', '');
+	activeElement.put('evaluate_video', '');
+	activeElement.put('player_link', '');
   	activeElement.put('videoSource', '');
   	activeElement.put('photoSource', '');
   	activeElement.put('photoWidth', new Number(0));
@@ -62,6 +64,8 @@ private function setActiveElementToLiveStream(stream:Object, startPlaying:Boolea
 	activeElement.put('content', "");
 	activeElement.put('hasInfo', false);
 	activeElement.put('link', stream.one);
+	activeElement.put('evaluate_video', '');
+	activeElement.put('player_link', '');
 	activeElement.put('length', 0); 
 	activeElement.put('start', 0);
 	omniture.videoOffset = 0;
@@ -83,11 +87,6 @@ private function setActiveElementToLiveStream(stream:Object, startPlaying:Boolea
 	
 	// Make embed code current
 	updateCurrentVideoEmbedCode();
-	
-	
-	// We want the tray and possible the info box to show up when a new element starts playing
-	infoShow();
-	trayShow();
 	
 	// Note that we've loaded the video 
 	reportEvent('load');
@@ -113,6 +112,10 @@ private function setActiveElement(i:int, startPlaying:Boolean=false, start:Numbe
   	activeElement.put('content', content);
   	activeElement.put('hasInfo', hasInfo);
   	activeElement.put('link', o.one);
+	activeElement.put('evaluate_video', (o.evaluate_video=='1'));
+	trace('evaluate_video', activeElement.getBoolean('evaluate_video'));
+	activeElement.put('player_link', o.player_link);
+	trace('player_link', activeElement.getString('player_link'));
   	activeElement.put('length', o.video_length); 
   	activeElement.put('start', start);
 	omniture.videoOffset = start;
@@ -196,10 +199,6 @@ private function setActiveElement(i:int, startPlaying:Boolean=false, start:Numbe
 
 	// Make embed code current
 	updateCurrentVideoEmbedCode();
-
-	// We want the tray and possible the info box to show up when a new element starts playing
-	infoShow();
-	trayShow();
 
 	// Note that we've loaded the video 
 	reportEvent('load');

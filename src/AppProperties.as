@@ -30,10 +30,10 @@ public var propDefaults:Object = {
 	logoAlpha: parseFloat('0.7'),
 	logoWidth: parseFloat('80'),
 	logoHeight: parseFloat('40'),
-	verticalPadding: parseFloat('0'),
+	verticalPadding: parseFloat('45'),
 	horizontalPadding: parseFloat('0'),
 	trayTimeout: parseFloat('0'),
-	infoTimeout: parseFloat('5000'),
+	infoTimeout: parseFloat('0'),
 	recommendationHeadline: 'Also have a look at...',
 	identityCountdown: false,
 	identityAllowClose: true,
@@ -150,12 +150,6 @@ private function initProperties(settings:Object):void {
 	props.put('logoAlign', (new RegExp('left').test(pos) ? 'left' : 'right'));
 	props.put('logoVAlign', (new RegExp('top').test(pos) ? 'top' : 'bottom'));
 
-	// Tray and information timeout
-	trayTimer.delay = props.getNumber('trayTimeout');
-	trayTimer.reset();
-	infoTimer.delay = props.getNumber('infoTimeout');
-	infoTimer.reset();
-	
 	// Make the embed code current
 	updateCurrentVideoEmbedCode();
 	

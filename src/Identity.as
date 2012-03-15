@@ -7,7 +7,6 @@ import mx.events.VideoEvent;
 public var currentIdentityEvent = '';
 public function showIdentityVideo(event:String, url:String, link:String, callback:Function):void {
 	videoControls.visible = video.visible = false;
-	infoHide();
 	playListHide();
 	identityVideo.visible = true;
 	identityVideo.source = url;
@@ -19,7 +18,6 @@ public function showIdentityVideo(event:String, url:String, link:String, callbac
 	var onComplete:Function = function():void {
 			if(!identityVideo.visible) return;
 			playListShow();
-			infoShow();
 			identityVideo.stop();
 			identityVideo.source = null;
 			identityVideo.visible = false;
