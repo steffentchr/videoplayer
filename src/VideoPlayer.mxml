@@ -19,8 +19,18 @@
 	resize="resizeTray();" 
 	>
 	<mx:Style>
+		@font-face {
+			src:url("assets/buttons/Telenor.otf");
+			fontFamily: Telenor;
+			advancedAntiAliasing: true;
+		} 
+		@font-face {
+			src:url("assets/buttons/Telenor.otf");
+			fontFamily: Helvetica;
+			advancedAntiAliasing: true;
+		} 
      Application {
-     	fontFamily: Helvetica,Arial;
+     	fontFamily: Telenor,Helvetica,Arial;
      }
 	</mx:Style>
  	<mx:Script source="Utility.as"></mx:Script>
@@ -250,6 +260,33 @@
 	            	tray.visible = before;
 	            }
             }
+			
+			public var showQuestion:Boolean = true;
+			public function answerQuestion(answer:String):void {
+				omniture.trackEvent(answer);
+				questionButtons.visible=false; 
+				questionAnswer.visible=true;
+			}
+			
+			public function clearQuestion():void {
+				if(activeElement.getBoolean('evaluate_video')) {
+					questionButtons.visible=true; 
+					questionAnswer.visible=false;
+					questionFeedback.visible=true;
+				} else {
+					questionButtons.visible=false; 
+					questionAnswer.visible=true;
+					questionFeedback.visible=false;
+				}
+				if (props.getString('source') != 'site' && props.getString('source') != 'telenor') {
+					questionLink.visible = true;
+					showQuestion = true;
+				} else {
+					questionLink.visible = false;
+					showQuestion = activeElement.getBoolean('evaluate_video');
+				}
+			}
+			
 		]]>
 	</mx:Script>	
 	
@@ -379,10 +416,10 @@
 			/> 
 	</mx:Box>
 
-	<mx:Canvas id="question" width="100%" height="100%" backgroundColor="black" verticalScrollPolicy="off" horizontalScrollPolicy="off" visible="{showPlayList}" includeInLayout="{playListContainer.visible}">		
+	<mx:Canvas id="question" width="100%" height="100%" backgroundColor="black" verticalScrollPolicy="off" horizontalScrollPolicy="off" visible="{showPlayList &amp;&amp; showQuestion}" includeInLayout="{playListContainer.visible}">		
 		<mx:Canvas id="questionButtons" width="100%" height="{question.height-tray.height}" verticalScrollPolicy="off" horizontalScrollPolicy="off">
 			<mx:VBox verticalScrollPolicy="off" horizontalScrollPolicy="off" verticalCenter="0" horizontalCenter="0" horizontalAlign="center" verticalGap="15">
-				<mx:Image source="@Embed(source='assets/buttons/telenor-question.png')" />
+				<mx:Text text="Hjalp denne video dig?" color="white" fontSize="40" />
 				<mx:HBox horizontalGap="15">
 					<mx:Image source="@Embed(source='assets/buttons/telenor-yes.png')" buttonMode="true" click="answerQuestion('yes');" />
 					<mx:Image source="@Embed(source='assets/buttons/telenor-no.png')" buttonMode="true" click="answerQuestion('no');"/>
@@ -391,10 +428,17 @@
 		</mx:Canvas>
 		<mx:Canvas id="questionAnswer" width="100%" height="{question.height-tray.height}" verticalScrollPolicy="off" horizontalScrollPolicy="off" visible="false">
 			<mx:VBox verticalScrollPolicy="off" horizontalScrollPolicy="off" verticalCenter="0" horizontalCenter="0" horizontalAlign="center">
-				<mx:Image source="@Embed(source='assets/buttons/telenor-answer.png')" buttonMode="true" click="goToUrl('http://www.telenor.dk');" />
+				<mx:Text id="questionFeedback" text="Tak for din feedback" color="white" fontSize="40" />
+				<mx:HBox id="questionLink" buttonMode="true" click="goToUrl(activeElement.getString('player_link'));" useHandCursor="true">
+					<mx:Image source="@Embed(source='assets/buttons/telenor-arrow.png')"  buttonMode="true" useHandCursor="true" />
+					<mx:Text text="{activeElement.getString('player_link_text')}" fontSize="18" color="#149FEB" selectable="false" buttonMode="true" useHandCursor="true" />
+				</mx:HBox>
 			</mx:VBox>
 		</mx:Canvas>	
 	</mx:Canvas>
+		
+		
+		
 	</mx:Canvas>
 
 	
@@ -410,6 +454,7 @@
 		bottom="0"
 		left="0"
 		right="0"
+		backgroundColor="white"
 		>
 
 		<!-- PlayList -->

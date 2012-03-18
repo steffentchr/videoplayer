@@ -60,7 +60,7 @@ public function reportEvent(event:String):void {
 	} catch(e:Error) {}
 	try {
 		if(event=='load'){
-			omniture.load(activeElement.getString('title') + ' (' + activeElement.getString('photo_id') + ')', activeElement.getNumber('length'));
+			omniture.load(activeElement.getString('title') + ' (' + activeElement.getString('photo_id') + ')', activeElement.getNumber('length'), props.getString('source'));
 		}
 	} catch(e:Error) {}	
 }
@@ -68,14 +68,4 @@ public function reportEvent(event:String):void {
 public function goToUrl(url:String, target:String = '_top'):void {
 	if(!new RegExp('\:\/\/').test(url)) url = props.get('site_url') + url;
     navigateToURL(new URLRequest(url), target);
-}
-
-public function answerQuestion(answer:String):void {
-	questionButtons.visible=false; 
-	questionAnswer.visible=true;
-}
-
-public function clearQuestion():void {
-	questionButtons.visible=true; 
-	questionAnswer.visible=false;
 }

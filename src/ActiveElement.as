@@ -20,6 +20,7 @@ private function resetActiveElement(skip:Boolean=false):void {
   	activeElement.put('content', '');
   	activeElement.put('link', '');
 	activeElement.put('evaluate_video', '');
+	activeElement.put('player_link_text', '');
 	activeElement.put('player_link', '');
   	activeElement.put('videoSource', '');
   	activeElement.put('photoSource', '');
@@ -65,6 +66,7 @@ private function setActiveElementToLiveStream(stream:Object, startPlaying:Boolea
 	activeElement.put('hasInfo', false);
 	activeElement.put('link', stream.one);
 	activeElement.put('evaluate_video', '');
+	activeElement.put('player_link_text', '');
 	activeElement.put('player_link', '');
 	activeElement.put('length', 0); 
 	activeElement.put('start', 0);
@@ -113,13 +115,14 @@ private function setActiveElement(i:int, startPlaying:Boolean=false, start:Numbe
   	activeElement.put('hasInfo', hasInfo);
   	activeElement.put('link', o.one);
 	activeElement.put('evaluate_video', (o.evaluate_video=='1'));
-	trace('evaluate_video', activeElement.getBoolean('evaluate_video'));
-	activeElement.put('player_link', o.player_link);
-	trace('player_link', activeElement.getString('player_link'));
+	activeElement.put('player_link', (o.player_link.length ? o.player_link : 'http://www.telenor.dk'));
+	activeElement.put('player_link_text', (o.player_link_text ? o.player_link_text : (o.player_link.length ? 'Læs mere på Telenor.dk' : 'Besøg Telenor.dk')));
+
   	activeElement.put('length', o.video_length); 
   	activeElement.put('start', start);
 	omniture.videoOffset = start;
   	activeElement.put('skip', skip);
+	clearQuestion();
 
 	// PlayFlow
 	activeElement.put('beforeDownloadType', o.before_download_type);

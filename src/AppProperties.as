@@ -12,7 +12,7 @@ public var propDefaults:Object = {
 	backgroundColor: 'black',
 	trayBackgroundColor: '#1498E0',
 	trayTextColor: 'white',
-	trayFont: 'Helvetica, Arial, sans-serif',
+	trayFont: 'Telenor, Helvetica, Arial, sans-serif',
 	trayTitleFontSize: parseFloat('15'),
 	trayTitleFontWeight: 'bold',
 	trayContentFontSize: parseFloat('11'),
@@ -62,7 +62,7 @@ public var propDefaults:Object = {
 	autoPlay: false,
 	loop: false,
 	playHD: false,
-	source: '',
+	source: 'embed',
 	referer: ''
 }
 private function initLoadURL():void{
@@ -197,6 +197,10 @@ private function initProperties(settings:Object):void {
 				}
 			});
 		} catch(e:Error) {}
+	}
+	
+	if(/\/\/[^\/]*telenor.dk\//img.test(props.getString('referer'))) {
+		props.put('source', 'telenor');
 	}
 }
 
