@@ -19,16 +19,6 @@
 	resize="resizeTray();" 
 	>
 	<mx:Style>
-		@font-face {
-			src:url("assets/buttons/Telenor.otf");
-			fontFamily: Telenor;
-			advancedAntiAliasing: true;
-		} 
-		@font-face {
-			src:url("assets/buttons/Telenor.otf");
-			fontFamily: Helvetica;
-			advancedAntiAliasing: true;
-		} 
      Application {
      	fontFamily: Telenor,Helvetica,Arial;
      }
