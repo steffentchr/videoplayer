@@ -27,8 +27,8 @@ package com.visual{
 			this.appMeasurement.trackingServer = "ecapacity.122.2o7.net";
 			this.appMeasurement.account = "ecapadev";
 			*/
-			this.appMeasurement.visitorNamespace = "sonofontelenorprod";
-			this.appMeasurement.trackingServer = "sonofontelenorprod.122.2o7.net";
+			this.appMeasurement.visitorNamespace = "sonofon";
+			this.appMeasurement.trackingServer = "sonofon.112.2o7.net";
 			this.appMeasurement.account = "sonofontelenorprod";
 			
 			/* Turn on and configure debugging here */
