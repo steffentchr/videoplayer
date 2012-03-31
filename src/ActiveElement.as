@@ -88,9 +88,6 @@ private function setActiveElementToLiveStream(stream:Object, startPlaying:Boolea
 	updateCurrentVideoEmbedCode();
 	
 	
-	// We want the tray and possible the info box to show up when a new element starts playing
-	infoShow();
-	
 	// Note that we've loaded the video 
 	reportEvent('load');
 
@@ -206,9 +203,6 @@ private function setActiveElement(i:int, startPlaying:Boolean=false, start:Numbe
 
 	// Make embed code current
 	updateCurrentVideoEmbedCode();
-
-	// We want the tray and possible the info box to show up when a new element starts playing
-	infoShow();
 
 	// Note that we've loaded the video 
 	reportEvent('load');

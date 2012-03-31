@@ -32,6 +32,19 @@
 			public function set hasBorder(border:Boolean) {
 				this.setStyle('borderThickness', (border ? 1 : 0));
 			}
+
+			private var _activated:Boolean = false;
+			public function set activated(a:Boolean) {
+				_activated = a;
+				if(a) {
+					this.setStyle('backgroundColor', 'white');
+					imageContainer.alpha = 1;
+				} else {
+					this.setStyle('backgroundColor', '');
+					imageContainer.alpha = 0.9;
+				}
+			}
+			
 			private var _imageWidth:int, _imageHeight:int;
 			public function set imageSource(source:Object):void {
 				imageContainer.alpha = 0.9;
@@ -52,6 +65,7 @@
 				imageContainer.alpha = 1;
 			}
 	        private function onButtonMouseOut(e:Event):void {
+				if(_activated) return;
 				e.currentTarget.setStyle('backgroundColor', '');
 				imageContainer.alpha = 0.9;
 	        }

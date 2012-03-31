@@ -121,7 +121,6 @@
 						}, (props.getBoolean('browseMode') ? 0 : 5000));
 					}
 				}
-				infoShow();
 				applicationLoaded = true;
 			}
 			
@@ -162,12 +161,7 @@
 			private function playListHide():void {
 				showPlayList = false;
             }
-			private var infoTimer:Timer = new Timer(3000,1);
             private function prepareTimers():void {
-            	// INFORMATION BOX WITH TITLE AND DESCRIPTION
-            	// Hide when the timer completes
-				infoTimer.addEventListener(TimerEvent.TIMER_COMPLETE, function():void{infoHide();});
-				
 				// PLAY EVENTS
 				// Report plays back to analytics continously
 				setInterval(function():void{
@@ -177,14 +171,11 @@
 					}, 30000);
             }             
             private function infoHide():void {
-            	if(props.getNumber('infoTimeout')<=0) return;
 				descriptions.visible = false;
             }
             private function infoShow(timeout:Boolean=true):void {
             	if(!activeElement.get('hasInfo') || !props.get('showDescriptions')) {descriptions.visible = false; return;}
-				infoTimer.stop();
 				descriptions.visible = true;
-				if(timeout) infoTimer.start();
             }
             private function infoToggle():void {				
 				if(descriptions.visible) infoHide();
@@ -300,6 +291,11 @@
 		horizontalCenter="0" 
 		visible="{(applicationLoaded &amp;&amp; (props.get('showBigPlay') as Boolean) &amp;&amp; cleanVideoState=='paused' &amp;&amp; !identityVideo.playing)}" 
 		click="playVideoElement()"
+		alpha="0.6"
+		mouseOver="{bigPlayImage.alpha=1;}"
+		mouseOut="{bigPlayImage.alpha=0.6;}"
+		buttonMode="true"
+		useHandCursor="true"
 		/>
  	
 	<!-- Extra displays for identity video and photo -->
@@ -358,82 +354,59 @@
 			   />
 
 	
-	<mx:VBox 
-		verticalGap="0"
+	<mx:VBox id="descriptions"
+		bottom="40"
+		horizontalScrollPolicy="off" 
+		verticalScrollPolicy="off" 
+		fontFamily="Verdana, Helvetica, Arial, sans-serif;" 
+		backgroundColor="white" 
+		width="100%"
+		visible="false"
+		paddingTop="20"
+		paddingRight="45"
+		paddingBottom="20"
+		paddingLeft="20"
 		>
-		<mx:VBox id="descriptions" 
-				 horizontalScrollPolicy="off" 
-				 verticalScrollPolicy="off" 
-				 fontFamily="{props.get('trayFont')}" 
-				 color="{(styleManager.getColorName(props.get('trayTextColor')) as Number)}" 
-				 paddingLeft="2" 
-				 paddingRight="2" 
-				 width="{tray.width}"
-				 visible="false"
-				 >
 			<!-- Title and Words -->
-			<mx:Box id="descBg" 
-					horizontalCenter="0" 
-					verticalCenter="0" 
-					verticalGap="0" 
-					backgroundColor="{(styleManager.getColorName(props.get('trayBackgroundColor')) as Number)}" 
-					backgroundAlpha="{(props.get('trayAlpha') as Number)}" 
-					cornerRadius="2" 
-					borderStyle="solid" 
-					borderThickness="0" 
-					width="100%" 
-					paddingTop="6" 
-					paddingBottom="6" 
-					paddingLeft="6" 
-					paddingRight="6"
-					>
-				<mx:Label id="trayTitle" 
-						  fontSize="{(props.get('trayTitleFontSize') as Number) || 10}" 
-						  fontWeight="{props.get('trayTitleFontWeight')}" 
-						  text="{activeElement.get('title')}" 
-						  truncateToFit="true" 
-						  maxWidth="{FlexGlobals.topLevelApplication.width}" 
-						  updateComplete="trayTitle.visible = (trayTitle.text.length>0);" 
-						  width="{descBg.width - 15}"
-						  />
-				<mx:Text id="trayContent" 
-						 fontSize="{(props.get('trayContentFontSize') as Number) || 10}" 
-						 fontWeight="{props.get('trayContentFontWeight')}" 
-						 htmlText="{activeElement.get('content')}" 
-						 truncateToFit="true" 
-						 maxWidth="{FlexGlobals.topLevelApplication.width}" 
-						 updateComplete="trayContent.visible = (trayContent.text.length>0);" 
-						 height="{(props.get('trayContentFontSize') as Number)*3.2}" 
-						 width="{descBg.width - 15}"
-						 />
-			</mx:Box>
-		</mx:VBox>
+			<mx:Label id="trayTitle" 
+				fontSize="15"
+				color="black"
+				text="{activeElement.get('title')}" 
+				truncateToFit="true" 
+				width="100%"
+				/>
+			<mx:Text id="trayContent" 
+				fontSize="13"
+				color="#666666"
+				text="{activeElement.get('content')}" 
+				truncateToFit="true" 
+				width="100%"
+				maxHeight="39"
+				/>
 	</mx:VBox>
 
-		<!-- PlayList -->
-		<mx:Canvas id="playListContainer" 
-				   height="{playListHolder.height}" 
-				   width="{tray.width}" 
-				   backgroundColor="black" 
-				   borderColor="black" 
-				   borderSides="top" 
-				   borderStyle="solid" 
-				   borderThickness="5">
-			<mx:Canvas id="playListHolder" 
-					   bottom="0" 
-					   width="{tray.width}" 
-					   verticalScrollPolicy="off" 
-					   horizontalScrollPolicy="off" 
-					   resize="onPlayListResize()"
-					   />
-		</mx:Canvas>					
+	<!-- PlayList -->
+	<mx:Canvas id="playListContainer" 
+		height="{playListHolder.height}" 
+		width="{tray.width}" 
+		backgroundColor="black" 
+		borderColor="black" 
+		borderSides="top" 
+		borderStyle="solid" 
+		borderThickness="5">
+	<mx:Canvas id="playListHolder" 
+		bottom="0" 
+		width="{tray.width}" 
+		verticalScrollPolicy="off" 
+		horizontalScrollPolicy="off" 
+		resize="onPlayListResize()"
+		/>
+	</mx:Canvas>					
 
 	
 	<!-- Tray -->
 	<mx:Canvas id="tray" 
-
 		bottom="0" 
-		top="0"
 		height="40"
 		width="100%" 
 		horizontalScrollPolicy="off" 
@@ -488,7 +461,8 @@
 						<!-- PlayListBtn -->
 			    		<com:PlayerButton id="playlistBtn" 
 			    			imageSource="@Embed(source='assets/buttons/playlist.png')"
-			    			visible="{enablePlayList &amp;&amp; showPlayList}" 
+			    			visible="{enablePlayList}"
+							activated="{showPlayList}"
 			    			click="playListHide()"
 			    			/>
 
@@ -497,6 +471,7 @@
 										  imageSource="@Embed(source='assets/buttons/info.png')"
 										  visible="{(activeElement.get('hasInfo') as Boolean) &amp;&amp; (props.get('showDescriptions') as Boolean)}" 
 										  click="infoToggle();"
+										  activated="{descriptions.visible}"
 										  />
 					    <!-- HDbutton-->
 			    		<com:PlayerButton id="hdBtn" 
@@ -529,6 +504,7 @@
 			    			imageSource="@Embed(source='assets/buttons/share.png')"
 			    			visible="{(props.get('showShare') as Boolean)}" 
 			    			click="embedPanel.visible=props.get('showShare') &amp;&amp; !embedPanel.visible;"
+							activated="{embedPanel.visible}"
 			    			/>
 					</mx:HBox>
 			
@@ -536,32 +512,22 @@
 	
 	<!-- Embed panel -->
 	<com:TextPanel id="embedPanel" 
-		backgroundColor="{(styleManager.getColorName(props.get('backgroundColor')) as Number)}"
 		title="Share this video"
 		show="{reportEvent('shareEngaged');}"
 		>
 
 		<!-- Embed section -->		
-		<mx:HBox 
-			horizontalGap="5" 
-			verticalAlign="middle"
-			paddingTop="5"
+		<mx:VBox 
+			width="500"
+			paddingBottom="18"
+			clipContent="true"
+			horizontalScrollPolicy="off"
+			verticalScrollPolicy="off"
+			  horizontalCenter="0"
 			>
 			<mx:Image 
 				source="@Embed('assets/buttons/share-embed.png')"
 				/>
-			<mx:Label 
-				text="Embed:" 
-				fontSize="13" 
-				fontWeight="bold" 
-				color="white"
-				/>
-		</mx:HBox>
-		<mx:HBox 
-			horizontalGap="10" 
-			width="100%"
-			paddingBottom="10"
-			>
 			<mx:TextArea id="embedText" 
 				paddingTop="3"
 				paddingRight="3"
@@ -573,52 +539,58 @@
 				click="{reportEvent('embedEngaged'); embedText.setFocus(); embedText.selectionBeginIndex = 0; embedText.selectionEndIndex = embedText.text.length;}" 
 				backgroundColor="white" 
 				color="#333" 
-				fontSize="11" 
+				fontSize="11"
+				borderStyle="solid"
+				borderThickness="1"
+				borderColor="#aaaaaa"
+				cornerRadius="10"
 				/>
-		</mx:HBox>
+		</mx:VBox>
 
-		<!-- Share section -->		
-		<mx:VBox
-			visible="{(props.get('showShare') as Boolean)}"
-			verticalGap="5"
+		<mx:Canvas
 			width="100%"
-			paddingTop="10" 
-			borderColor="#666666"
+			borderColor="#cccccc"
 			borderStyle="solid"
 			borderSides="top"
 			borderThickness="1"
+			/>
+		<!-- Share section -->		
+		<mx:HBox 
+			horizontalGap="20"
+			verticalAlign="bottom"
+			visible="{(props.get('showShare') as Boolean)}"
+			width="500"
+			paddingTop="18"
+			clipContent="true"
+			horizontalScrollPolicy="off"
+			verticalScrollPolicy="off"
 			>
-			<mx:HBox 
-				horizontalGap="3"
-				>
-
-				<mx:Image 
-					source="@Embed(source='assets/buttons/share-facebook.png')"
-					visible="{props.get('socialSharing') &amp;&amp; activeElement.get('link')!=''}"
-					click="{goToUrl(activeElement.get('link') + '/facebook?player_id=' + props.get('player_id'))}"
-					/>
-				<mx:Image 
-					source="@Embed(source='assets/buttons/share-linkedin.png')"
-					visible="{props.get('socialSharing') &amp;&amp; activeElement.get('link')!=''}"
-					click="{goToUrl(activeElement.get('link') + '/twitter?player_id=' + props.get('player_id'))}"
-					/>
-				<mx:Image 
-					source="@Embed(source='assets/buttons/share-linkedin.png')"
-					visible="{props.get('socialSharing') &amp;&amp; activeElement.get('link')!=''}"
-					click="{goToUrl(activeElement.get('link') + '/linkedin?player_id=' + props.get('player_id'))}"
-					/>
-				<mx:Image 
-					source="@Embed(source='assets/buttons/share-rss.png')"
-					visible="{props.get('rssLink')!=''}"
-					click="{goToUrl(props.get('rssLink') as String)}"
-					/>
-				<mx:Image 
-					source="@Embed(source='assets/buttons/share-podcast.png')"
-					visible="{props.get('podcastLink')!=''}"
-					click="{goToUrl(props.get('podcastLink') as String)}"
-					/>
-			</mx:HBox>
-		</mx:VBox> 
+			<mx:Image 
+				source="@Embed(source='assets/buttons/share-facebook.png')"
+				visible="{props.get('socialSharing') &amp;&amp; activeElement.get('link')!=''}"
+				click="{goToUrl(activeElement.get('link') + '/facebook?player_id=' + props.get('player_id'))}"
+				/>
+			<mx:Image 
+				source="@Embed(source='assets/buttons/share-twitter.png')"
+				visible="{props.get('socialSharing') &amp;&amp; activeElement.get('link')!=''}"
+				click="{goToUrl(activeElement.get('link') + '/twitter?player_id=' + props.get('player_id'))}"
+				/>
+			<mx:Image 
+				source="@Embed(source='assets/buttons/share-linkedin.png')"
+				visible="{props.get('socialSharing') &amp;&amp; activeElement.get('link')!=''}"
+				click="{goToUrl(activeElement.get('link') + '/linkedin?player_id=' + props.get('player_id'))}"
+				/>
+			<mx:Image 
+				source="@Embed(source='assets/buttons/share-rss.png')"
+				visible="{props.get('rssLink')!=''}"
+				click="{goToUrl(props.get('rssLink') as String)}"
+				/>
+			<mx:Image 
+				source="@Embed(source='assets/buttons/share-podcast.png')"
+				visible="{props.get('podcastLink')!=''}"
+				click="{goToUrl(props.get('podcastLink') as String)}"
+				/>
+		</mx:HBox>
 	</com:TextPanel>
 	<!-- /Embed panel -->
 

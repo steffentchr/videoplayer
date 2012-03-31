@@ -3,14 +3,14 @@
 	xmlns:mx="http://www.adobe.com/2006/mxml"
 	verticalScrollPolicy="off" 
 	horizontalScrollPolicy="off"
-	x="0"
-	y="0"
+	top="0"
+	bottom="40"
+	left="0"
+	width="100%"
 	visible="false"
 	includeInLayout="false"
-	width="100%" 
-	height="100%"
-	backgroundColor="black" 
-	backgroundAlpha="0.8"
+	backgroundColor="white" 
+	backgroundAlpha="0.9"
 	creationComplete="addComponents()" 
 	>
 	
@@ -44,38 +44,33 @@
 			}
 		]]>
 	</mx:Script>
-	<mx:VBox id="textPanelScreen" 
+	<!-- Title -->		
+	<mx:Canvas 
+		width="100%"
+		borderColor="#cccccc"
+		borderStyle="solid"
+		borderSides="bottom"
+		borderThickness="1"
+		>
+		<mx:Label id="textPanelTitle" 
+			top="0" 
+			left="0" 
+			fontSize="20" 
+			color="#999999"
+			paddingTop="5"
+			paddingLeft="12"
+			paddingBottom="5"
+			fontFamily="Verdana, Helvetica, Arial, sans-serif"
+			text="{_title.toUpperCase()}"
+			/>
+	</mx:Canvas>
+
+	<mx:Box id="container" 
 		horizontalScrollPolicy="off" 
 		verticalScrollPolicy="off" 
 		verticalCenter="0" 
 		horizontalCenter="0"
-		verticalGap="10" 
-		width="95%" 
-		maxWidth="700"
-		>
-
-		<!-- Title and close section -->		
-		<mx:Canvas 
-			height="26" 
-			width="100%"
-			borderColor="#666666"
-			borderStyle="solid"
-			borderSides="bottom"
-			borderThickness="1"
-			>
-			<mx:Label id="textPanelTitle" 
-				top="0" 
-				left="0" 
-				fontSize="20" 
-				fontWeight="bold" 
-				color="white" 
-				fontFamily="Helvetica, Arial, sans-serif"
-				text="{_title}"
-				/>
-		</mx:Canvas>
-
-		<mx:Box id="container"
-			width="100%"
-			/>			
-	</mx:VBox>
+		width="100%"
+		  horizontalAlign="center"
+		/>
 </mx:Canvas>

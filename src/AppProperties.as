@@ -11,14 +11,14 @@ private var prioritizeLiveStreams:Boolean = false;
 public var propDefaults:Object = {
 	settingsLoaded: false,
 	backgroundColor: '#c0c0c0',
-	trayBackgroundColor: 'black',
-	trayTextColor: 'white',
-	trayFont: 'Helvetica, Arial, sans-serif',
+	trayBackgroundColor: 'white',
+	trayTextColor: '#666666',
+	trayFont: 'Verdana, Helvetica, Arial, sans-serif',
 	trayTitleFontSize: parseFloat('13'),
-	trayTitleFontWeight: 'bold',
-	trayContentFontSize: parseFloat('11'),
+	trayTitleFontWeight: 'normal',
+	trayContentFontSize: parseFloat('13'),
 	trayContentFontWeight: 'normal',
-	trayAlpha: parseFloat('0.8'),
+	trayAlpha: parseFloat('1'),
 	showTray: true,
 	showDescriptions: true,
 	logoSource: '',
@@ -129,10 +129,6 @@ private function initProperties(settings:Object):void {
 	  	}
 	}
 
-	
-	// Information timeout
-	infoTimer.delay = props.getNumber('infoTimeout');
-	infoTimer.reset();
 	
 	// Make the embed code current
 	updateCurrentVideoEmbedCode();
