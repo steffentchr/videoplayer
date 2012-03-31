@@ -43,11 +43,11 @@ private function resetActiveElement(skip:Boolean=false):void {
 	identityVideo.close();
 	showBeforeIdentity = true;
 	showVideoAd = true;
-	liveStreamsMenu.value = null;
+	//stc// liveStreamsMenu.value = null;
 
 	if(!skip) {
 		progress.setSections([]);
-		subtitles.suppportedLocales = {}; subtitlesMenu.options = [];
+		//stc// subtitles.suppportedLocales = {}; subtitlesMenu.options = [];
 	}
 }
 
@@ -68,7 +68,7 @@ private function setActiveElementToLiveStream(stream:Object, startPlaying:Boolea
 	activeElement.put('live', true);
 	activeElement.put('one', props.get('site_url') + stream.one); 
 	supportedFormats = ['live'];
-	formatsMenu.options = [];
+	//stc// formatsMenu.options = [];
 	activeElement.put('photoSource', props.get('site_url') + stream.large_download);
 	activeElement.put('videoSource', stream.rtmp_stream);
 	video.source = getFullVideoSource();
@@ -90,7 +90,6 @@ private function setActiveElementToLiveStream(stream:Object, startPlaying:Boolea
 	
 	// We want the tray and possible the info box to show up when a new element starts playing
 	infoShow();
-	trayShow();
 	
 	// Note that we've loaded the video 
 	reportEvent('load');
@@ -158,6 +157,7 @@ private function setActiveElement(i:int, startPlaying:Boolean=false, start:Numbe
 	
 	// Get sections and show, otherwise reset
 	if(!skip) {
+		/*stc
 		if(o.subtitles_p && props.get('enableSubtitles')) {
 			try {
 				doAPI('/api/photo/subtitle/list', {photo_id:o.photo_id, token:o.token, subtitle_format:'json', stripped_p:'1'}, function(sub:Object):void{
@@ -181,8 +181,10 @@ private function setActiveElement(i:int, startPlaying:Boolean=false, start:Numbe
 		} else {
 			subtitles.suppportedLocales = {}; subtitlesMenu.options = [];
 		}
+		*/
 	
-		// Get subtitles and show, otherwise reset
+		// Get sections and show, otherwise reset
+		/*stc
 		if(o.sections_p) {
 			try {
 				doAPI('/api/photo/section/list', {photo_id:o.photo_id, token:o.token}, function(sec:Object):void{progress.setSections(sec.sections);});
@@ -190,6 +192,7 @@ private function setActiveElement(i:int, startPlaying:Boolean=false, start:Numbe
 		} else {
 			progress.setSections([]);
 		}
+		*/
 	}
 
 	// Supported formats, default format and build menu
@@ -206,7 +209,6 @@ private function setActiveElement(i:int, startPlaying:Boolean=false, start:Numbe
 
 	// We want the tray and possible the info box to show up when a new element starts playing
 	infoShow();
-	trayShow();
 
 	// Note that we've loaded the video 
 	reportEvent('load');
@@ -240,7 +242,7 @@ private function prepareSupportedFormats(o:Object):void {
 	for (var i:Object in supportedFormats) {
 		_formats.push({value:supportedFormats[i].format, label:supportedFormats[i].label});
 	}
-	formatsMenu.options = _formats;	
+	//stc// formatsMenu.options = _formats;	
 }
 public function setVideoFormat(format:String):void {
 	var o:Object = null;

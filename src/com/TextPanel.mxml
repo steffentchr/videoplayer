@@ -63,12 +63,6 @@
 			borderSides="bottom"
 			borderThickness="1"
 			>
-			<mx:Image
-				buttonMode="true" 
-				top="2" 
-				right="0" 
-				source="@Embed('assets/buttons/close.swf')" 
-				click="{close();}"/>
 			<mx:Label id="textPanelTitle" 
 				top="0" 
 				left="0" 

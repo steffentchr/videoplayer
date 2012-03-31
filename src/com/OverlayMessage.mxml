@@ -36,11 +36,4 @@
 		fontSize="{this.getStyle('fontSize') || 10}" 
 		fontFamily="{this.getStyle('fontFamily')}" 
 		/>
-	<mx:Image
-		buttonMode="true" 
-		top="2" 
-		right="2" 
-		source="@Embed('assets/buttons/close.swf')"
-		visible="{_allowClose}" 
-		click="{closeHandler();}"/>
 </mx:Canvas>

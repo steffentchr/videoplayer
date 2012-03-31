@@ -10,7 +10,7 @@ import mx.utils.URLUtil;
 private var prioritizeLiveStreams:Boolean = false;
 public var propDefaults:Object = {
 	settingsLoaded: false,
-	backgroundColor: 'black',
+	backgroundColor: '#c0c0c0',
 	trayBackgroundColor: 'black',
 	trayTextColor: 'white',
 	trayFont: 'Helvetica, Arial, sans-serif',
@@ -31,7 +31,7 @@ public var propDefaults:Object = {
 	logoAlpha: parseFloat('0.7'),
 	logoWidth: parseFloat('80'),
 	logoHeight: parseFloat('40'),
-	verticalPadding: parseFloat('0'),
+	verticalPadding: parseFloat('40'),
 	horizontalPadding: parseFloat('0'),
 	trayTimeout: parseFloat('5000'),
 	infoTimeout: parseFloat('5000'),
@@ -129,33 +129,8 @@ private function initProperties(settings:Object):void {
 	  	}
 	}
 
-	// Test logoSource
-	if (props.get('logoSource')=='no logo' || props.get('logoSource')=='') {
-		props.put('showLogo', false);
-		props.put('logoSource', '');	
-	}
-	if(props.get('showLogo')) {
-		var logoRequest:URLRequest = new URLRequest((props.get('logoSource') as String));
-		var logoLoader:URLLoader = new URLLoader();
-		logoLoader.addEventListener(SecurityErrorEvent.SECURITY_ERROR, function(event:SecurityErrorEvent):void {
-			props.put('logoSource', ''); props.put('showLogo', false);
-		});
-		logoLoader.addEventListener(IOErrorEvent.IO_ERROR, function httpStatusHandler(e:Event):void {
-			props.put('logoSource', ''); props.put('showLogo', false);
-		});
-		logoLoader.load(logoRequest);
-	}
-
-	// Logo position
-	var pos:String = props.get('logoPosition').toString();
-	props.put('logoAlign', (new RegExp('left').test(pos) ? 'left' : 'right'));
-	props.put('logoVAlign', (new RegExp('top').test(pos) ? 'top' : 'bottom'));
-
-	props.put('settingsLoaded', true);
 	
-	// Tray and information timeout
-	trayTimer.delay = props.getNumber('trayTimeout');
-	trayTimer.reset();
+	// Information timeout
 	infoTimer.delay = props.getNumber('infoTimeout');
 	infoTimer.reset();
 	
@@ -189,6 +164,8 @@ private function initProperties(settings:Object):void {
 		} else {
 			streamOptions = {featured_p:1};
 		}
+		
+		/*stc
 		liveStreamsMenu.options = [];
 		liveStreamsMenu.value = null;
 		try {
@@ -209,6 +186,7 @@ private function initProperties(settings:Object):void {
 				}
 			});
 		} catch(e:Error) {}
+		*/
 	}
 }
 
@@ -286,13 +264,11 @@ private function bootstrapAds():void {
 				});
 		}
 		forceHideTray = true;
-		trayHide();
 		pauseVideoElement();
 	});
 	ads.addEventListener('contentResumeRequested', function():void{
 		forceHideTray = false;
 		adMessage.visible = false;
-		trayShow();
 		playVideoElement();
 	});
 	
