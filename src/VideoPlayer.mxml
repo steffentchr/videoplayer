@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- 
   Novo Nordisk Player for 23 Video
-  - Playlist
-  - Remove playerID
 -->
 <mx:Application 
 	xmlns:mx="http://www.adobe.com/2006/mxml" 
@@ -162,7 +160,14 @@
             }
 			private function playListHide():void {
 				showPlayList = false;
-            }
+			}
+			private function playListToggle():void {
+				if(showPlayList) {
+					playListHide();	
+				} else {
+					playListShow();	
+				}
+			}
             private function prepareTimers():void {
 				// PLAY EVENTS
 				// Report plays back to analytics continously
@@ -187,10 +192,7 @@
             	if(props.get('loop')) { 
             		load();
             	} else {
-            		if (playList) {
-            			playList.headline = new String(props.get('recommendationHeadline'));
-            			playListShow();
-            		}
+            		if (playList) playListShow();
             	}
             }
 			private function onVideoStateChange(evt:Event):void {
@@ -383,7 +385,7 @@
 	
 	<com:TextPanel id="playListContainer" 
 		title="Videos"
-		visible="false"
+		visible="{showPlayList}"
 		>
 		<mx:Canvas id="playListHolder" 
 			resize="onPlayListResize()"
@@ -450,7 +452,7 @@
 			    			imageSource="@Embed(source='assets/buttons/playlist.png')"
 			    			visible="{enablePlayList}"
 							activated="{showPlayList}"
-			    			click="playListHide()"
+			    			click="playListToggle()"
 			    			/>
 
 						<!-- InfoBtn -->
@@ -470,12 +472,12 @@
 
 						<!-- Mute and Unmute -->
 			    		<com:PlayerButton id="muteImage"
-			    			imageSource="@Embed(source='assets/buttons/mute.png')"
+			    			imageSource="@Embed(source='assets/buttons/unmute.png')"
 			    			visible="{videoControls.visible &amp;&amp; video.volume>0}" 
 			    			click="video.volume=0"
 			    			/>
 			    		<com:PlayerButton id="unmuteImage"
-			    			imageSource="@Embed(source='assets/buttons/unmute.png')"
+			    			imageSource="@Embed(source='assets/buttons/mute.png')"
 			    			visible="{videoControls.visible &amp;&amp; video.volume==0}" 
 			    			click="video.volume=1"
 			    			/>
@@ -483,7 +485,7 @@
 						<!-- Fullscreen -->
 			    		<com:PlayerButton id="fullscreenImage" 
 			    			imageSource="@Embed(source='assets/buttons/fullscreen.png')"
-			    			visible="{!inFullScreen}" 
+			    			activated="{inFullScreen}" 
 			    			click="toggleFullScreen()"
 			    			/>
 
