@@ -420,7 +420,6 @@
 			<mx:VBox verticalScrollPolicy="off" horizontalScrollPolicy="off" verticalCenter="0" horizontalCenter="0" horizontalAlign="center">
 				<mx:Text id="questionFeedback" text="Tak for din feedback" color="white" fontSize="40" />
 				<mx:HBox id="questionLink" buttonMode="true" click="goToUrl(activeElement.getString('player_link'));" useHandCursor="true">
-					<mx:Image source="@Embed(source='assets/buttons/telenor-arrow.png')"  buttonMode="true" useHandCursor="true" />
 					<mx:Text text="{activeElement.getString('player_link_text')}" fontSize="18" color="#149FEB" selectable="false" buttonMode="true" useHandCursor="true" />
 				</mx:HBox>
 			</mx:VBox>

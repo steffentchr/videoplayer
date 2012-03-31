@@ -38,7 +38,7 @@ package com.visual{
 			/* You may add or alter any code config here */
 			this.appMeasurement.pageName = "";
 			this.appMeasurement.pageURL = "";
-			this.appMeasurement.charSet = "UTF-8";
+			this.appMeasurement.charSet = "ISO-8859-1";
 			this.appMeasurement.currencyCode = "USD";
 
 			/* Turn on and configure ClickMap tracking here */
