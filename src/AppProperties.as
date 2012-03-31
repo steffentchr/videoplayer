@@ -129,7 +129,6 @@ private function initProperties(settings:Object):void {
 	  	}
 	}
 
-	
 	// Make the embed code current
 	updateCurrentVideoEmbedCode();
 	

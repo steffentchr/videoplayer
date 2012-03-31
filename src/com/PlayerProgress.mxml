@@ -27,13 +27,13 @@
 		<mx:Image id="videoBufferProgress" 
 			source="@Embed(source='assets/buttons/progress-buffer.png', scaleGridTop='3', scaleGridBottom='6', scaleGridLeft='50', scaleGridRight='51')"
 			width="0"
-			alpha="0.5" 
+			alpha="0.5"
 			maintainAspectRatio="false"
 			/>
 		<mx:Image id="videoPlayProgress" 
 			source="@Embed(source='assets/buttons/progress-played.png', scaleGridTop='3', scaleGridBottom='6', scaleGridLeft='50', scaleGridRight='51')"
 			width="0"
-			alpha="0.75" 
+			alpha="0.75"
 			maintainAspectRatio="false"
 			/>
 	</mx:Canvas>					
@@ -44,7 +44,8 @@
 	<!-- videoTime -->
 	<mx:Image id="videoDragHandle"
 		source="@Embed(source='assets/buttons/drag-handle.png')"
-		y="13" 
+		y="14" 
+		x="2"
 		useHandCursor="true"
 		buttonMode="true"
 		/>
@@ -89,7 +90,7 @@
 				}
 			}
 			private function timeFromPoint(x:int):int {
-				return Math.round((x-5)/videoProgress.width*activeElement.getNumber('length'));
+				return Math.round((x)/videoProgress.width*activeElement.getNumber('length'));
 			}
             public function seekVideoTo(time:int):void {
             	if(!_targetVideo) return;
@@ -113,21 +114,20 @@
             private function updateBuffer(e:Event):void {
             	if(!_targetVideo) return;
             	videoBufferProgress.x = activeElement.getNumber('start') / activeElement.getNumber('length') * videoProgress.width;
-            	videoBufferProgress.width = _targetVideo.bytesLoaded/_targetVideo.bytesTotal*(videoProgress.width-videoBufferProgress.x);
+            	if(_targetVideo.bytesTotal>0) videoBufferProgress.width = _targetVideo.bytesLoaded/_targetVideo.bytesTotal*(videoProgress.width-videoBufferProgress.x);
             }
             private function updatePlay(e:Event):void {
             	if(!_targetVideo) return;
 				videoPlayProgress.x = activeElement.getNumber('start') / activeElement.getNumber('length') * videoProgress.width;
-				videoPlayProgress.width  = _targetVideo.playheadTime/_targetVideo.totalTime*(videoProgress.width-videoPlayProgress.x);
+				if(_targetVideo.totalTime>0) videoPlayProgress.width  = _targetVideo.playheadTime/_targetVideo.totalTime*(videoProgress.width-videoPlayProgress.x);
 				if(scrubberStartMouseX<0) {
-					videoDragHandle.x = 5 + videoPlayProgress.x + videoPlayProgress.width - (videoDragHandle.width/2);
+					videoDragHandle.x = 7 + videoPlayProgress.x + videoPlayProgress.width - (videoDragHandle.width/2);
 				}
             }
 
 			private function getFullVideoSource():String {
 				return(activeElement.getString('videoSource') + '?start=' + encodeURIComponent(activeElement.getString('start')) + '&skip=' + encodeURIComponent(activeElement.getString('skip')));
-			}            
-            		
+			}
 
 			// Which video display are we binding to? (and attach to events)
 			private var _targetVideo:VisualVideo;

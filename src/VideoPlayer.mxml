@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- 
   Novo Nordisk Player for 23 Video
+  - Playlist
+  - Remove playerID
 -->
 <mx:Application 
 	xmlns:mx="http://www.adobe.com/2006/mxml" 
@@ -9,11 +11,11 @@
 	layout="absolute" 
 	verticalScrollPolicy="off" 
 	horizontalScrollPolicy="off"
-	preloader="preload.CustomPreloader" 
 	backgroundAlpha="0"
 	width="100%" 
 	height="100%" 
-	creationComplete="init();" 
+	creationComplete="init();"
+	usePreloader="false"
 	>
  	<mx:Script source="Utility.as"></mx:Script>
  	<mx:Script source="Fullscreen.as"></mx:Script>
@@ -242,14 +244,6 @@
 		color="white"
 		/>
 	
-	<!-- Keep the preloader around until everything is ready to display -->
-	<mx:Image
-		 source="@Embed(source='preload/preloader.swf')"
-		 verticalCenter="0"
-		 horizontalCenter="0"
-		 visible="{!applicationLoaded}"
-		 />
-	
 	<mx:Canvas id="contentContainer"
 		x="{props.getNumber('horizontalPadding')/2}"
 		y="0"
@@ -386,29 +380,22 @@
 	</mx:VBox>
 
 	<!-- PlayList -->
-	<mx:Canvas id="playListContainer" 
-		height="{playListHolder.height}" 
-		width="{tray.width}" 
-		backgroundColor="black" 
-		borderColor="black" 
-		borderSides="top" 
-		borderStyle="solid" 
-		borderThickness="5">
-	<mx:Canvas id="playListHolder" 
-		bottom="0" 
-		width="{tray.width}" 
-		verticalScrollPolicy="off" 
-		horizontalScrollPolicy="off" 
-		resize="onPlayListResize()"
-		/>
-	</mx:Canvas>					
+	
+	<com:TextPanel id="playListContainer" 
+		title="Videos"
+		visible="false"
+		>
+		<mx:Canvas id="playListHolder" 
+			resize="onPlayListResize()"
+			/>
+	</com:TextPanel>					
 
 	
 	<!-- Tray -->
 	<mx:Canvas id="tray" 
 		bottom="0" 
 		height="40"
-		width="100%" 
+		width="100%"
 		horizontalScrollPolicy="off" 
 		verticalScrollPolicy="off" 
 		resize="onTrayResize();" 
@@ -476,7 +463,8 @@
 					    <!-- HDbutton-->
 			    		<com:PlayerButton id="hdBtn" 
 			    			imageSource="@Embed(source='assets/buttons/hd.png')"
-							visible="false"
+							click="{switchVideoFormat(currentVideoFormat=='video_hd' ? 'video_medium' : 'video_hd');}"
+							activated="{currentVideoFormat=='video_hd'}"
 			    			>
 						</com:PlayerButton>
 
@@ -596,7 +584,6 @@
 
 	<!-- Text panel for post-roll html identity text -->
 	<com:TextPanel id="identityPanel" 
-		backgroundColor="{(styleManager.getColorName(props.get('backgroundColor')) as Number)}"
 		>
 		<mx:TextArea id="identityPanelText"
 			width="100%"
