@@ -16,9 +16,10 @@
 	added="onVisibilityChange()"
 	clipContent="false"
 	borderSides="left"
-	borderColor="#eaeaea"
+	borderColor="#bbbbbb"
 	borderThickness="1"
 	borderStyle="solid"
+	backgroundAlpha=".62"
 	>
 	<mx:Script>
 		<![CDATA[

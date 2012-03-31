@@ -37,7 +37,7 @@
 			import flash.utils.setTimeout;
 			
 			// Default domain (used when testing from localhost)
-			private var defaultDomain:String = 'video.novonordisk.com/';
+			private var defaultDomain:String = 'video.novonordisk.com';
 			// Default photo_id (used to if you want a specific photo/video to be shown, otherwise empty)
 			private var defaultPhotoId:String = '';
 			private var defaultAlbumId:String = '';
@@ -355,7 +355,8 @@
 		horizontalScrollPolicy="off" 
 		verticalScrollPolicy="off" 
 		fontFamily="Verdana, Helvetica, Arial, sans-serif;" 
-		backgroundColor="white" 
+		backgroundColor="white"
+		backgroundAlpha=".9"
 		width="100%"
 		visible="false"
 		paddingTop="20"
@@ -403,7 +404,7 @@
 		resize="onTrayResize();" 
 		horizontalCenter="0"
 		>
-		<mx:Image source="@Embed(source='assets/buttons/tray-background.png')" maintainAspectRatio="false" width="100%" height="40" />
+		<mx:Image source="@Embed(source='assets/buttons/tray-background.png')" maintainAspectRatio="false" width="100%" height="40"  alpha=".75" />
 			
 					<!-- Play and Pause -->
 					<mx:HBox id="videoControls" 

@@ -31,7 +31,7 @@ public var propDefaults:Object = {
 	logoAlpha: parseFloat('0.7'),
 	logoWidth: parseFloat('80'),
 	logoHeight: parseFloat('40'),
-	verticalPadding: parseFloat('40'),
+	verticalPadding: parseFloat('0'),
 	horizontalPadding: parseFloat('0'),
 	trayTimeout: parseFloat('5000'),
 	infoTimeout: parseFloat('5000'),
