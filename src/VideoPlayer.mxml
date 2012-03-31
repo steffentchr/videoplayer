@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- 
   Telenor Player
-  - Track yes/no
-  - Custom links
 -->
 <mx:Application 
 	xmlns:mx="http://www.adobe.com/2006/mxml" 

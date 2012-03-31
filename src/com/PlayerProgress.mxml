@@ -5,7 +5,7 @@
 	verticalScrollPolicy="off"
 	useHandCursor="true" 
 	buttonMode="true" 
-	height="11"
+	height="15"
 	click="seekVideoTo(timeFromPoint(this.contentMouseX+30));" 
 	clipContent="true"
 	initialize="init()"
@@ -42,16 +42,16 @@
 	<mx:Label id="videoTimeLabel" 
 		selectable="false" 
 		fontSize="9"
-		height="11" 
+		height="15" 
 		color="white"
 		right="0"
-		top="0"
+		top="1"
 		buttonMode="true"
 		/>
 
 	<!-- videoTime -->
 	<mx:HBox id="videoDragHandle"
-			 y="{(this.height-videoTimeLabel.height)/2}" 
+			 y="{2+(this.height-videoTimeLabel.height)/2}" 
 			 width="8"
 			 height="6"
 			 x="-8"
