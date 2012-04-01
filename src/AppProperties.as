@@ -1,15 +1,10 @@
 // ActionScript file
-import flash.events.Event;
-
 import mx.core.FlexGlobals;
-import mx.core.UIComponent;
-import mx.events.ResizeEvent;
 import mx.utils.URLUtil;
 
 [Bindable] public var props:HashCollection = new HashCollection();
 private var prioritizeLiveStreams:Boolean = false;
 public var propDefaults:Object = {
-	settingsLoaded: false,
 	backgroundColor: 'black',
 	trayBackgroundColor: 'black',
 	trayTextColor: 'white',
@@ -48,8 +43,6 @@ public var propDefaults:Object = {
 	subtitlesDesign: 'bars',
 	playlistClickMode:'link',
 	enableLiveStreams: true,
-	playflowInstreamVideo: '',
-	playflowInstreamOverlay: '',
 	
 	start: parseFloat('0'),
 	player_id: parseFloat('0'),
@@ -62,9 +55,7 @@ public var propDefaults:Object = {
 
 	autoPlay: false,
 	loop: false,
-	playHD: false,
-	source: '',
-	referer: ''
+	playHD: false
 }
 private function initLoadURL():void{
 	var domain:String = URLUtil.getServerName(FlexGlobals.topLevelApplication.url);
@@ -76,7 +67,7 @@ private function initLoadURL():void{
 	
 	// Determine a load parameters
 	var loadParameters:Array = new Array();
-	var options:Array = ['photo_id', 'token', 'user_id', 'search', 'tag', 'tags', 'tag_mode', 'album_id', 'year', 'month', 'day', 'datemode', 'video_p', 'audio_p', 'video_encoded_p', 'order', 'orderby', 'size', 'source', 'rand', 'liveevent_id', 'liveevent_stream_id'];
+	var options:Array = ['photo_id', 'token', 'user_id', 'search', 'tag', 'tags', 'tag_mode', 'album_id', 'year', 'month', 'day', 'datemode', 'video_p', 'audio_p', 'video_encoded_p', 'order', 'orderby', 'p', 'rand', 'liveevent_id', 'liveevent_stream_id'];
 	for (var i:int=0; i<options.length; i++) {
 		var opt:String = options[i];
 		if (FlexGlobals.topLevelApplication.parameters[opt]) {
@@ -86,6 +77,7 @@ private function initLoadURL():void{
 	if (defaultPhotoId.length) loadParameters.push('photo_id=' + encodeURI(defaultPhotoId)); 
 	if (defaultAlbumId.length) loadParameters.push('album_id=' + encodeURI(defaultAlbumId));
 	loadParameters.push('player_id=' + encodeURI(playerId));
+	loadParameters.push('size=1');
 	
 	// Use load parameters to build JSON source
 	var jsonSource:String = props.get('site_url') + '/api/photo/list?raw&format=json&' + loadParameters.join('&');
@@ -129,37 +121,6 @@ private function initProperties(settings:Object):void {
 	  	}
 	}
 
-	// Test logoSource
-	if (props.get('logoSource')=='no logo' || props.get('logoSource')=='') {
-		props.put('showLogo', false);
-		props.put('logoSource', '');	
-	}
-	if(props.get('showLogo')) {
-		var logoRequest:URLRequest = new URLRequest((props.get('logoSource') as String));
-		var logoLoader:URLLoader = new URLLoader();
-		logoLoader.addEventListener(SecurityErrorEvent.SECURITY_ERROR, function(event:SecurityErrorEvent):void {
-			props.put('logoSource', ''); props.put('showLogo', false);
-		});
-		logoLoader.addEventListener(IOErrorEvent.IO_ERROR, function httpStatusHandler(e:Event):void {
-			props.put('logoSource', ''); props.put('showLogo', false);
-		});
-		logoLoader.load(logoRequest);
-	}
-
-	// Logo position
-	var pos:String = props.get('logoPosition').toString();
-	props.put('logoAlign', (new RegExp('left').test(pos) ? 'left' : 'right'));
-	props.put('logoVAlign', (new RegExp('top').test(pos) ? 'top' : 'bottom'));
-
-	props.put('settingsLoaded', true);
-	updateBackground();
-	
-	// Tray and information timeout
-	trayTimer.delay = props.getNumber('trayTimeout');
-	trayTimer.reset();
-	infoTimer.delay = props.getNumber('infoTimeout');
-	infoTimer.reset();
-	
 	// Make the embed code current
 	updateCurrentVideoEmbedCode();
 	
@@ -168,10 +129,7 @@ private function initProperties(settings:Object):void {
 	
 	// Should we start by playing HD? 
 	if(props.get('playHD')) currentVideoFormat = 'video_hd';
-	
-	// Possibly auto-play
-	possiblyAutoPlay();
-	
+
 	// Load up featured live streams
 	if(props.get('enableLiveStreams')) {
 		var streamOptions:Object = {};
@@ -190,8 +148,6 @@ private function initProperties(settings:Object):void {
 		} else {
 			streamOptions = {featured_p:1};
 		}
-		liveStreamsMenu.options = [];
-		liveStreamsMenu.value = null;
 		try {
 			doAPI('/api/liveevent/stream/list', streamOptions, function(s:Object):void{
 				var streams:Array = s.streams;
@@ -200,7 +156,6 @@ private function initProperties(settings:Object):void {
 					streams.forEach(function(stream:Object, i:int, ignore:Object):void{
 						streamMenu.push({value:stream, label:stream.name});
 					});
-					liveStreamsMenu.options = streamMenu;
 					
 					if(prioritizeLiveStreams) {
 						setActiveElementToLiveStream(streams[0], false);
@@ -210,33 +165,6 @@ private function initProperties(settings:Object):void {
 				}
 			});
 		} catch(e:Error) {}
-	}
-}
-
-private function getRecommendationSource():String {
-	if(!context || !context.photos) return(props.get('site_url') + '/api/photo/list?raw&format=json&size=10');
-	
-	if(context.photos.length==1) {
-		// There's only one video to play, we'll need to construct recommendation in another fashion.
-		var recommendationSource:String;
-		var method:String = new String(props.get('recommendationMethod'));
-		switch (method) {
-			case 'site-new':
-			case 'channel-new':
-				recommendationSource = props.get('site_url') + '/api/photo/list?raw&format=json&size=10&orderby=uploaded&order=desc';
-				break;
-			case 'site-popular':
-			case 'channel-popular':
-			case 'similar':
-			default:
-				recommendationSource = props.get('site_url') + '/api/photo/list?raw&format=json&size=10&orderby=rank&order=desc';
-				break;
-		}
-		if (playerId.length) recommendationSource += '&player_id=' + encodeURI(playerId);
-		if (context.photos[0].album_id!='' && (method=='channel-new' || method=='channel-popular')) recommendationSource += '&album_id=' + context.photos[0].album_id;
-		return(recommendationSource);
-	} else {
-		return(new String(props.get('jsonSource')));
 	}
 }
 
@@ -255,52 +183,4 @@ private function updateCurrentVideoEmbedCode():void {
 		// A safety net for bad code
 		props.put('currentVideoEmbedCode', props.getString('embedCode'));
 	}  
-}
-
-private function bootstrapAds():void {
-	// Clean up
-	visualAdContainer.removeAllChildren();
-	ads = null;
-	
-	// Is there advertising=
-	if(activeElement.getString('playflowInstreamVideo').length==0 && activeElement.getString('playflowInstreamOverlay').length==0) return;
-		
-	// Attach VisualAd element to the stage, and make sure it's sized correctly
-	ads = new VisualAds();
-	visualAdContainer.addChild((ads as UIComponent));
-	
-	// Make sure it's sized correctly
-	var fitSize:Function = function():void{
-		ads.width = visualAdContainer.width;
-		ads.height = visualAdContainer.height;
-	}
-	fitSize();
-	visualAdContainer.addEventListener(ResizeEvent.RESIZE, fitSize);
-	
-	// Interface with the app through events
-	ads.addEventListener('contentPauseRequested', function():void{
-		if(props.getBoolean('identityAllowClose') && props.getBoolean('identityCountdown')) {
-			adMessage.visible = true;
-			adMessage.message = '';
-			adMessage.addEventListener(Event.CLOSE, function(e:Event):void{
-					ads.stop();
-				});
-		}
-		forceHideTray = true;
-		trayHide();
-		pauseVideoElement();
-	});
-	ads.addEventListener('contentResumeRequested', function():void{
-		forceHideTray = false;
-		adMessage.visible = false;
-		trayShow();
-		playVideoElement();
-	});
-	
-	// Append sources
-	var a:Array;
-	a = activeElement.getString('playflowInstreamVideo').split('|');
-	if(a.length==3) ads.push('video', decodeURIComponent(a[0]), decodeURIComponent(a[1]), decodeURIComponent(a[2]));
-	a = activeElement.getString('playflowInstreamOverlay').split('|');
-	if(a.length==3) ads.push('overlay', decodeURIComponent(a[0]), decodeURIComponent(a[1]), decodeURIComponent(a[2]));
 }
