@@ -44,6 +44,7 @@ private function resetActiveElement(skip:Boolean=false):void {
 	showBeforeIdentity = true;
 	showVideoAd = true;
 	//stc// liveStreamsMenu.value = null;
+	updateBackground();
 
 	if(!skip) {
 		progress.setSections([]);
@@ -86,11 +87,10 @@ private function setActiveElementToLiveStream(stream:Object, startPlaying:Boolea
 	
 	// Make embed code current
 	updateCurrentVideoEmbedCode();
-	
+	updateBackground();
 	
 	// Note that we've loaded the video 
 	reportEvent('load');
-
 }
 
 private function setActiveElement(i:int, startPlaying:Boolean=false, start:Number=0, skip:int=0, format:String=null):Boolean {
@@ -203,6 +203,7 @@ private function setActiveElement(i:int, startPlaying:Boolean=false, start:Numbe
 
 	// Make embed code current
 	updateCurrentVideoEmbedCode();
+	updateBackground();
 
 	// Note that we've loaded the video 
 	reportEvent('load');
