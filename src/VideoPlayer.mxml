@@ -421,10 +421,6 @@
 								id="formatsMenu"
 								value="{currentVideoFormat}"
 								change="{switchVideoFormat(new String(formatsMenu.value));}"
-								backgroundColor="{(styleManager.getColorName(props.get('trayBackgroundColor')) as Number)}" 
-								backgroundAlpha="{(props.get('trayAlpha') as Number)}" 
-								fontFamily="{props.get('trayFont')}" 
-								color="{(styleManager.getColorName(props.get('trayTextColor')) as Number)}" 
 								/>
 						</com:PlayerButton>
 
@@ -463,83 +459,90 @@
 	</mx:Canvas>
 	
 	<!-- Embed panel -->
-	<com:TextPanel id="embedPanel" 
-		backgroundColor="{(styleManager.getColorName(props.get('backgroundColor')) as Number)}"
-		title="Share this video"
+	<mx:Canvas id="embedPanel" 
+		backgroundImage="@Embed(source='assets/buttons/share-background.png')"
+		width="611"
+		height="252"
+		right="18"
+		bottom="40"
+		visible="false"
 		show="{reportEvent('shareEngaged');}"
 		>
-
-		<!-- Embed section -->		
-		<mx:HBox 
-			horizontalGap="10" 
-			width="100%"
-			paddingBottom="10"
-			>
-			<mx:TextArea id="embedText" 
-				paddingTop="3"
-				paddingRight="3"
-				paddingBottom="3"
-				paddingLeft="3"
-				height="24"
-				width="100%"
-				text="{props.get('currentVideoEmbedCode')}" 
-				click="{reportEvent('embedEngaged'); embedText.setFocus(); embedText.selectionBeginIndex = 0; embedText.selectionEndIndex = embedText.text.length;}" 
-				backgroundColor="white" 
-				color="#333" 
-				fontSize="11" 
-				/>
-			<mx:Image
-				source="@Embed(source='assets/buttons/copy.png')"
-				click="{reportEvent('embedEngaged'); System.setClipboard(embedText.text);}"
-				/>
-		</mx:HBox>
+		<mx:TextArea id="embedText"
+			text="{props.get('currentVideoEmbedCode')}" 
+			click="{reportEvent('embedEngaged'); embedText.setFocus(); embedText.selectionBeginIndex = 0; embedText.selectionEndIndex = embedText.text.length;}" 
+			color="#333" 
+			fontSize="11"
+			paddingTop="7"
+			paddingLeft="7"
+			borderStyle="none"
+			backgroundAlpha="0"
+			width="475"
+			height="29"
+			left="19"
+			top="67"
+			/>
+		<com:PlayerButton
+			imageSource="@Embed(source='assets/buttons/copy.png')"
+			overSource="@Embed(source='assets/buttons/copy-over.png')"
+			width="100"
+			height="31"
+			click="{reportEvent('embedEngaged'); System.setClipboard(embedText.text);}"
+			x="505"
+			y="66"
+			/>
 
 		<!-- Share section -->		
 		<mx:VBox
-			visible="{(props.get('showShare') as Boolean)}"
-			verticalGap="5"
-			width="100%"
-			paddingTop="10" 
-			borderColor="#666666"
-			borderStyle="solid"
-			borderSides="top"
-			borderThickness="1"
+			verticalGap="10"
+			x="20"
+			y="130"
 			>
 			<mx:HBox 
-				horizontalGap="3"
+				horizontalGap="30"
 				>
-				<mx:Image
-					source="@Embed(source='assets/buttons/mail.png')"
-					visible="{props.get('mailLink')!=''}"
+				<com:PlayerButton
+					imageSource="@Embed(source='assets/buttons/mail.png')"
+					overSource="@Embed(source='assets/buttons/mail-over.png')"
 					click="{goToUrl(props.get('mailLink') as String)}"
+					width="100"
+					height="31"
 					/>
-				<mx:Image
-					source="@Embed(source='assets/buttons/facebook.png')"
-					visible="{props.get('socialSharing') &amp;&amp; activeElement.get('link')!=''}"
+				<com:PlayerButton
+					imageSource="@Embed(source='assets/buttons/facebook.png')"
+					overSource="@Embed(source='assets/buttons/facebook-over.png')"
 					click="{goToUrl(activeElement.get('link') + '/facebook?player_id=' + props.get('player_id'))}"
+					width="100"
+					height="31"
 					/>
-				<mx:Image
-					source="@Embed(source='assets/buttons/twitter.png')"
-					visible="{props.get('socialSharing') &amp;&amp; activeElement.get('link')!=''}"
+				<com:PlayerButton
+					imageSource="@Embed(source='assets/buttons/twitter.png')"
+					overSource="@Embed(source='assets/buttons/twitter-over.png')"
 					click="{goToUrl(activeElement.get('link') + '/twitter?player_id=' + props.get('player_id'))}"
+					width="100"
+					height="31"
 					/>
 			</mx:HBox>
 			<mx:HBox
-				horizontalGap="5"
+				horizontalGap="30"
 				>
-				<mx:Image
-					source="@Embed(source='assets/buttons/rss.png')"
-					visible="{props.get('rssLink')!=''}"
+				<com:PlayerButton
+					imageSource="@Embed(source='assets/buttons/rss.png')"
+					overSource="@Embed(source='assets/buttons/rss-over.png')"
 					click="{goToUrl(props.get('rssLink') as String)}"
+					width="100"
+					height="31"
 					/>
-				<mx:Image
-					source="@Embed(source='assets/buttons/podcast.png')"
-					visible="{props.get('podcastLink')!=''}"
+				<com:PlayerButton
+					imageSource="@Embed(source='assets/buttons/podcast.png')"
+					overSource="@Embed(source='assets/buttons/podcast-over.png')"
 					click="{goToUrl(props.get('podcastLink') as String)}"
+					width="100"
+					height="31"
 					/>
 			</mx:HBox>
 		</mx:VBox> 
-	</com:TextPanel>
+	</mx:Canvas>
 	<!-- /Embed panel -->
 
 	<!-- Text panel for post-roll html identity text -->
