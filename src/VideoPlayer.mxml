@@ -2,9 +2,6 @@
 <!-- 
   NEXT Video Player
   Steffen Tiedemann Christensen, steffen@23company.com
-
-  - Align grid and elements displays
-  - Hide animations
 -->
 <mx:Application 
 	xmlns:mx="http://www.adobe.com/2006/mxml" 
@@ -290,6 +287,8 @@
 		resize="onTrayResize();" 
 		horizontalCenter="0"
 		visible="false"
+		hideEffect="{fadeOut}"
+		showEffect="{fadeIn}"
 		>
 		<mx:VBox 
 			verticalGap="6"
@@ -305,6 +304,8 @@
 				paddingRight="0"
 				width="100%"
 				visible="{cleanVideoState=='paused' &amp;&amp; !embedPanel.visible &amp;&amp; !formatsMenu.visible &amp;&amp; !volumeMenu.visible}"
+				hideEffect="{fadeOut}"
+				showEffect="{fadeIn}"
 				>
 				<!-- Title and Words -->
 				<mx:VBox id="descBg" 
@@ -411,6 +412,8 @@
 										  click="embedPanel.visible = false;"
 										  >
 							<com:VolumeMenu
+								hideEffect="{fadeOut}"
+								showEffect="{fadeIn}"
 								id="volumeMenu"
 								video="{video}"
 								/>
@@ -425,6 +428,8 @@
 							click="embedPanel.visible = false;"
 			    			>
 							<com:PlayerMenu 
+								hideEffect="{fadeOut}"
+								showEffect="{fadeIn}"
 								id="formatsMenu"
 								value="{currentVideoFormat}"
 								change="{switchVideoFormat(new String(formatsMenu.value));}"
@@ -460,6 +465,8 @@
 		bottom="33"
 		visible="false"
 		show="{reportEvent('shareEngaged');}"
+		hideEffect="{fadeOut}"
+		showEffect="{fadeIn}"
 		>
 		<mx:Image
 			buttonMode="true"
@@ -564,4 +571,17 @@
 			/>
 	</com:TextPanel> 
 	<!-- / Text panel for post-roll -->
+	
+	<mx:Fade
+		id="fadeOut"
+		alphaFrom="1"
+		alphaTo="0"
+		duration="400"
+		/>
+	<mx:Fade
+		id="fadeIn"
+		alphaFrom="0"
+		alphaTo="1"
+		duration="200"
+		/>
 </mx:Application>
