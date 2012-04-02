@@ -12,7 +12,7 @@
 	backgroundAlpha="0"
 	width="100%" 
 	height="100%" 
-	creationComplete="init();"
+	applicationComplete="init();"
 	usePreloader="false"
 	>
  	<mx:Script source="Utility.as"></mx:Script>
@@ -170,6 +170,12 @@
 				}
 			}
             private function prepareTimers():void {
+				// Reset timer when the mouse moves in the application
+				stage.addEventListener(Event.MOUSE_LEAVE, function():void {
+					if(!descriptions.visible && !embedPanel.visible && !showPlayList) tray.visible = false; 
+				});
+				stage.addEventListener(MouseEvent.MOUSE_MOVE, function():void {tray.visible=true;});
+
 				// PLAY EVENTS
 				// Report plays back to analytics continously
 				setInterval(function():void{
@@ -411,6 +417,8 @@
 		verticalScrollPolicy="off" 
 		resize="onTrayResize();" 
 		horizontalCenter="0"
+		hideEffect="fadeOut"
+		showEffect="fadeIn"
 		>
 		<mx:Image source="@Embed(source='assets/buttons/tray-background.png')" maintainAspectRatio="false" width="100%" height="40"  alpha=".75" />
 			
@@ -505,7 +513,7 @@
 			    		<com:PlayerButton id="feedpanelBtn" 
 			    			imageSource="@Embed(source='assets/buttons/share.png')"
 			    			visible="{(props.get('showShare') as Boolean)}" 
-			    			click="hidePopups(); embedPanel.visible=props.get('showShare') &amp;&amp; !embedPanel.visible;"
+			    			click="var v:Boolean = embedPanel.visible; hidePopups(); embedPanel.visible=props.get('showShare') &amp;&amp; !v;"
 							activated="{embedPanel.visible}"
 			    			/>
 					</mx:HBox>
@@ -628,4 +636,17 @@
 		</mx:HBox>
 	</com:TextPanel> 
 	<!-- / Text panel for post-roll -->
+	
+	<mx:Fade 
+		id="fadeOut"
+		alphaFrom="1"
+		alphaTo="0"
+		duration="200"
+		/>
+	<mx:Fade 
+		id="fadeIn"
+		alphaFrom="0"
+		alphaTo="1"
+		duration="400"
+		/>
 </mx:Application>
