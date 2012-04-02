@@ -122,7 +122,7 @@
 		        tray.visible = true;
             }            
             private function trayHide():void {
-                if(cleanVideoState!='paused') tray.visible = false;
+                if(cleanVideoState!='paused' && !embedPanel.visible) tray.visible = false;
             }            
             private function prepareTimers():void {
 				// Reset timer when the mouse moves in the application
@@ -461,6 +461,14 @@
 		visible="false"
 		show="{reportEvent('shareEngaged');}"
 		>
+		<mx:Image
+			buttonMode="true"
+			useHandCursor="true"
+			right="10"
+			top="10"
+			source="@Embed(source='assets/buttons/close.png')"
+			click="{embedPanel.visible=false}"
+			/>
 		<mx:TextArea id="embedText"
 			text="{props.get('currentVideoEmbedCode')}" 
 			click="{reportEvent('embedEngaged'); embedText.setFocus(); embedText.selectionBeginIndex = 0; embedText.selectionEndIndex = embedText.text.length;}" 
