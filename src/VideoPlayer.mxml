@@ -50,7 +50,7 @@
 			// Default photo_id (used to if you want a specific photo/video to be shown, otherwise empty)
 			private var defaultPhotoId:String = '';
 			private var defaultAlbumId:String = '';
-			private var playerId:String = '4806534';
+			private var playerId:String = '0';
 
 			private var context:Object = {};
 			private var recommendations:Object = {};
