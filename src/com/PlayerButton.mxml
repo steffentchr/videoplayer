@@ -46,6 +46,12 @@
 				}
 			}
 			
+			private var _hasHover:Boolean = true;
+			public function set hasHover(h:Boolean) {
+				_hasHover = h;
+			}
+
+			
 			private var _imageWidth:int, _imageHeight:int;
 			public function set imageSource(source:Object):void {
 				imageContainer.alpha = 0.9;
@@ -62,11 +68,12 @@
 				this.includeInLayout = this.visible;
 			}
 			private function onButtonMouseOver(e:Event):void {
+				if(!_hasHover)return;
     	    	e.currentTarget.setStyle('backgroundColor', 'white');
 				imageContainer.alpha = 1;
 			}
 	        private function onButtonMouseOut(e:Event):void {
-				if(_activated) return;
+				if(_activated||!_hasHover) return;
 				e.currentTarget.setStyle('backgroundColor', '');
 				imageContainer.alpha = 0.9;
 	        }

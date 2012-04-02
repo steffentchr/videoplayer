@@ -41,7 +41,7 @@
 			// Default photo_id (used to if you want a specific photo/video to be shown, otherwise empty)
 			private var defaultPhotoId:String = '';
 			private var defaultAlbumId:String = '';
-			private var playerId:String = '0';
+			private var playerId:String = '4799388';
 
 			private var context:Object = {};
 			private var recommendations:Object = {};
@@ -156,6 +156,7 @@
             }
 			private function playListShow():void {
 				if (!props.get('showTray') || !props.get('showBrowse')) return;
+				hidePopups();
 				showPlayList = true;
             }
 			private function playListHide():void {
@@ -182,6 +183,7 @@
             }
             private function infoShow(timeout:Boolean=true):void {
             	if(!activeElement.get('hasInfo') || !props.get('showDescriptions')) {descriptions.visible = false; return;}
+				hidePopups();
 				descriptions.visible = true;
             }
             private function infoToggle():void {				
@@ -198,6 +200,7 @@
 			private function onVideoStateChange(evt:Event):void {
 				if(evt.currentTarget.state==VideoEvent.PLAYING || evt.currentTarget.state==VideoEvent.SEEKING) {
 					if(ads) ads.overlay();
+					hidePopups();
 					cleanVideoState = 'playing';
 				} else if(evt.currentTarget.state==VideoEvent.LOADING || evt.currentTarget.state==VideoEvent.BUFFERING) {
 					cleanVideoState = 'buffering';
@@ -238,6 +241,13 @@
             	var x:int = progress.x = (videoControls.visible ? videoControls.width : 0) + 4; 
             	progress.width = tray.width - (rightPanel.width + 4) - x; 
             }
+			
+			private function hidePopups():void {
+				infoHide();
+				playListHide();
+				embedPanel.visible=false;
+				
+			}
 		]]>
 	</mx:Script>	
 	
@@ -288,8 +298,6 @@
 		visible="{(applicationLoaded &amp;&amp; (props.get('showBigPlay') as Boolean) &amp;&amp; cleanVideoState=='paused' &amp;&amp; !identityVideo.playing)}" 
 		click="playVideoElement()"
 		alpha="0.6"
-		mouseOver="{bigPlayImage.alpha=1;}"
-		mouseOut="{bigPlayImage.alpha=0.6;}"
 		buttonMode="true"
 		useHandCursor="true"
 		/>
@@ -419,17 +427,20 @@
 			    			visible="{(cleanVideoState=='paused' &amp;&amp; !identityVideo.visible)}" 
 			    			click="playVideoElement()"
 							hasBorder="false"
+							hasHover="false"
 			    			/>
 			    		<com:PlayerButton id="pauseImage" 
 			    			imageSource="@Embed(source='assets/buttons/pause.png')"
 			    			visible="{(cleanVideoState=='playing' &amp;&amp; !identityVideo.visible)}" 
 			    			click="pauseVideoElement()"
 							hasBorder="false"
+							hasHover="false"
 			    			/>
 			    		<com:PlayerButton id="bufferImage"  
 			    			imageSource="@Embed(source='assets/buttons/pause.png')"
 			    			visible="{(cleanVideoState=='buffering' &amp;&amp; !identityVideo.visible)}" 
 							hasBorder="false"
+							hasHover="false"
 			    			/>  
 			    	</mx:HBox>					
 						
@@ -494,7 +505,7 @@
 			    		<com:PlayerButton id="feedpanelBtn" 
 			    			imageSource="@Embed(source='assets/buttons/share.png')"
 			    			visible="{(props.get('showShare') as Boolean)}" 
-			    			click="embedPanel.visible=props.get('showShare') &amp;&amp; !embedPanel.visible;"
+			    			click="hidePopups(); embedPanel.visible=props.get('showShare') &amp;&amp; !embedPanel.visible;"
 							activated="{embedPanel.visible}"
 			    			/>
 					</mx:HBox>
@@ -508,35 +519,40 @@
 		>
 
 		<!-- Embed section -->		
-		<mx:VBox 
+		<mx:Canvas 
 			width="500"
-			paddingBottom="18"
+			height="60"
 			clipContent="true"
 			horizontalScrollPolicy="off"
 			verticalScrollPolicy="off"
-			  horizontalCenter="0"
+			horizontalCenter="0"
 			>
 			<mx:Image 
 				source="@Embed('assets/buttons/share-embed.png')"
 				/>
-			<mx:TextArea id="embedText" 
-				paddingTop="3"
-				paddingRight="3"
-				paddingBottom="3"
-				paddingLeft="3"
-				height="24"
+			<mx:Image
+				y="20"
+				width="100%"
+				height="39"
+				maintainAspectRatio="false"
+				source="@Embed('assets/buttons/embed-background.png', scaleGridTop='19', scaleGridBottom='20', scaleGridLeft='100', scaleGridRight='110')"
+				/>
+			<mx:TextArea id="embedText"
+				y="20"
+				paddingTop="8"
+				paddingBottom="8"
+				paddingLeft="7"
+				backgroundAlpha="0"
+				backgroundSize="100%"
+				height="39"
 				width="100%"
 				text="{props.get('currentVideoEmbedCode')}" 
 				click="{reportEvent('embedEngaged'); embedText.setFocus(); embedText.selectionBeginIndex = 0; embedText.selectionEndIndex = embedText.text.length;}" 
-				backgroundColor="white" 
 				color="#333" 
-				fontSize="11"
-				borderStyle="solid"
-				borderThickness="1"
-				borderColor="#aaaaaa"
-				cornerRadius="10"
+				fontSize="13"
+				borderStyle="none"
 				/>
-		</mx:VBox>
+		</mx:Canvas>
 
 		<mx:Canvas
 			width="100%"
