@@ -156,12 +156,6 @@ private function initProperties(settings:Object):void {
 	updateBackground();
 	*/
 	
-	// Tray and information timeout
-	trayTimer.delay = props.getNumber('trayTimeout');
-	trayTimer.reset();
-	infoTimer.delay = props.getNumber('infoTimeout');
-	infoTimer.reset();
-	
 	// Make the embed code current
 	updateCurrentVideoEmbedCode();
 	

@@ -49,7 +49,7 @@
 			fontFamily="Helvetica, Arial" 
 			fontSize="11" 
 			color="#00A1E7"
-			top="3"
+			top="4"
 			horizontalCenter="0"
 			text="0:00"
 			/>
