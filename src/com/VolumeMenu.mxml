@@ -35,8 +35,6 @@
 						button.imageSource = (_v.volume>0 ? mute : unmute);
 						button.overSource = (_v.volume>0 ? muteOver : unmuteOver);
 					}
-					
-					toggle(true);
 				});
 			}
 			

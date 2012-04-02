@@ -177,7 +177,7 @@
             	resizeProgressBar();
             }
             private function resizeProgressBar():void {
-            	var x:int = progress.x = videoControls.width+ 10; 
+            	var x:int = progress.x = videoControls.width+ 8; 
             	progress.width = tray.width - rightPanel.width - x - 10; 
             }
 		]]>
@@ -286,9 +286,9 @@
 
 	<!-- Tray -->
 	<mx:Canvas id="tray"
-	 	bottom="10"
-	  	left="10"
-	   	right="10"
+	 	bottom="6"
+	  	left="2"
+	   	right="8"
 		horizontalScrollPolicy="off" 
 		verticalScrollPolicy="off" 
 		resize="onTrayResize();" 
@@ -296,14 +296,17 @@
 		visible="false"
 		>
 		<mx:VBox 
-			verticalGap="10"
+			verticalGap="6"
 			>
+			<mx:HBox width="100%" paddingLeft="2" paddingRight="4">
 			<mx:HBox id="descriptions" 
 				horizontalScrollPolicy="off" 
 				verticalScrollPolicy="off" 
 				color="#00A1E7" 
 				backgroundColor="white" 
-				backgroundAlpha="0.8" 
+				backgroundAlpha="0.8"
+				paddingLeft="17"
+				paddingRight="0"
 				width="100%"
 				visible="{cleanVideoState=='paused'}"
 				>
@@ -313,8 +316,8 @@
 					verticalCenter="0" 
 					verticalGap="0" 
 					width="100%" 
-					paddingTop="6" 
-					paddingBottom="6" 
+					paddingTop="22" 
+					paddingBottom="20" 
 					paddingLeft="6" 
 					paddingRight="6"
 					>
@@ -323,13 +326,13 @@
 						truncateToFit="true" 
 						maxWidth="{FlexGlobals.topLevelApplication.width}" 
 						updateComplete="trayTitle.visible = (trayTitle.text.length>0);" 
-						fontSize="19" 
+						fontSize="23" 
 						fontFamily="KlavikaBold"
 						/>
 					<mx:Text id="trayContent"
 						paddingTop="5"
-						fontSize="15" 
-						fontFamily="Klavika"
+						fontSize="16" 
+						fontFamily="KlavikaBold"
 						htmlText="{activeElement.get('content')}" 
 						truncateToFit="true" 
 						maxWidth="{FlexGlobals.topLevelApplication.width}" 
@@ -338,14 +341,22 @@
 				</mx:VBox>
 				
 				<!-- Big Play -->
-				<mx:Image id="bigPlayImage" 
-						  source="@Embed(source='assets/buttons/bigplay.png')"
-						  verticalCenter="0" 
-						  horizontalCenter="0" 
-						  visible="{(applicationLoaded &amp;&amp; (props.get('showBigPlay') as Boolean) &amp;&amp; cleanVideoState=='paused' &amp;&amp; !identityVideo.playing)}" 
-						  click="playVideoElement()"
-						  />
-
+				<mx:VBox
+					paddingLeft="40"
+					paddingRight="40"
+					paddingTop="20"
+					paddingBottom="20"
+					height="100%"
+					>
+					<mx:Image id="bigPlayImage" 
+							  source="@Embed(source='assets/buttons/bigplay.png')"
+							  verticalCenter="0" 
+							  horizontalCenter="0"
+							  visible="{(applicationLoaded &amp;&amp; (props.get('showBigPlay') as Boolean) &amp;&amp; cleanVideoState=='paused' &amp;&amp; !identityVideo.playing)}" 
+							  click="playVideoElement()"
+							  />
+				</mx:VBox>
+			</mx:HBox>
 			</mx:HBox>
 			
 			<mx:HBox id="controlBox">
@@ -400,8 +411,10 @@
 						<com:PlayerButton id="muteImage"
 										  imageSource="@Embed(source='assets/buttons/mute.png')"
 										  overSource="@Embed(source='assets/buttons/mute-over.png')"
+										  activated="{volumeMenu.visible}"
 										  >
-							<com:VolumeMenu 
+							<com:VolumeMenu
+								id="volumeMenu"
 								video="{video}"
 								/>
 						</com:PlayerButton>
@@ -445,8 +458,8 @@
 		backgroundImage="@Embed(source='assets/buttons/share-background.png')"
 		width="611"
 		height="252"
-		right="18"
-		bottom="40"
+		right="13"
+		bottom="33"
 		visible="false"
 		show="{reportEvent('shareEngaged');}"
 		>
@@ -470,26 +483,19 @@
 			width="100"
 			height="31"
 			click="{reportEvent('embedEngaged'); System.setClipboard(embedText.text);}"
-			x="505"
-			y="66"
+			x="503"
+			y="67"
 			/>
 
 		<!-- Share section -->		
 		<mx:VBox
-			verticalGap="10"
-			x="20"
-			y="130"
+			verticalGap="9"
+			x="25"
+			y="127"
 			>
 			<mx:HBox 
-				horizontalGap="30"
+				horizontalGap="74"
 				>
-				<com:PlayerButton
-					imageSource="@Embed(source='assets/buttons/mail.png')"
-					overSource="@Embed(source='assets/buttons/mail-over.png')"
-					click="{goToUrl(props.get('mailLink') as String)}"
-					width="100"
-					height="31"
-					/>
 				<com:PlayerButton
 					imageSource="@Embed(source='assets/buttons/facebook.png')"
 					overSource="@Embed(source='assets/buttons/facebook-over.png')"
@@ -498,20 +504,27 @@
 					height="31"
 					/>
 				<com:PlayerButton
-					imageSource="@Embed(source='assets/buttons/twitter.png')"
-					overSource="@Embed(source='assets/buttons/twitter-over.png')"
-					click="{goToUrl(activeElement.get('link') + '/twitter?player_id=' + props.get('player_id'))}"
+					imageSource="@Embed(source='assets/buttons/rss.png')"
+					overSource="@Embed(source='assets/buttons/rss-over.png')"
+					click="{goToUrl(props.get('rssLink') as String)}"
+					width="100"
+					height="31"
+					/>
+				<com:PlayerButton
+					imageSource="@Embed(source='assets/buttons/mail.png')"
+					overSource="@Embed(source='assets/buttons/mail-over.png')"
+					click="{goToUrl(props.get('mailLink') as String)}"
 					width="100"
 					height="31"
 					/>
 			</mx:HBox>
 			<mx:HBox
-				horizontalGap="30"
+				horizontalGap="74"
 				>
 				<com:PlayerButton
-					imageSource="@Embed(source='assets/buttons/rss.png')"
-					overSource="@Embed(source='assets/buttons/rss-over.png')"
-					click="{goToUrl(props.get('rssLink') as String)}"
+					imageSource="@Embed(source='assets/buttons/twitter.png')"
+					overSource="@Embed(source='assets/buttons/twitter-over.png')"
+					click="{goToUrl(activeElement.get('link') + '/twitter?player_id=' + props.get('player_id'))}"
 					width="100"
 					height="31"
 					/>

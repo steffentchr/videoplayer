@@ -30,10 +30,11 @@
 			private var imageContainer:Image = new Image();
 			public function set imageSource(source:Object):void {
 				_imageSource = source;
-				imageContainer.source = _imageSource;
+				imageContainer.source = (_activated ? _overSource : _imageSource);
 			}
 			public function set overSource(source:Object):void {
 				_overSource = source;
+				imageContainer.source = (_activated ? _overSource : _imageSource);
 			}
 			public function set activated(a:Boolean):void {
 				_activated = a;
