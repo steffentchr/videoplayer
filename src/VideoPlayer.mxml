@@ -28,17 +28,12 @@
  	<mx:Script source="doJSON.as"></mx:Script>
 	<mx:Style>
 		@font-face {
-			src:url("assets/buttons/KlavikaRegular-TF.otf");
-			fontFamily: Klavika;
-			advancedAntiAliasing: true;
-		}
-		@font-face {
 			src:url("assets/buttons/KlavikaMedium-TF.otf");
 			fontFamily: KlavikaBold;
 			advancedAntiAliasing: true;
 		}
 		Application {
-			fontFamily: Klavika;
+			fontFamily: Helvetica;
 		}
 	</mx:Style>	<mx:Script>
 		<![CDATA[
@@ -149,6 +144,7 @@
 				if(evt.currentTarget.state==VideoEvent.PLAYING || evt.currentTarget.state==VideoEvent.SEEKING) {
 					if(ads) ads.overlay();
 					cleanVideoState = 'playing';
+					embedPanel.visible = false;
 				} else if(evt.currentTarget.state==VideoEvent.LOADING || evt.currentTarget.state==VideoEvent.BUFFERING) {
 					cleanVideoState = 'buffering';
 				} else if(evt.currentTarget.state==VideoEvent.DISCONNECTED || evt.currentTarget.state==VideoEvent.COMPLETE || evt.currentTarget.state==VideoEvent.PAUSED || evt.currentTarget.state==VideoEvent.STOPPED) {
@@ -308,7 +304,7 @@
 				paddingLeft="17"
 				paddingRight="0"
 				width="100%"
-				visible="{cleanVideoState=='paused'}"
+				visible="{cleanVideoState=='paused' &amp;&amp; !embedPanel.visible &amp;&amp; !formatsMenu.visible &amp;&amp; !volumeMenu.visible}"
 				>
 				<!-- Title and Words -->
 				<mx:VBox id="descBg" 
@@ -412,6 +408,7 @@
 										  imageSource="@Embed(source='assets/buttons/mute.png')"
 										  overSource="@Embed(source='assets/buttons/mute-over.png')"
 										  activated="{volumeMenu.visible}"
+										  click="embedPanel.visible = false;"
 										  >
 							<com:VolumeMenu
 								id="volumeMenu"
@@ -425,6 +422,7 @@
 							overSource="@Embed(source='assets/buttons/hd-over.png')"
 							visible="false"
 							activated="{formatsMenu.visible}"
+							click="embedPanel.visible = false;"
 			    			>
 							<com:PlayerMenu 
 								id="formatsMenu"
