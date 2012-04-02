@@ -5,38 +5,28 @@
 	verticalScrollPolicy="off"
 	useHandCursor="true" 
 	buttonMode="true" 
-	height="28"
-	top="2" 
-	cornerRadius="2" 
-	borderStyle="solid" 
-	borderThickness="0" 
-	backgroundColor="{(styleManager.getColorName(props.get('trayBackgroundColor')) as Number)}" 
-	backgroundAlpha="{(props.get('trayAlpha') as Number)}" 
+	height="5"
 	mouseOver="videoDragHandle.visible=true" 
 	mouseOut="videoDragHandle.visible=false" 
 	click="seekVideoTo(timeFromPoint(this.contentMouseX));" 
 	initialize="init()"
+	clipContent="false"
 	>
 	<!-- VideoProgress -->
 	<mx:Canvas id="videoProgress"
-		top="11" 
-		left="10" 
-		right="10" 
-		height="6" 
+		height="5"
+		width="100%"
 		resize="drawSections();"
-		backgroundColor="0xCCCCCC" 
-		backgroundAlpha="0.6">
+		backgroundColor="white" 
+		>
 		<mx:Canvas id="videoBufferProgress" 
-			x="0" 
-			height="6" 
-			backgroundColor="white" 
+			height="5" 
+			backgroundColor="#00A1E7" 
 			backgroundAlpha="0.2" 
 			/>
 		<mx:Canvas id="videoPlayProgress" 
-			x="0"
-			height="6" 
-			backgroundColor="{(styleManager.getColorName(props.get('trayBackgroundColor')) as Number)}" 
-			backgroundAlpha="0.6" 
+			height="5" 
+			backgroundColor="#00A1E7" 
 			/>
 	</mx:Canvas>					
 
@@ -44,31 +34,26 @@
 	<mx:Canvas id="sectionContainer" top="0" left="0" width="100%" height="100%" horizontalScrollPolicy="off"></mx:Canvas>
 	
 	<!-- videoTime -->
-	<mx:HBox id="videoDragHandle"
-		 visible="false" 
-		 y="{(this.height-videoTimeLabel.height)/2}" 
-		 width="{videoTimeLabel.width}"
-		 height="{videoTimeLabel.height}"
-		 backgroundColor="0xFFFFFF" 
-		 cornerRadius="2" 
-		 borderStyle="solid" 
-		 borderColor="white"
-		 clipContent="false"
-		 useHandCursor="true"
-		 buttonMode="true"
+	<mx:Canvas id="videoDragHandle"
+	    width="50"
+		height="34"
+		visible="false" 
+		y="-29"
+		x="-25"
+		useHandCursor="true"
+		buttonMode="true"
+		backgroundImage="@Embed(source='assets/buttons/time.png')"
 		>
-		<mx:VBox id="videoTime"
-			 clipContent="false"
-			>
-			<mx:Label id="videoTimeLabel" 
-				selectable="false" 
-				fontFamily="Helvetica, Arial" 
-				fontSize="9" 
-				height="12" 
-				color="black"
-				/>
-		</mx:VBox>	
-	</mx:HBox>
+		<mx:Label id="videoTimeLabel"
+			selectable="false" 
+			fontFamily="Helvetica, Arial" 
+			fontSize="11" 
+			color="#00A1E7"
+			top="3"
+			horizontalCenter="0"
+			text="0:00"
+			/>
+	</mx:Canvas>
 	
 	<mx:Script>
 		<![CDATA[
@@ -103,7 +88,7 @@
 
 			// Component-specific functions and event-handlers
 			private function formatTime(time:int, totalTime:int = -1, join:String = ' / '):String {
-				if (time<0) return("");
+				if (time<0||isNaN(time)) time = 0;
 				if (totalTime>=0) {
 					return(Math.floor(time/60).toString() +':'+ (time%60<10?'0':'') + Math.round(time%60).toString() + join + Math.floor(totalTime/60).toString() +':'+ (totalTime%60<10?'0':'') + Math.round(totalTime%60).toString());
 				} else {
@@ -111,7 +96,7 @@
 				}
 			}
 			private function timeFromPoint(x:int):int {
-				return Math.round((x-5)/videoProgress.width*activeElement.getNumber('length'));
+				return Math.round(x/videoProgress.width*activeElement.getNumber('length'));
 			}
             public function seekVideoTo(time:int):void {
             	if(!_targetVideo) return;
@@ -142,7 +127,7 @@
 				videoPlayProgress.x = activeElement.getNumber('start') / activeElement.getNumber('length') * videoProgress.width;
 				videoPlayProgress.width  = _targetVideo.playheadTime/_targetVideo.totalTime*(videoProgress.width-videoPlayProgress.x);
 				if(scrubberStartMouseX<0) {
-					videoDragHandle.x = 5 + videoPlayProgress.x + videoPlayProgress.width - (videoDragHandle.width/2);
+					videoDragHandle.x = videoPlayProgress.x + videoPlayProgress.width - (videoDragHandle.width/2);
 					videoTimeLabel.text = formatTime(_targetVideo.playheadTime + activeElement.getNumber('start'));
 				}
             }

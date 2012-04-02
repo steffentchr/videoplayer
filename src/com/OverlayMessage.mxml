@@ -40,7 +40,7 @@
 		buttonMode="true" 
 		top="2" 
 		right="2" 
-		source="@Embed('assets/buttons/close.swf')"
+		source="@Embed('assets/buttons/close.png')"
 		visible="{_allowClose}" 
 		click="{closeHandler();}"/>
 </mx:Canvas>

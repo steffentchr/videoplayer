@@ -43,12 +43,12 @@ private function resetActiveElement(skip:Boolean=false):void {
 	identityVideo.close();
 	showBeforeIdentity = true;
 	showVideoAd = true;
-	liveStreamsMenu.value = null;
+	//stc// liveStreamsMenu.value = null;
 	updateBackground();
 
 	if(!skip) {
 		progress.setSections([]);
-		subtitles.suppportedLocales = {}; subtitlesMenu.options = [];
+		//stc// subtitles.suppportedLocales = {}; subtitlesMenu.options = [];
 	}
 }
 
@@ -156,7 +156,8 @@ private function setActiveElement(i:int, startPlaying:Boolean=false, start:Numbe
 		showImageElement();
 	}
 	
-	// Get sections and show, otherwise reset
+	/*
+	// Get subtitles and show, otherwise reset
 	if(!skip) {
 		if(o.subtitles_p && props.get('enableSubtitles')) {
 			try {
@@ -182,7 +183,7 @@ private function setActiveElement(i:int, startPlaying:Boolean=false, start:Numbe
 			subtitles.suppportedLocales = {}; subtitlesMenu.options = [];
 		}
 	
-		// Get subtitles and show, otherwise reset
+		// Get sections and show, otherwise reset
 		if(o.sections_p) {
 			try {
 				doAPI('/api/photo/section/list', {photo_id:o.photo_id, token:o.token}, function(sec:Object):void{progress.setSections(sec.sections);});
@@ -191,6 +192,7 @@ private function setActiveElement(i:int, startPlaying:Boolean=false, start:Numbe
 			progress.setSections([]);
 		}
 	}
+	*/
 
 	// Supported formats, default format and build menu
 	if(!skip) prepareSupportedFormats(o);

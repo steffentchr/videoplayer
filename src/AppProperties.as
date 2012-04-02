@@ -11,7 +11,7 @@ private var prioritizeLiveStreams:Boolean = false;
 public var propDefaults:Object = {
 	settingsLoaded: false,
 	backgroundColor: 'black',
-	trayBackgroundColor: 'black',
+	trayBackgroundColor: 'white',
 	trayTextColor: 'white',
 	trayFont: 'Helvetica, Arial, sans-serif',
 	trayTitleFontSize: parseFloat('13'),
@@ -33,8 +33,8 @@ public var propDefaults:Object = {
 	logoHeight: parseFloat('40'),
 	verticalPadding: parseFloat('0'),
 	horizontalPadding: parseFloat('0'),
-	trayTimeout: parseFloat('5000'),
-	infoTimeout: parseFloat('5000'),
+	trayTimeout: parseFloat('10000'),
+	infoTimeout: parseFloat('0'),
 	recommendationHeadline: 'Also have a look at...',
 	identityCountdown: false,
 	identityAllowClose: true,
@@ -129,6 +129,7 @@ private function initProperties(settings:Object):void {
 	  	}
 	}
 
+	/*
 	// Test logoSource
 	if (props.get('logoSource')=='no logo' || props.get('logoSource')=='') {
 		props.put('showLogo', false);
@@ -153,6 +154,7 @@ private function initProperties(settings:Object):void {
 
 	props.put('settingsLoaded', true);
 	updateBackground();
+	*/
 	
 	// Tray and information timeout
 	trayTimer.delay = props.getNumber('trayTimeout');
@@ -172,6 +174,7 @@ private function initProperties(settings:Object):void {
 	// Possibly auto-play
 	possiblyAutoPlay();
 	
+	/*
 	// Load up featured live streams
 	if(props.get('enableLiveStreams')) {
 		var streamOptions:Object = {};
@@ -211,6 +214,7 @@ private function initProperties(settings:Object):void {
 			});
 		} catch(e:Error) {}
 	}
+	*/
 }
 
 private function getRecommendationSource():String {

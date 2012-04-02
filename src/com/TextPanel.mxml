@@ -67,7 +67,7 @@
 				buttonMode="true" 
 				top="2" 
 				right="0" 
-				source="@Embed('assets/buttons/close.swf')" 
+				source="@Embed('assets/buttons/close.png')" 
 				click="{close();}"/>
 			<mx:Label id="textPanelTitle" 
 				top="0" 

@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- 
-  Demonic for 23 Video
-  Benjamin Bernhard, benjamin@23company.com
+  NEXT Video Player
   Steffen Tiedemann Christensen, steffen@23company.com
 -->
 <mx:Application 
@@ -26,8 +25,6 @@
  	<mx:Script source="doJSON.as"></mx:Script>
 	<mx:Script>
 		<![CDATA[
-			import com.PlayList;
-			import com.PlayListEvent;
 			import com.PlayerButton;
 			import com.SmoothImage;
 			import com.adobe.serialization.json.JSONParseError;
@@ -40,18 +37,15 @@
 			import flash.utils.setTimeout;
 			
 			// Default domain (used when testing from localhost)
-			private var defaultDomain:String = 'reference.dev.visualtube.net';
+			private var defaultDomain:String = 'video.nextconf.eu';
 			// Default photo_id (used to if you want a specific photo/video to be shown, otherwise empty)
 			private var defaultPhotoId:String = '';
 			private var defaultAlbumId:String = '';
-			private var playerId:String = '0';
+			private var playerId:String = '4806534';
 
 			private var context:Object = {};
 			private var recommendations:Object = {};
 			
-			private var playList: PlayList;
-			[Bindable] private var enablePlayList: Boolean = false;		
-			[Bindable] private var showPlayList: Boolean = false;
 			[Bindable] private var cleanVideoState:String = 'paused';
 			[Bindable] private var applicationLoaded:Boolean = false;
 			public var ads = null;
@@ -108,75 +102,18 @@
 			public function build():void {
 				if(!prioritizeLiveStreams && context && context.photos && context.photos.length>0) setActiveElement(0, false, props.getNumber('start'));
 				
-				if (props.get('showTray') && props.get('showBrowse')) {
-					// Generate the recommendation playlist
-					var recommendationSource:String = getRecommendationSource();
-					if(recommendationSource==props.get('jsonSource')) {
-						// The list displays all the items in the feed
-						recommendations=context; createPlayList();
-					} else {
-						// The list consists of recommendations, we'll need to load them
-						// Loading is deferred for a few seconds if browseMode isn't on 
-						setTimeout(function():void {
-							try {
-								doJSON(recommendationSource, function(o:Object):void{recommendations=o; createPlayList();});
-					        } catch(e:JSONParseError) {enablePlayList = false; props.put('showShare', false);}
-						}, (props.getBoolean('browseMode') ? 0 : 5000));
-					}
-				}
 				trayShow();
 				infoShow();
 				applicationLoaded = true;
 			}
 			
-            private function createPlayList():void  {
-            	var arr:Array = createItemsArray(recommendations);
-            	if(arr.length<=1) return;
-				enablePlayList = true;
-				playListHolder.removeAllChildren(); // if we've done this before, clean up after ourselves.
-            	playList = new PlayList();
-            	playList.width = playListContainer.width;
-            	playList.verticalScrollPolicy = "off";
-				playList.itemArray = arr;
-				playList.addEventListener(PlayListEvent.SELECT_ITEM, function(evt:PlayListEvent):void {
-						// When clicking the recommendation playlist, we shift context -- it's no longer the initially selected video, but the playlist objects
-						context = recommendations;
-						if(evt.itemID>=0) {
-							if(props.get('playlistClickMode')=='link') {
-								if (context.photos.length>evt.itemID) {
-									var o:Object = context.photos[evt.itemID];
-									goToUrl(o.one);
-								}
-							} else {
-            					playListHide();
-            					setElementByID(evt.itemID, true);
-							}
-            			}
-            		});
-				playListHolder.addChild(playList);
-				
-				if(props.get('browseMode')) {
-					showPlayList = true;
-					trayShow();
-				}
-            }
-			private function playListShow():void {
-				if (!props.get('showTray') || !props.get('showBrowse')) return;
-				showPlayList = true;
-				trayShow();
-            }
-			private function playListHide():void {
-				showPlayList = false;
-				trayShow();
-            }
             private function trayShow():void {
             	if(forceHideTray || !props.get('showTray')) {tray.visible=false; return;}
             	trayTimer.reset(); trayTimer.start();
-		        tray.y = FlexGlobals.topLevelApplication.height - tray.height + (showPlayList ? 0 : playListHolder.height); // ... to just inside, depending on context
+		        tray.y = FlexGlobals.topLevelApplication.height - tray.height; // ... to just inside, depending on context
             	tray.visible = true;
             }            
             private function trayHide():void {
-            	if (showPlayList) return;
             	trayTimer.stop();
             	if(props.getNumber('trayTimeout')<=0) return;
 				tray.y = FlexGlobals.topLevelApplication.height; // ... to outside of frame
@@ -218,14 +155,7 @@
 				else infoShow(false); // no timeout, since this a manual action
             }
             private function onPlayListDone():void {
-            	if(props.get('loop')) { 
-            		load();
-            	} else {
-            		if (playList) {
-            			playList.headline = new String(props.get('recommendationHeadline'));
-            			playListShow();
-            		}
-            	}
+				//
             }
 			private function onVideoStateChange(evt:Event):void {
 				if(evt.currentTarget.state==VideoEvent.PLAYING || evt.currentTarget.state==VideoEvent.SEEKING) {
@@ -252,24 +182,15 @@
             private function onVideoComplete(ignoreIdentity:Boolean=false):void {
 				reportPlay('end', video.playheadTime);
      			if(!ignoreIdentity) return(handleIdentity('after', function():void {onVideoComplete(true);}));
-            	if(props.get('loop')) {
-            		var more:Boolean = nextElement();
-            		if(!more) onPlayListDone();
-            	} else {
-            		onPlayListDone();
-            	}
-            }
-            private function onPlayListResize():void {
-            	var c:Array = playListHolder.getChildren();
-            	if (c.length) c[0].width = playListContainer.width;
+				onPlayListDone();
             }
             private function onTrayResize():void {
             	if(tray.visible) trayShow(); // if the tray is displayed and changes size, force a replacement
             	resizeProgressBar();
             }
             private function resizeProgressBar():void {
-            	var x:int = progress.x = (videoControls.visible ? videoControls.width : 0) + 4; 
-            	progress.width = tray.width - (rightPanel.width + 4) - x; 
+            	var x:int = progress.x = videoControls.width+ 10; 
+            	progress.width = tray.width - rightPanel.width - x - 10; 
             }
 		]]>
 	</mx:Script>	
@@ -290,7 +211,7 @@
 	<!-- Click Container when wmode='direct' -->
 	<mx:Canvas 
 		top="0" right="0" bottom="0" left="0"
-		click="playListHide(); if(video.playing) pauseVideoElement(); else playVideoElement();"
+		click="if(video.playing) pauseVideoElement(); else playVideoElement();"
 		/>
 	<!-- Image and Video -->
 	<visual:VisualVideo id="video"
@@ -300,7 +221,7 @@
 		bufferTime="10"
 		width="100%"
 		height="100%"
-		click="playListHide(); if(video.playing) pauseVideoElement(); else playVideoElement();" 
+		click="if(video.playing) pauseVideoElement(); else playVideoElement();" 
 		stateChange="onVideoStateChange(event);"
 		complete="onVideoComplete();"
 		/>
@@ -310,16 +231,12 @@
 		height="{(contentContainer.width/contentContainer.height>activeElement.get('aspectRatio') ? contentContainer.height : contentContainer.width/(activeElement.get('aspectRatio') as Number))}"
 		horizontalCenter="0" 
 		verticalCenter="0"
-		click="{playListHide(); playVideoElement()}" 
+		click="{playVideoElement()}" 
 		/>
 
  	 <!-- Big Play -->
-	<com:PlayerButton id="bigPlayImage" 
-		width="54" 
-		height="50"
-		imageSource="@Embed(source='assets/buttons/play.swf')"
-		imageWidth="54" 
-		imageHeight="50"
+	<mx:Image id="bigPlayImage" 
+		source="@Embed(source='assets/buttons/bigplay.png')"
 		verticalCenter="0" 
 		horizontalCenter="0" 
 		visible="{(applicationLoaded &amp;&amp; (props.get('showBigPlay') as Boolean) &amp;&amp; cleanVideoState=='paused' &amp;&amp; !identityVideo.playing)}" 
@@ -406,10 +323,10 @@
 			   />
 
 	<!-- Tray -->
-	<mx:Canvas id="tray" 
-		y="{FlexGlobals.topLevelApplication.height-tray.height+playListHolder.height}" 
-		x="0" 
-		width="{FlexGlobals.topLevelApplication.width}" 
+	<mx:Canvas id="tray"
+	 	bottom="10"
+	  	left="10"
+	   	right="10"
 		horizontalScrollPolicy="off" 
 		verticalScrollPolicy="off" 
 		resize="onTrayResize();" 
@@ -417,16 +334,14 @@
 		visible="false"
 		>
 		<mx:VBox 
-			verticalGap="0"
+			verticalGap="10"
 			>
 			<mx:VBox id="descriptions" 
 				horizontalScrollPolicy="off" 
 				verticalScrollPolicy="off" 
 				fontFamily="{props.get('trayFont')}" 
-				color="{(styleManager.getColorName(props.get('trayTextColor')) as Number)}" 
-				paddingLeft="2" 
-				paddingRight="2" 
-				width="{tray.width}"
+				color="#00A1E7" 
+				width="100%"
 				visible="false"
 				>
 				<!-- Title and Words -->
@@ -434,11 +349,8 @@
 					horizontalCenter="0" 
 					verticalCenter="0" 
 					verticalGap="0" 
-					backgroundColor="{(styleManager.getColorName(props.get('trayBackgroundColor')) as Number)}" 
-					backgroundAlpha="{(props.get('trayAlpha') as Number)}" 
-					cornerRadius="2" 
-					borderStyle="solid" 
-					borderThickness="0" 
+					backgroundColor="white" 
+					backgroundAlpha="0.8" 
 					width="100%" 
 					paddingTop="6" 
 					paddingBottom="6" 
@@ -479,25 +391,30 @@
 						hasFocusableChildren="true"
 						resize="resizeProgressBar();">
 			    		<com:PlayerButton id="playImage" 
-			    			imageSource="@Embed(source='assets/buttons/play.swf')"
+			    			imageSource="@Embed(source='assets/buttons/play.png')"
+							overSource="@Embed(source='assets/buttons/play-over.png')"
 			    			visible="{(cleanVideoState=='paused' &amp;&amp; !identityVideo.visible)}" 
 			    			click="playVideoElement()"
 			    			/>
 			    		<com:PlayerButton id="pauseImage" 
-			    			imageSource="@Embed(source='assets/buttons/pause.swf')"
+			    			imageSource="@Embed(source='assets/buttons/pause.png')"
+							overSource="@Embed(source='assets/buttons/pause-over.png')"
 			    			visible="{(cleanVideoState=='playing' &amp;&amp; !identityVideo.visible)}" 
 			    			click="pauseVideoElement()"
 			    			/>
 			    		<com:PlayerButton id="bufferImage"  
-			    			imageSource="@Embed(source='assets/buttons/buffering.swf')"
-			    			visible="{(cleanVideoState=='buffering' &amp;&amp; !identityVideo.visible)}" 
+			    			imageSource="@Embed(source='assets/buttons/pause.png')"
+							overSource="@Embed(source='assets/buttons/pause-over.png')"
+			    			visible="{(cleanVideoState=='buffering' &amp;&amp; !identityVideo.visible)}"
+							click="pauseVideoElement()"
 			    			/>  
 			    	</mx:HBox>					
 						
 					<!-- Progress bar -->
 					<com:PlayerProgress id="progress"
+						y="12"
 						targetVideo="{video}"
-						visible="{!activeElement.getBoolean('live') &amp;&amp; !identityVideo.visible}" 
+						visible="{!activeElement.getBoolean('live') &amp;&amp; !identityVideo.visible}"
 						/>
 
 					<!-- Right Panel -->
@@ -509,44 +426,13 @@
 			    		horizontalGap="2" 
 			    		resize="resizeProgressBar();"
 			    		> 
-						<!-- Live streams -->
-						<com:PlayerButton id="liveStreamsBtn" 
-							imageSource="@Embed(source='assets/buttons/live.swf')"
-							visible="false"
-							>
-							<com:PlayerMenu 
-								id="liveStreamsMenu"
-								change="{setActiveElementToLiveStream(liveStreamsMenu.value, true)}"
-								showOneItemMenus="true"
-								backgroundColor="{(styleManager.getColorName(props.get('trayBackgroundColor')) as Number)}" 
-								backgroundAlpha="{(props.get('trayAlpha') as Number)}" 
-								fontFamily="{props.get('trayFont')}" 
-								color="{(styleManager.getColorName(props.get('trayTextColor')) as Number)}" 
-								/>
-						</com:PlayerButton>
 
-						<!-- PlayListBtn -->
-			    		<com:PlayerButton id="playlistBtn" 
-			    			imageSource="@Embed(source='assets/buttons/expand-on.swf')"
-			    			visible="{enablePlayList &amp;&amp; showPlayList}" 
-			    			click="playListHide()"
-			    			/>
-			    		<com:PlayerButton id="playlistBtnOn" 
-			    			imageSource="@Embed(source='assets/buttons/expand-off.swf')"
-			    			visible="{enablePlayList &amp;&amp; !showPlayList}" 
-			    			click="playListShow()"
-			    			/>
-
-						<!-- InfoBtn -->
-						<com:PlayerButton id="infoImage" 
-										  imageSource="@Embed(source='assets/buttons/info.swf')"
-										  visible="{(activeElement.get('hasInfo') as Boolean) &amp;&amp; (props.get('showDescriptions') as Boolean)}" 
-										  click="infoToggle();"
-										  />
 					    <!-- HDbutton-->
 			    		<com:PlayerButton id="hdBtn" 
-			    			imageSource="@Embed(source='assets/buttons/hd.swf')"
+			    			imageSource="@Embed(source='assets/buttons/hd.png')"
+							overSource="@Embed(source='assets/buttons/hd-over.png')"
 							visible="false"
+							activated="{formatsMenu.visible}"
 			    			>
 							<com:PlayerMenu 
 								id="formatsMenu"
@@ -559,73 +445,37 @@
 								/>
 						</com:PlayerButton>
 
-						<!-- Subtitle button-->
-						<com:PlayerButton id="subtitlesBtn" 
-						  	imageSource="@Embed(source='assets/buttons/cc.swf')"
-							visible="false"
-							>
-							<com:PlayerMenu 
-								id="subtitlesMenu"
-								value="{subtitles.locale}"
-								change="{subtitles.locale=new String(subtitlesMenu.value);}"
-								backgroundColor="{(styleManager.getColorName(props.get('trayBackgroundColor')) as Number)}" 
-								backgroundAlpha="{(props.get('trayAlpha') as Number)}" 
-								fontFamily="{props.get('trayFont')}" 
-								color="{(styleManager.getColorName(props.get('trayTextColor')) as Number)}" 
-								/>
-						</com:PlayerButton>
-						
 						<!-- Mute and Unmute -->
 			    		<com:PlayerButton id="muteImage"
-			    			imageSource="@Embed(source='assets/buttons/mute-on.swf')"
+			    			imageSource="@Embed(source='assets/buttons/mute.png')"
+							overSource="@Embed(source='assets/buttons/mute-over.png')"
 			    			visible="{videoControls.visible &amp;&amp; video.volume>0}" 
 			    			click="video.volume=0"
 			    			/>
 			    		<com:PlayerButton id="unmuteImage"
-			    			imageSource="@Embed(source='assets/buttons/mute-off.swf')"
+			    			imageSource="@Embed(source='assets/buttons/unmute.png')"
+							overSource="@Embed(source='assets/buttons/unmute-over.png')"
 			    			visible="{videoControls.visible &amp;&amp; video.volume==0}" 
 			    			click="video.volume=1"
 			    			/>
 
 						<!-- Fullscreen -->
 			    		<com:PlayerButton id="fullscreenImage" 
-			    			imageSource="@Embed(source='assets/buttons/fullscreen-on.swf')"
-			    			visible="{!inFullScreen}" 
-			    			click="toggleFullScreen()"
-			    			/>
-			    		<com:PlayerButton id="smallscreenImage" 
-			    			imageSource="@Embed(source='assets/buttons/fullscreen-off.swf')"
-			    			visible="{inFullScreen}" 
+			    			imageSource="@Embed(source='assets/buttons/fullscreen.png')"
+							overSource="@Embed(source='assets/buttons/fullscreen-over.png')"
 			    			click="toggleFullScreen()"
 			    			/>
 
 						<!-- FeedPanel -->
 			    		<com:PlayerButton id="feedpanelBtn" 
-			    			imageSource="@Embed(source='assets/buttons/share.swf')"
+			    			imageSource="@Embed(source='assets/buttons/share.png')"
+							overSource="@Embed(source='assets/buttons/share-over.png')"
 			    			visible="{(props.get('showShare') as Boolean)}" 
 			    			click="embedPanel.visible=props.get('showShare') &amp;&amp; !embedPanel.visible;"
 			    			/>
 					</mx:HBox>
 				</mx:Canvas>
 			</mx:HBox>
-			
-			<!-- PlayList -->
-			<mx:Canvas id="playListContainer" 
-				height="{playListHolder.height}" 
-				width="{tray.width}" 
-				backgroundColor="black" 
-				borderColor="black" 
-				borderSides="top" 
-				borderStyle="solid" 
-				borderThickness="5">
-				<mx:Canvas id="playListHolder" 
-					bottom="0" 
-					width="{tray.width}" 
-					verticalScrollPolicy="off" 
-					horizontalScrollPolicy="off" 
-					resize="onPlayListResize()"
-					/>
-			</mx:Canvas>					
 		</mx:VBox>
 	</mx:Canvas>
 	
@@ -637,21 +487,6 @@
 		>
 
 		<!-- Embed section -->		
-		<mx:HBox 
-			horizontalGap="5" 
-			verticalAlign="middle"
-			paddingTop="5"
-			>
-			<mx:Image 
-				source="@Embed('assets/buttons/embed.swf')"
-				/>
-			<mx:Label 
-				text="Embed:" 
-				fontSize="13" 
-				fontWeight="bold" 
-				color="white"
-				/>
-		</mx:HBox>
 		<mx:HBox 
 			horizontalGap="10" 
 			width="100%"
@@ -670,9 +505,8 @@
 				color="#333" 
 				fontSize="11" 
 				/>
-			<com:ActionButton
-				text="Copy" 
-				iconSource="@Embed(source='assets/buttons/copy.swf')"
+			<mx:Image
+				source="@Embed(source='assets/buttons/copy.png')"
 				click="{reportEvent('embedEngaged'); System.setClipboard(embedText.text);}"
 				/>
 		</mx:HBox>
@@ -691,21 +525,18 @@
 			<mx:HBox 
 				horizontalGap="3"
 				>
-				<com:ActionButton
-					text="Mail video" 
-					iconSource="@Embed(source='assets/buttons/mail.swf')"
+				<mx:Image
+					source="@Embed(source='assets/buttons/mail.png')"
 					visible="{props.get('mailLink')!=''}"
 					click="{goToUrl(props.get('mailLink') as String)}"
 					/>
-				<com:ActionButton
-					text="Post to Facebook" 
-					iconSource="@Embed(source='assets/buttons/facebook.swf')"
+				<mx:Image
+					source="@Embed(source='assets/buttons/facebook.png')"
 					visible="{props.get('socialSharing') &amp;&amp; activeElement.get('link')!=''}"
 					click="{goToUrl(activeElement.get('link') + '/facebook?player_id=' + props.get('player_id'))}"
 					/>
-				<com:ActionButton
-					text="Post to Twitter" 
-					iconSource="@Embed(source='assets/buttons/twitter.swf')"
+				<mx:Image
+					source="@Embed(source='assets/buttons/twitter.png')"
 					visible="{props.get('socialSharing') &amp;&amp; activeElement.get('link')!=''}"
 					click="{goToUrl(activeElement.get('link') + '/twitter?player_id=' + props.get('player_id'))}"
 					/>
@@ -713,15 +544,13 @@
 			<mx:HBox
 				horizontalGap="5"
 				>
-				<com:ActionButton
-					text="Get as RSS" 
-					iconSource="@Embed(source='assets/buttons/rss.swf')"
+				<mx:Image
+					source="@Embed(source='assets/buttons/rss.png')"
 					visible="{props.get('rssLink')!=''}"
 					click="{goToUrl(props.get('rssLink') as String)}"
 					/>
-				<com:ActionButton
-					text="Get as Podcast" 
-					iconSource="@Embed(source='assets/buttons/podcast.swf')"
+				<mx:Image
+					source="@Embed(source='assets/buttons/podcast.png')"
 					visible="{props.get('podcastLink')!=''}"
 					click="{goToUrl(props.get('podcastLink') as String)}"
 					/>
@@ -746,21 +575,6 @@
 			paddingBottom="20"
 			click="{reportEvent('callToActionClick');}"
 			/>
-		<mx:HBox 
-			visible="{(props.get('showShare') as Boolean)}"
-			width="100%"
-			paddingTop="10" 
-			borderColor="#666666"
-			borderStyle="solid"
-			borderSides="top"
-			borderThickness="1"
-			>
-			<com:ActionButton
-				text="Share this video" 
-				iconSource="@Embed(source='assets/buttons/share.swf')"
-				click="embedPanel.visible=props.get('showShare') &amp;&amp; !embedPanel.visible; identityPanel.close();"
-				/>
-		</mx:HBox>
 	</com:TextPanel> 
 	<!-- / Text panel for post-roll -->
 </mx:Application>
