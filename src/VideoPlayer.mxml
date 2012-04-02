@@ -428,15 +428,11 @@
 			    		<com:PlayerButton id="muteImage"
 			    			imageSource="@Embed(source='assets/buttons/mute.png')"
 							overSource="@Embed(source='assets/buttons/mute-over.png')"
-			    			visible="{videoControls.visible &amp;&amp; video.volume>0}" 
-			    			click="video.volume=0"
-			    			/>
-			    		<com:PlayerButton id="unmuteImage"
-			    			imageSource="@Embed(source='assets/buttons/unmute.png')"
-							overSource="@Embed(source='assets/buttons/unmute-over.png')"
-			    			visible="{videoControls.visible &amp;&amp; video.volume==0}" 
-			    			click="video.volume=1"
-			    			/>
+			    			>
+							<com:VolumeMenu 
+								video="{video}"
+								/>
+						</com:PlayerButton>
 
 						<!-- Fullscreen -->
 			    		<com:PlayerButton id="fullscreenImage" 

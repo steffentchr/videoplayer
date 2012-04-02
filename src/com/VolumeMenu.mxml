@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas 
+	xmlns:mx="http://www.adobe.com/2006/mxml"
+	width="30"
+	height="75"
+	x="-3"
+	y="-76"
+	visible="false"
+	click="{event.stopPropagation();}"
+	backgroundImage="@Embed(source='assets/buttons/volume-background.png')"
+	initialize="{init()}"
+	>
+	<mx:Metadata>
+		[Event(name="change", type="flash.events.Event")]
+	</mx:Metadata>
+	<mx:Script>
+		<![CDATA[
+			import com.PlayerButton;
+			[Embed(source="assets/buttons/mute.png")] [Bindable]  public var mute:Class;
+			[Embed(source="assets/buttons/mute-over.png")] [Bindable]  public var muteOver:Class;
+			[Embed(source="assets/buttons/unmute.png")] [Bindable]  public var unmute:Class;
+			[Embed(source="assets/buttons/unmute-over.png")] [Bindable]  public var unmuteOver:Class;
+			
+			// Video
+			var _v:Object;
+			public function set video(v:Object):void {
+				_v = v;
+				_v.addEventListener('volumeChanged',function(){
+					vol5.alpha = (_v.volume==1 ? 1 : 0);
+					vol4.alpha = (_v.volume>=.75 ? 1 : 0);
+					vol3.alpha = (_v.volume>=.5 ? 1 : 0);
+					vol2.alpha = (_v.volume>0 ? 1 : 0);
+					
+					if(button){
+						button.imageSource = (_v.volume>0 ? mute : unmute);
+						button.overSource = (_v.volume>0 ? muteOver : unmuteOver);
+					}
+					
+					toggle(true);
+				});
+			}
+			
+			// Some helpers
+			private var showDate:Number = new Number(new Date());
+			public function toggle(forceHide:Boolean=false):void {
+				var v:Boolean = (forceHide ? false : !this.visible);
+				// This isn't pretty, but basically we don't want to destroy a menu we've just created
+				if(!v && (new Number(new Date())-showDate)<50) return;
+				if(v) showDate = new Number(new Date());
+				this.visible = v;
+			}
+			
+			// Init
+			private var button:PlayerButton;
+			private function init():void {
+				this.parentApplication.addEventListener(MouseEvent.CLICK, function(e:Event):void{toggle(true);});
+				this.parent.addEventListener(MouseEvent.CLICK, function(e:Event):void{toggle();});
+				button = this.parent as PlayerButton;
+			}
+		]]>
+	</mx:Script>	
+	
+	<mx:Image
+		id="vol5"
+		top="5" 
+		horizontalCenter="0"
+		source="@Embed(source='assets/buttons/volume-on.png')"
+		click="{_v.volume = 1;}"
+		/>
+	<mx:Image
+		id="vol4"
+		top="17" 
+		horizontalCenter="0"
+		source="@Embed(source='assets/buttons/volume-on.png')"
+		click="{_v.volume = .75;}"
+		/>
+	<mx:Image
+		id="vol3"
+		top="29" 
+		horizontalCenter="0"
+		source="@Embed(source='assets/buttons/volume-on.png')"
+		click="{_v.volume = .5;}"
+		/>
+	<mx:Image
+		id="vol2"
+		top="41" 
+		horizontalCenter="0"
+		source="@Embed(source='assets/buttons/volume-on.png')"
+		click="{_v.volume = .25;}"
+		/>
+	<mx:Image
+		id="vol1"
+		top="53" 
+		horizontalCenter="0"
+		source="@Embed(source='assets/buttons/volume-on.png')"
+		click="{_v.volume = 0;}"
+		/>
+</mx:Canvas>
