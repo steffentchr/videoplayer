@@ -41,7 +41,7 @@
 			// Default photo_id (used to if you want a specific photo/video to be shown, otherwise empty)
 			private var defaultPhotoId:String = '';
 			private var defaultAlbumId:String = '';
-			private var playerId:String = '4799388';
+			private var playerId:String = '0';
 
 			private var context:Object = {};
 			private var recommendations:Object = {};
@@ -427,7 +427,7 @@
 						bottom="0" 
 						top="0" 
 						left="0" 
-						width="49"
+						width="43"
 						hasFocusableChildren="true"
 						resize="resizeProgressBar();">
 			    		<com:PlayerButton id="playImage" 
@@ -436,6 +436,7 @@
 			    			click="playVideoElement()"
 							hasBorder="false"
 							hasHover="false"
+							width="43"
 			    			/>
 			    		<com:PlayerButton id="pauseImage" 
 			    			imageSource="@Embed(source='assets/buttons/pause.png')"
@@ -443,12 +444,14 @@
 			    			click="pauseVideoElement()"
 							hasBorder="false"
 							hasHover="false"
+							width="43"
 			    			/>
 			    		<com:PlayerButton id="bufferImage"  
 			    			imageSource="@Embed(source='assets/buttons/pause.png')"
 			    			visible="{(cleanVideoState=='buffering' &amp;&amp; !identityVideo.visible)}" 
 							hasBorder="false"
 							hasHover="false"
+							width="43"
 			    			/>  
 			    	</mx:HBox>					
 						
@@ -564,7 +567,7 @@
 
 		<mx:Canvas
 			width="100%"
-			borderColor="#cccccc"
+			borderColor="#e9ebeb"
 			borderStyle="solid"
 			borderSides="top"
 			borderThickness="1"

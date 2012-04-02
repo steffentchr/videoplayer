@@ -4,7 +4,8 @@
 	horizontalScrollPolicy="off" 
 	verticalScrollPolicy="off"
 	useHandCursor="true" 
-	buttonMode="true" 
+	buttonMode="true"
+	clipContent="false"
 	height="40"
 	click="seekVideoTo(timeFromPoint(this.contentMouseX));" 
 	initialize="init()"
@@ -13,7 +14,7 @@
 	<!-- VideoProgress -->
 	<mx:Canvas
 		top="16" 
-		left="10" 
+		left="0" 
 		right="10" 
 		height="9" 
 		resize="drawSections();" 
@@ -45,7 +46,7 @@
 	<mx:Image id="videoDragHandle"
 		source="@Embed(source='assets/buttons/drag-handle.png')"
 		y="14" 
-		x="2"
+		x="-3"
 		useHandCursor="true"
 		buttonMode="true"
 		/>
@@ -90,7 +91,7 @@
 				}
 			}
 			private function timeFromPoint(x:int):int {
-				return Math.round((x)/videoProgress.width*activeElement.getNumber('length'));
+				return Math.round((x)/(videoProgress.width-20)*activeElement.getNumber('length'));
 			}
             public function seekVideoTo(time:int):void {
             	if(!_targetVideo) return;
@@ -121,7 +122,7 @@
 				videoPlayProgress.x = activeElement.getNumber('start') / activeElement.getNumber('length') * videoProgress.width;
 				if(_targetVideo.totalTime>0) videoPlayProgress.width  = _targetVideo.playheadTime/_targetVideo.totalTime*(videoProgress.width-videoPlayProgress.x);
 				if(scrubberStartMouseX<0) {
-					videoDragHandle.x = 7 + videoPlayProgress.x + videoPlayProgress.width - (videoDragHandle.width/2);
+					videoDragHandle.x = videoPlayProgress.x + videoPlayProgress.width - (videoDragHandle.width/2) -1;
 				}
             }
 

@@ -47,7 +47,7 @@
 	<!-- Title -->		
 	<mx:Canvas 
 		width="100%"
-		borderColor="#cccccc"
+		borderColor="#e9ebeb"
 		borderStyle="solid"
 		borderSides="bottom"
 		borderThickness="1"
