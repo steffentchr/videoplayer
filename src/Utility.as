@@ -6,7 +6,6 @@ import mx.utils.UIDUtil;
 public var uuid:String = UIDUtil.createUID();
 
 public function displayError(text:String):void {
-	logo.visible=false; 
 	video.visible=false; 
 	image.visible=false; 
 	tray.visible=false; 
