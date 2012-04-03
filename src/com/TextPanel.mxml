@@ -25,6 +25,10 @@
 			public function set title(t:String):void {
 				_title=t;
 			}
+			[Bindable] private var _headlineSource:Object; 
+			public function set headlineSource(s:String):void {
+				_headlineSource=s;
+			}
 			public function set onClose(value:Function):void {
 				_onClose = value;
 			}
@@ -45,25 +49,20 @@
 		]]>
 	</mx:Script>
 	<!-- Title -->		
-	<mx:Canvas 
+	<mx:HBox 
 		width="100%"
 		borderColor="#e9ebeb"
 		borderStyle="solid"
 		borderSides="bottom"
 		borderThickness="1"
+		paddingTop="10" 
+		paddingLeft="12"
+		paddingBottom="10"
 		>
-		<mx:Label id="textPanelTitle" 
-			top="0" 
-			left="0" 
-			fontSize="20" 
-			color="#999999"
-			paddingTop="5"
-			paddingLeft="12"
-			paddingBottom="5"
-			fontFamily="Verdana, Helvetica, Arial, sans-serif"
-			text="{_title.toUpperCase()}"
+		<mx:Image
+			source="{_headlineSource}"
 			/>
-	</mx:Canvas>
+	</mx:HBox>
 
 	<mx:Box id="container" 
 		horizontalScrollPolicy="off" 

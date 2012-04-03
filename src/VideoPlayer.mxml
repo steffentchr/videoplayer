@@ -398,8 +398,8 @@
 
 	<!-- PlayList -->
 	
-	<com:TextPanel id="playListContainer" 
-		title="Videos"
+	<com:TextPanel id="playListContainer"
+		headlineSource="@Embed('assets/buttons/videos-headline.png')"
 		visible="{showPlayList}"
 		>
 		<mx:Canvas id="playListHolder" 
@@ -525,7 +525,7 @@
 	
 	<!-- Embed panel -->
 	<com:TextPanel id="embedPanel" 
-		title="Share this video"
+		headlineSource="@Embed('assets/buttons/share-headline.png')"
 		show="{reportEvent('shareEngaged');}"
 		>
 

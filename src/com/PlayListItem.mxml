@@ -10,8 +10,8 @@
 	tabFocusEnabled="true"
 	useHandCursor="true"
 	buttonMode="true"
-	mouseOver="{hover.visible=true;}"
-	mouseOut="{hover.visible=false;}"
+	mouseOver="{hover.visible=true; img.alpha=1;}"
+	mouseOut="{hover.visible=false; img.alpha=.7;}"
 	keyDown="if (event.keyCode==Keyboard.ENTER) event.target.dispatchEvent(new MouseEvent(MouseEvent.CLICK));"
 	>
 	<mx:Script>
@@ -37,6 +37,7 @@
 		maintainAspectRatio="false"
 		verticalAlign="bottom"
 		horizontalAlign="center"
+		alpha=".7"
 		/>
 	<mx:Text 
 		id="nameLabel" 
