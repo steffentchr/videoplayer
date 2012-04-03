@@ -309,21 +309,22 @@
 				>
 				<!-- Title and Words -->
 				<mx:VBox id="descBg" 
+				 	horizontalScrollPolicy="off" 
+				 	verticalScrollPolicy="off" 
 					horizontalCenter="0" 
 					verticalCenter="0" 
 					verticalGap="0" 
-					width="100%" 
+					width="{tray.width-200}" 
 					paddingTop="22" 
 					paddingBottom="20" 
 					paddingLeft="6" 
-					paddingRight="6"
 					>
-					<mx:Label id="trayTitle" 
+					<mx:Text id="trayTitle" 
 						text="{activeElement.get('title')}" 
 						truncateToFit="true" 
-						maxWidth="{FlexGlobals.topLevelApplication.width}" 
+						maxWidth="{descBg.width}" 
 						updateComplete="trayTitle.visible = (trayTitle.text.length>0);" 
-						fontSize="23" 
+						fontSize="23"
 						fontFamily="KlavikaBold"
 						/>
 					<mx:Text id="trayContent"
@@ -332,7 +333,7 @@
 						fontFamily="KlavikaBold"
 						htmlText="{activeElement.get('content')}" 
 						truncateToFit="true" 
-						maxWidth="{FlexGlobals.topLevelApplication.width}" 
+						maxWidth="{descBg.width}" 
 						updateComplete="trayContent.visible = (trayContent.text.length>0);" 
 						/>
 				</mx:VBox>
