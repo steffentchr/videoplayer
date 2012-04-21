@@ -149,6 +149,8 @@ private function initProperties(settings:Object):void {
 	var pos:String = props.get('logoPosition').toString();
 	props.put('logoAlign', (new RegExp('left').test(pos) ? 'left' : 'right'));
 	props.put('logoVAlign', (new RegExp('top').test(pos) ? 'top' : 'bottom'));
+	
+	updateBackground();
 
 	// Make the embed code current
 	updateCurrentVideoEmbedCode();

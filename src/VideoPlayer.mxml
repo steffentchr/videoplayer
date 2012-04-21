@@ -127,11 +127,9 @@
 					} else {
 						// The list consists of recommendations, we'll need to load them
 						// Loading is deferred for a few seconds if browseMode isn't on 
-						setTimeout(function():void {
-							try {
-								doJSON(recommendationSource, function(o:Object):void{recommendations=o; createPlayList();});
-							} catch(e:JSONParseError) {enablePlayList = false; props.put('showShare', false);}
-						}, (props.getBoolean('browseMode') ? 0 : 5000));
+						try {
+							doJSON(recommendationSource, function(o:Object):void{recommendations=o; createPlayList();});
+						} catch(e:JSONParseError) {enablePlayList = false; props.put('showShare', false);}
 					}
 				}
 				clearQuestion();
@@ -139,6 +137,7 @@
 			}
 			
             private function createPlayList():void  {
+				trace('createPlayList()');
             	var arr:Array = createItemsArray(recommendations);
             	if(arr.length<=1) return;
 				enablePlayList = true;
@@ -169,6 +168,9 @@
 				}
             }
 			private function playListShow():void {
+				trace('playListShow(): showTray = ' + props.get('showTray'));
+				trace('playListShow(): showBrowse = ' + props.get('showBrowse'));
+				trace('playListShow(): enablePlayList = ' + enablePlayList);
 				if (!props.get('showTray') || !props.get('showBrowse') || !enablePlayList) return;
 				showPlayList = true;
             }
@@ -327,7 +329,7 @@
 	<com:PlayerButton id="bigPlayImage" 
 		width="64" 
 		height="60"
-		backgroundColor="{(styleManager.getColorName(props.get('trayBackgroundColor')) as Number)}" 
+		backgroundColor="#1498E0" 
 		backgroundAlpha="{(props.get('trayAlpha') as Number)}" 
 		imageSource="@Embed(source='assets/buttons/play.swf')"
 		imageWidth="34" 
@@ -362,7 +364,7 @@
 	<com:OverlayMessage id="identityMessage"
 		fontFamily="{props.get('trayFont')}" 
 		color="{(styleManager.getColorName(props.get('trayTextColor')) as Number)}" 
-		backgroundColor="{(styleManager.getColorName(props.get('trayBackgroundColor')) as Number)}" 
+		backgroundColor="#1498E0" 
 		visible="{props.get('identityCountdown') &amp;&amp; identityVideo.visible}"
 		allowClose="{props.get('identityAllowClose')}"
 		close="{identityVideo.stop(); reportEvent(currentIdentityEvent=='after' ? 'postRollClose ' : 'preRollClose'); identityVideo.dispatchEvent(new Event('complete', true));}"
@@ -430,11 +432,11 @@
 	
 	<!-- Tray -->
 	<mx:VBox id="tray" 
-		width="100%" 
+		width="100%"
 		horizontalScrollPolicy="off" 
 		verticalScrollPolicy="off" 
 		verticalGap="1"
-		visible="true"
+		visible="false"
 		bottom="0"
 		left="0"
 		right="0"
@@ -444,7 +446,7 @@
 		<mx:Canvas id="playListContainer"
 			height="123" 
 			width="100%" 
-			backgroundColor="{(styleManager.getColorName(props.get('trayBackgroundColor')) as Number)}"
+			backgroundColor="#1498E0"
 			backgroundAlpha="{(props.get('trayAlpha') as Number)}" 
 			visible="{showPlayList}"
 			includeInLayout="{playListContainer.visible}"
@@ -464,7 +466,7 @@
 			width="100%" 
 			horizontalGap="1" 
 			height="68" 
-			backgroundColor="{(styleManager.getColorName(props.get('trayBackgroundColor')) as Number)}" 
+			backgroundColor="#1498E0" 
 			backgroundAlpha="{(props.get('trayAlpha') as Number)}" 
 			paddingLeft="10" 
 			paddingRight="10" 
@@ -512,7 +514,7 @@
 	    			imageSource="@Embed(source='assets/buttons/play.swf')"
 	    			visible="{(cleanVideoState=='paused' &amp;&amp; !identityVideo.visible)}" 
 	    			click="playVideoElement()"
-					backgroundColor="{(styleManager.getColorName(props.get('trayBackgroundColor')) as Number)}"  
+					backgroundColor="#1498E0"  
 					backgroundAlpha="{(props.get('trayAlpha') as Number)}" 
 	    			/>
 	    		<com:PlayerButton id="pauseImage" 
@@ -520,20 +522,20 @@
 	    			imageSource="@Embed(source='assets/buttons/pause.swf')"
 	    			visible="{(cleanVideoState=='playing' &amp;&amp; !identityVideo.visible)}" 
 	    			click="pauseVideoElement()"
-					backgroundColor="{(styleManager.getColorName(props.get('trayBackgroundColor')) as Number)}"  
+					backgroundColor="#1498E0"  
 					backgroundAlpha="{(props.get('trayAlpha') as Number)}" 
 	    			/>
 	    		<com:PlayerButton id="bufferImage"  
 	    			width="60" height="45" 
 	    			imageSource="@Embed(source='assets/buttons/buffering.swf')"
 	    			visible="{(cleanVideoState=='buffering' &amp;&amp; !identityVideo.visible)}" 
-					backgroundColor="{(styleManager.getColorName(props.get('trayBackgroundColor')) as Number)}"  
+					backgroundColor="#1498E0"  
 					backgroundAlpha="{(props.get('trayAlpha') as Number)}" 
 	    			/>  
 
 				<mx:VBox 
 					id="progressContainer"
-					backgroundColor="{(styleManager.getColorName(props.get('trayBackgroundColor')) as Number)}"
+					backgroundColor="#1498E0"
 					backgroundAlpha="{(props.get('trayAlpha') as Number)}"
 					verticalGap="1"
 					paddingLeft="8"
@@ -580,7 +582,7 @@
 									id="liveStreamsMenu"
 									change="{setActiveElementToLiveStream(liveStreamsMenu.value, true)}"
 									showOneItemMenus="true"
-									backgroundColor="{(styleManager.getColorName(props.get('trayBackgroundColor')) as Number)}" 
+									backgroundColor="#1498E0" 
 									backgroundAlpha="{(props.get('trayAlpha') as Number)}" 
 									fontFamily="{props.get('trayFont')}" 
 									color="{(styleManager.getColorName(props.get('trayTextColor')) as Number)}" 
@@ -603,7 +605,7 @@
 									id="formatsMenu"
 									value="{currentVideoFormat}"
 									change="{switchVideoFormat(new String(formatsMenu.value));}"
-									backgroundColor="{(styleManager.getColorName(props.get('trayBackgroundColor')) as Number)}" 
+									backgroundColor="#1498E0" 
 									backgroundAlpha="{(props.get('trayAlpha') as Number)}" 
 									fontFamily="{props.get('trayFont')}" 
 									color="{(styleManager.getColorName(props.get('trayTextColor')) as Number)}" 
@@ -618,7 +620,7 @@
 									id="subtitlesMenu"
 									value="{subtitles.locale}"
 									change="{subtitles.locale=new String(subtitlesMenu.value);}"
-									backgroundColor="{(styleManager.getColorName(props.get('trayBackgroundColor')) as Number)}" 
+									backgroundColor="#1498E0" 
 									backgroundAlpha="{(props.get('trayAlpha') as Number)}" 
 									fontFamily="{props.get('trayFont')}" 
 									color="{(styleManager.getColorName(props.get('trayTextColor')) as Number)}" 
