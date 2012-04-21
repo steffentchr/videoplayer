@@ -189,6 +189,7 @@
             }
             private function infoShow(timeout:Boolean=true):void {
             	if(!activeElement.get('hasInfo') || !props.get('showDescriptions')) {descriptions.visible = false; return;}
+				trace('trayContent.height = ' + trayContent.height);
 				hidePopups();
 				descriptions.visible = true;
             }
@@ -376,24 +377,45 @@
 		paddingTop="20"
 		paddingRight="45"
 		paddingBottom="20"
-		paddingLeft="20"
+		paddingLeft="40"
+		verticalGap="15"
 		>
 			<!-- Title and Words -->
 			<mx:Label id="trayTitle" 
-				fontSize="15"
+				fontSize="14"
 				color="black"
 				text="{activeElement.get('title')}" 
 				truncateToFit="true" 
 				width="100%"
 				/>
-			<mx:Text id="trayContent" 
-				fontSize="13"
-				color="#666666"
-				text="{activeElement.get('content')}" 
-				truncateToFit="true" 
+		<mx:VBox width="100%" verticalGap="0">
+			<mx:Canvas
 				width="100%"
-				maxHeight="39"
-				/>
+				height="{trayContent.height}"
+				clipContent="true"
+				>
+				<mx:Text id="trayContent" 
+						 fontSize="13"
+						 color="#666666"
+						 text="{activeElement.get('content')}" 
+						 truncateToFit="true" 
+						 width="100%"
+						 maxHeight="60"
+						 />
+			</mx:Canvas>
+			<mx:Text id="readMore" 
+					 fontSize="13"
+					 color="#009FD9"
+					 text="Read more" 
+					 width="100%"
+					 visible="{trayContent.height==trayContent.maxHeight}"
+					 includeInLayout="{trayContent.height==trayContent.maxHeight}"
+					 click="{goToUrl(activeElement.getString('link'));}"
+					 useHandCursor="true"
+					 buttonMode="true"
+					 selectable="false"
+					 />
+		</mx:VBox>
 	</mx:VBox>
 
 	<!-- PlayList -->

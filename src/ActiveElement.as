@@ -106,6 +106,12 @@ private function setActiveElement(i:int, startPlaying:Boolean=false, start:Numbe
   	// Handle video title and description
   	var title:String = o.title.replace(new RegExp('(<([^>]+)>)', 'ig'), '');
   	var content:String = o.content_text.replace(new RegExp('(<([^>]+)>)', 'ig'), '');
+	content += content;
+	content += content;
+	content += content;
+	content += content;
+	content += content;
+	content += content;
   	var hasInfo:Boolean =  (title.length>0 || content.length>0);
   	activeElement.put('photo_id', o.photo_id);
   	activeElement.put('title', title);
