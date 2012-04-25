@@ -17,7 +17,10 @@ private function resetActiveElement():void {
 	activeElement.put('video_p', false);
   	activeElement.put('title', '');
   	activeElement.put('content', '');
+	activeElement.put('date', '');
+	activeElement.put('short_date', '');
   	activeElement.put('link', '');
+	activeElement.put('album_id', '');
   	activeElement.put('videoSource', '');
   	activeElement.put('photoSource', '');
   	activeElement.put('photoWidth', new Number(0));
@@ -37,7 +40,7 @@ private function resetActiveElement():void {
 	
 	// Reset other stuff related to the active video
 	clearVideo();
-	progress.setSections([]);
+	//progress.setSections([]);
 }
 
 private function setActiveElementToLiveStream(stream:Object, startPlaying:Boolean=false):void {
@@ -90,23 +93,19 @@ private function setActiveElement(i:int, startPlaying:Boolean=false, start:Numbe
   	var content:String = o.content_text.replace(new RegExp('(<([^>]+)>)', 'ig'), '');
   	var hasInfo:Boolean =  (props.get('showDescriptions') && (title.length>0 || content.length>0));
   	activeElement.put('photo_id', o.photo_id);
-  	activeElement.put('title', title);
+  	//activeElement.put('title', title);
+	activeElement.put('title', o.album_title)
+	activeElement.put('album_id', o.album_id);
   	activeElement.put('content', content);
+	activeElement.put('date', o.publish_date__date);
+	activeElement.put('short_date', o.publish_date_ansi.substr(8,2) + '/' + o.publish_date_ansi.substr(5,2) + '/' + o.publish_date_ansi.substr(2,2));
   	activeElement.put('hasInfo', hasInfo);
   	activeElement.put('link', o.one);
   	activeElement.put('length', o.video_length); 
   	activeElement.put('start', start);
   	activeElement.put('skip', skip);
-
-	// Get subtitles and show, otherwise reset
-	if(o.sections_p) {
-		try {
-			doAPI('/api/photo/section/list', {photo_id:o.photo_id, token:o.token}, function(sec:Object):void{progress.setSections(sec.sections);});
-		} catch(e:Error) {progress.setSections([]);}
-	} else {
-		progress.setSections([]);
-	}
-
+	smallPlayheadTime.text = formatTime(activeElement.getNumber('length'));
+	
 	// Supported formats, default format and build menu
 	if(!skip) prepareSupportedFormats(o);
 	// Switch to format if needed
@@ -126,7 +125,6 @@ private function setActiveElement(i:int, startPlaying:Boolean=false, start:Numbe
 	video.aspectRatio = ar;
  
  	if(video_p) {
- 		image.source = null;
   		showVideoElement();
   		if (props.get('autoPlay') || props.get('loop') || startPlaying) playVideoElement();
   	} else {
@@ -189,7 +187,6 @@ private function createItemsArray(p:Object) : Array {
 
 private function clearVideo():void {
 	video.source = null; video.visible = false;
-	image.source = null; image.visible = false;
     if(video.playing) {video.stop(); video.close();}
 }
 private function previousElement():Boolean {
@@ -205,27 +202,14 @@ private function setElementByID(id:Number, startPlaying:Boolean=false):void {
 
 private function showImageElement():void {
 	clearVideo(); 
-	
-	video.visible=false;
-	videoControls.visible=progress.visible=false;
-	
-	//image.visible=true;
 }
 private function showVideoElement():void {
-	video.visible=false;
-	videoControls.visible=true;
-	progress.visible=(!video.isLive);
-	
-	image.source = activeElement.get('photoSource');
-	//image.visible=true;
 }
 
 public function playVideoElement():void {
 	if(!activeElement.get('video_p')) return;
-	image.visible=false;
 	//video.visible=true;
 	//videoControls.visible=true;
-	progress.visible=(!video.isLive);
 	video.source = getFullVideoSource();
 	video.play();
 }
@@ -240,3 +224,13 @@ private function getFullVideoSource():String {
 	return(activeElement.getString('videoSource') + joinChar + 'start=' + encodeURIComponent(activeElement.getString('start')) + '&skip=' + encodeURIComponent(activeElement.getString('skip')));
 }            
 
+
+private function shareFacebook():void {
+	goToUrl(activeElement.getString('link') + '/facebook');
+}            
+private function shareTwitter():void {
+	goToUrl(activeElement.getString('link') + '/twitter');
+}            
+private function shareGoogle():void {
+	goToUrl(activeElement.getString('link') + '/google');
+}            

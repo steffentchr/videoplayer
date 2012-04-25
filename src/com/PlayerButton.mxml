@@ -32,6 +32,8 @@
 			public function set imageSource(source:Object):void {
 				_imageSource = source;
 				imageContainer.source = _imageSource;
+				imageContainer.verticalCenter = 0;
+				imageContainer.horizontalCenter = 0;
 				this.addChild(imageContainer);					
 			}
 			private function onVisibilityChange():void {

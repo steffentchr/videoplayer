@@ -3,19 +3,19 @@ import flash.system.Capabilities;
 
 import mx.utils.UIDUtil;
 
-import preload.CustomPreloader;
 public var uuid:String = UIDUtil.createUID();
 
 public function displayError(text:String):void {
 	video.visible=false; 
-	image.visible=false; 
-	tray.visible=false; 
+	applicationStandard.visible=false;
+	applicationSmall.visible=false;
+	applicationLarge.visible=false;
 	errorContainer.visible=true; 
 	errorContainer.text=text;
 }
 
 public function lowBandwidth():Boolean {
-	return(preload.CustomPreloader.kbps < props.get('lowBandwidthThresholdKbps'));
+	return(false);
 }
 
 public function h264():Boolean {
@@ -60,4 +60,13 @@ public function reportEvent(event:String):void {
 public function goToUrl(url:String, target:String = '_top'):void {
 	if(!new RegExp('\:\/\/').test(url)) url = props.get('site_url') + url;
     navigateToURL(new URLRequest(url), target);
+}
+
+private function formatTime(time:int, totalTime:int = -1, join:String = ' / '):String {
+	if (time<0) return("");
+	if (totalTime>=0) {
+		return(Math.floor(time/60).toString() +':'+ (time%60<10?'0':'') + Math.round(time%60).toString() + join + Math.floor(totalTime/60).toString() +':'+ (totalTime%60<10?'0':'') + Math.round(totalTime%60).toString());
+	} else {
+		return(Math.floor(time/60).toString() +':'+ (time%60<10?'0':'') + Math.round(time%60).toString());
+	}
 }

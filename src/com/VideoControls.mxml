@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas 
+	xmlns:mx="http://www.adobe.com/2006/mxml" 
+	xmlns:com="com.*" 
+	width="340" 
+	height="76"
+	hasFocusableChildren="true"
+	>
+	<mx:Script>
+		<![CDATA[
+			import com.PlayerButton;
+			import com.PlayerProgress;
+			import com.visual.VisualVideo;
+			
+			[Embed(source="assets/buttons/play.png")] [Bindable] public var playButton:Class;
+			[Embed(source="assets/buttons/play-hover.png")] [Bindable] public var playHoverButton:Class;
+			[Embed(source="assets/buttons/pause.png")] [Bindable] public var pauseButton:Class;
+			[Embed(source="assets/buttons/pause-hover.png")] [Bindable] public var pauseHoverButton:Class;
+			[Embed(source="assets/buttons/button-background.png")] [Bindable] public var backgroundButton:Class;
+
+			[Embed(source="assets/buttons/small-play.png")] [Bindable] public var smallPlayButton:Class;
+			[Embed(source="assets/buttons/small-play-hover.png")] [Bindable] public var smallPlayHoverButton:Class;
+			[Embed(source="assets/buttons/small-pause.png")] [Bindable] public var smallPauseButton:Class;
+			[Embed(source="assets/buttons/small-pause-hover.png")] [Bindable] public var smallPauseHoverButton:Class;
+			[Embed(source="assets/buttons/small-button-background.png")] [Bindable] public var smallBackgroundButton:Class;
+			
+			[Bindable] public var cleanVideoState:String = 'paused';
+			[Bindable] public var video:VisualVideo = null;
+			[Bindable] public var showSmall:Boolean = false;
+			[Bindable] public var showTime:Boolean = true;
+			public var playCallback:Function = function():void{};
+			public var pauseCallback:Function = function():void{};
+			
+			[Bindable] private var _showProgress:Boolean = true;
+			public function set showProgress(sp:Boolean):void {
+				_showProgress = sp;
+			}
+			public function get showProgress():Boolean {
+				return(_showProgress);
+			}
+		]]>
+	</mx:Script>
+	<!-- Progress bar -->
+	<com:PlayerProgress id="progress"
+        visible="{_showProgress}"
+		targetVideo="{video}"
+		showTime="{showTime}"
+		/>
+	
+	<!-- Play and Pause -->
+	<mx:Canvas id="videoControls" 
+		hasFocusableChildren="true"
+		>
+		<com:PlayerButton 
+			imageSource="{(showSmall ? smallBackgroundButton : backgroundButton)}"
+			hoverSource="{(showSmall ? smallBackgroundButton : backgroundButton)}"
+			/>
+		<com:PlayerButton id="playImage" 
+			imageSource="{(showSmall ? smallPlayButton : playButton)}"
+			hoverSource="{(showSmall ? smallPlayHoverButton : playHoverButton)}"
+			visible="{(cleanVideoState=='paused')}" 
+			click="playCallback()"
+			accessibilityName="Afspil klip"
+			name="Afspil klip"
+			toolTip="Afspil klip"
+			/>
+		<com:PlayerButton id="pauseImage" 
+			imageSource="{(showSmall ? smallPauseButton : pauseButton)}"
+			hoverSource="{(showSmall ? smallPauseHoverButton : pauseHoverButton)}"
+			visible="{(cleanVideoState=='playing')}" 
+			click="pauseCallback()"
+			accessibilityName="Pause"
+			name="Pause"
+			toolTip="Pause"
+			/>
+		<com:PlayerButton id="bufferImage" 
+			imageSource="@Embed(source='assets/buttons/buffering.swf')"
+			hoverSource="@Embed(source='assets/buttons/buffering.swf')"
+			visible="{(cleanVideoState=='buffering')}" 
+			accessibilityName="Looader klippet..."
+			name="Looader klippet..."
+			toolTip="Looader klippet..."
+			/>
+	</mx:Canvas>					
+</mx:Canvas>

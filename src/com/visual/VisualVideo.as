@@ -293,9 +293,11 @@ package com.visual {
 				case "NetStream.Buffer.Empty":
 					if(isPlaying) this.state = VideoEvent.BUFFERING;
 					break;
+				case "NetStream.Buffer.Full":
+					this.state = (isPlaying ? VideoEvent.PLAYING : VideoEvent.PAUSED);
+					break;
 				case "NetStream.Seek.Notify":
 				case "NetStream.Unpause.Notify":
-				case "NetStream.Buffer.Full":
 					break;
 				case "NetStream.Play.Start":
 					isPlaying = true;

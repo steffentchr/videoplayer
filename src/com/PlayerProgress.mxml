@@ -11,6 +11,13 @@
 	click="seekVideoTo(timeFromPoint(this.contentMouseX));" 
 	initialize="init()"
 	>
+
+	<mx:Script>
+		<![CDATA[
+			[Bindable] public var showTime:Boolean = true;
+		]]>
+	</mx:Script>
+		
 	
 	<mx:Image 
 		source="@Embed(source='assets/buttons/progress.png')"
@@ -87,14 +94,15 @@
 			fontSize="10" 
 			color="black"
 			horizontalCenter="0"
+			visible="{showTime}"
 			/>
 	</mx:Canvas>
 	
 	<mx:Script>
 		<![CDATA[
 			import com.philemonworks.flex.util.HashCollection;
-			
 			import com.visual.VisualVideo;
+			
 			import mx.core.Application;
 			import mx.events.VideoEvent;
 			[bindable] private var props:HashCollection = mx.core.FlexGlobals.topLevelApplication.props;
