@@ -103,7 +103,7 @@ package com.visual {
 		
 		public var enableStageVideo:Boolean = true;
 
-		private var _aspectRatio:Number = 1; 
+		private var _aspectRatio:Number = 16/9.0; 
 		private var _userAspectRatio:Number = 0; 
 		private var _videoAspectRatio:Number = 16/9; 
 		public function get aspectRatio():Number {return(_aspectRatio);}

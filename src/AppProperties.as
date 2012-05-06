@@ -168,7 +168,6 @@ private function initProperties(settings:Object):void {
 	// Possibly auto-play
 	possiblyAutoPlay();
 	
-	/*
 	// Load up featured live streams
 	if(props.get('enableLiveStreams')) {
 		var streamOptions:Object = {};
@@ -187,8 +186,8 @@ private function initProperties(settings:Object):void {
 		} else {
 			streamOptions = {featured_p:1};
 		}
-		liveStreamsMenu.options = [];
-		liveStreamsMenu.value = null;
+		//liveStreamsMenu.options = [];
+		//liveStreamsMenu.value = null;
 		try {
 			doAPI('/api/liveevent/stream/list', streamOptions, function(s:Object):void{
 				var streams:Array = s.streams;
@@ -197,7 +196,7 @@ private function initProperties(settings:Object):void {
 					streams.forEach(function(stream:Object, i:int, ignore:Object):void{
 						streamMenu.push({value:stream, label:stream.name});
 					});
-					liveStreamsMenu.options = streamMenu;
+					//liveStreamsMenu.options = streamMenu;
 					
 					if(prioritizeLiveStreams) {
 						setActiveElementToLiveStream(streams[0], false);
@@ -208,7 +207,6 @@ private function initProperties(settings:Object):void {
 			});
 		} catch(e:Error) {}
 	}
-	*/
 }
 
 private function getRecommendationSource():String {

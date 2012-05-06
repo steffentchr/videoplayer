@@ -82,7 +82,7 @@ private function setActiveElementToLiveStream(stream:Object, startPlaying:Boolea
 	}
 
 	// Aspect ratios
-	activeElement.put('aspectRatio', stream.thumbnail_large_aspect_ratio*1.0);
+	activeElement.put('aspectRatio', 16.0/9.0);
 	video.aspectRatio = identityVideo.aspectRatio = 0;
 	
 	// Make embed code current
