@@ -183,8 +183,8 @@ package com.visual {
 			dispatchEvent(new ProgressEvent(ProgressEvent.PROGRESS, false, false, 0, 0));
 			dispatchVideoEvent(VideoEvent.PLAYHEAD_UPDATE);
 			// Reset aspectRatio (but maintain _userAspectRatio)
-			_aspectRatio = 1;
-			_videoAspectRatio = 1;
+			_aspectRatio = 16/9.0;
+			_videoAspectRatio = 16/9.0;
 			// Stop stream
 			this.stream = null;
 			// Prepare the net connection object
@@ -255,7 +255,7 @@ package com.visual {
 						_videoWidth = item.width;
 						_videoAspectRatio = item.width/item.height;
 						matchVideoSize();
-					}catch(e:ErrorEvent){_aspectRatio=1;}
+					}catch(e:ErrorEvent){_aspectRatio=16/9.0;}
 					try {
 						_totalTime = item.duration;
 					}catch(e:ErrorEvent){_totalTime=0;}
