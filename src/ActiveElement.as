@@ -1,4 +1,5 @@
 import flash.events.ErrorEvent;
+
 import mx.events.VideoEvent;
 [Bindable] public var numVideoElements:int = 0;
 [Bindable] public var currentElementIndex:int = 0;
@@ -36,6 +37,7 @@ private function resetActiveElement():void {
 	activeElement.put('length', '0');
 	activeElement.put('start', '0');
 	activeElement.put('skip', '0');
+	activeElement.put('offset', 0);
 	activeElement.put('live', false);
 	
 	// Reset other stuff related to the active video
@@ -61,6 +63,7 @@ private function setActiveElementToLiveStream(stream:Object, startPlaying:Boolea
 	activeElement.put('one', props.get('site_url') + stream.one); 
 	activeElement.put('photoSource', props.get('site_url') + stream.large_download);
 	activeElement.put('videoSource', stream.rtmp_stream);
+	activeElement.put('offset', 0);
 	video.source = getFullVideoSource();
 	
 	showVideoElement();
@@ -78,7 +81,7 @@ private function setActiveElementToLiveStream(stream:Object, startPlaying:Boolea
 
 }
 
-private function setActiveElement(i:int, startPlaying:Boolean=false, start:Number=0, skip:int=0, format:String=null):Boolean {
+public function setActiveElement(i:int, startPlaying:Boolean=false, start:Number=0, skip:int=0, format:String=null):Boolean {
 	if (!context || !context.photos || !context.photos[i]) return(false);
 	resetActiveElement();
 
@@ -105,6 +108,12 @@ private function setActiveElement(i:int, startPlaying:Boolean=false, start:Numbe
   	activeElement.put('start', start);
   	activeElement.put('skip', skip);
 	smallPlayheadTime.text = formatTime(activeElement.getNumber('length'));
+	
+	var offset:Number = 0;
+	for(var ix:int = 0; ix<i; ix++) {
+		offset += new Number(context.photos[ix].video_length);
+	}
+	activeElement.put('offset', offset);
 	
 	// Supported formats, default format and build menu
 	if(!skip) prepareSupportedFormats(o);
@@ -190,10 +199,10 @@ private function clearVideo():void {
     if(video.playing) {video.stop(); video.close();}
 }
 private function previousElement():Boolean {
-	return(setActiveElement(currentElementIndex-1));
+	return(setActiveElement(currentElementIndex-1, true));
 }
-private function nextElement():Boolean {
-	return(setActiveElement(currentElementIndex+1));
+public function nextElement():Boolean {
+	return(setActiveElement(currentElementIndex+1, true));
 }
 private function setElementByID(id:Number, startPlaying:Boolean=false):void {
 	clearVideo(); 

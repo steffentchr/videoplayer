@@ -30,6 +30,10 @@
 			[Bindable] public var showTime:Boolean = true;
 			public var playCallback:Function = function():void{};
 			public var pauseCallback:Function = function():void{};
+
+			public function set photos(p:Array) {
+				progress.photos = p;
+			}
 			
 			[Bindable] private var _showProgress:Boolean = true;
 			public function set showProgress(sp:Boolean):void {

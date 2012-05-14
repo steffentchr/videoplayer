@@ -2,8 +2,6 @@
 <!-- 
   Radio24syv
   Steffen Tiedemann Christensen, steffen@23company.com
-
-  - Multiple clips
 -->
 <mx:Application 
 	xmlns:mx="http://www.adobe.com/2006/mxml" 
@@ -24,6 +22,35 @@
  	<mx:Script source="AppProperties.as"></mx:Script>
  	<mx:Script source="ActiveElement.as"></mx:Script>
  	<mx:Script source="doJSON.as"></mx:Script>
+	<mx:Style>
+		VScrollBar {
+			downArrowUpSkin: Embed(source="assets/buttons/empty.png");
+			downArrowOverSkin: Embed(source="assets/buttons/empty.png");
+			downArrowDownSkin: Embed(source="assets/buttons/empty.png");
+			upArrowUpSkin: Embed(source="assets/buttons/empty.png");
+			upArrowOverSkin: Embed(source="assets/buttons/empty.png");
+			upArrowDownSkin: Embed(source="assets/buttons/empty.png");
+			thumbDownSkin: 
+				Embed(source="assets/buttons/scrollbar-thumb.png",
+				scaleGridLeft="7", scaleGridTop="5", 
+				scaleGridRight="8", scaleGridBottom="7");
+			
+			thumbUpSkin: 
+				Embed(source="assets/buttons/scrollbar-thumb.png",
+				scaleGridLeft="7", scaleGridTop="5", 
+				scaleGridRight="8", scaleGridBottom="7");
+			
+			thumbOverSkin: 
+				Embed(source="assets/buttons/scrollbar-thumb.png",
+				scaleGridLeft="7", scaleGridTop="5", 
+				scaleGridRight="8", scaleGridBottom="7");
+			
+			trackSkin: 
+				Embed(source="assets/buttons/scrollbar-track.png",
+				scaleGridLeft="7", scaleGridTop="4", 
+				scaleGridRight="8", scaleGridBottom="6" );       
+		} 		
+	</mx:Style>
 	<mx:Script>
 		<![CDATA[
 			import com.PlayerButton;
@@ -43,12 +70,13 @@
 			private var defaultAlbumId:String = '';
 			private var playerId:String = '0';
 
-			private var context:Object = {};
+			public var context:Object = {};
 			private var recommendations:Object = {};
 			
 			[Bindable] private var cleanVideoState:String = 'paused';
 			[Bindable] private var applicationLoaded:Boolean = false;
-
+			[Bindable] private var _photos:Array = [];
+			
 			public function resize():void {
 				try {
 					applicationSmall.visible = false;
@@ -105,17 +133,52 @@
 					initProperties(o.settings);
 				});
 				// Load content
-				trace('NOW');
 
 				initActiveElement();				
-				doJSON((props.get('jsonSource') as String), function(o:Object):void{
-					context=o; 
-					build();
-					resize();
+				doJSON((props.get('jsonSource') as String) + '&size=1', function(o:Object):void{
+					var a = new Array();
+					if(o.photos.length==0 || o.photos[0].album_id==3561248) {
+						// Empty or Nyheder
+						context=o; 
+						_photos = context.photos;
+						build();
+						resize();
+					} else {
+						// Reload other episodes from the same day
+						a.push('album_id=' + o.photos[0].album_id);
+						a.push('year=' + o.photos[0].publish_date_ansi.substr(0,4));
+						a.push('month=' + o.photos[0].publish_date_ansi.substr(5,2));
+						a.push('day=' + o.photos[0].publish_date_ansi.substr(8,2));
+						a.push('order=asc');
+						doJSON(props.getString('jsonSource').replace(/token=/, 'photo_token=') + '&' + a.join('&'), function(o2:Object):void{
+							if(o2&&o2.photos) {
+								context=o2;
+							} else {
+								context=o;
+							}
+							_photos = context.photos;
+							build();
+							resize();
+							
+							// We may have loaded an clip, which was first in line
+							if(FlexGlobals.topLevelApplication.parameters['photo_id']) {
+								var p:String = FlexGlobals.topLevelApplication.parameters['photo_id'];
+								for (var i:int = 0; i<context.photos.length; i++) {
+									if(p==context.photos[i].photo_id) {
+										setActiveElement(i);
+										break;
+									}
+								}
+							}
+						});
+					}
 				});
 			}
 			public function build():void {
 				if(!prioritizeLiveStreams && context && context.photos && context.photos.length>0) setActiveElement(0, false, props.getNumber('start'));
+				vc1.progress.placeGrid();
+				vc2.progress.placeGrid();
+				vc3.progress.placeGrid();
 				applicationLoaded = true;
 				trace('NOW');
 			}
@@ -154,6 +217,8 @@
 			}
             private function onVideoComplete(ignoreIdentity:Boolean=false):void {
 				reportPlay('end', video.playheadTime);
+				nextElement();
+				playVideoElement();
             }
 		]]>
 	</mx:Script>	
@@ -248,12 +313,14 @@
 		
 		
 		<com:VideoControls
+			id="vc1"
 			y="34"
 			x="78"
 			video="{video}"
 			cleanVideoState="{cleanVideoState}"
 			playCallback="{playVideoElement}"
 			pauseCallback="{pauseVideoElement}"
+			photos="{_photos}"
 			showProgress="false"
 			showSmall="true"
 			/>
@@ -270,10 +337,12 @@
 		visible="false"
 		>
 		<com:VideoControls
+			id="vc2"
 			video="{video}"
 			cleanVideoState="{cleanVideoState}"
 			playCallback="{playVideoElement}"
 			pauseCallback="{pauseVideoElement}"
+			photos="{_photos}"
 			/>
 	</mx:Canvas>
 
@@ -315,11 +384,12 @@
 			>
 			<mx:Text color="#313030" width="210" fontFamily="Arial" maxHeight="60" fontSize="20" truncateToFit="true" text="{activeElement.getString('title')}"  paddingBottom="10" />
 			<mx:Text color="#313030" width="210" maxHeight="36" text="{activeElement.getString('content')}" />
+			<mx:Label color="#2F6B92" width="210" text="» Læs mere" useHandCursor="true" buttonMode="true" click="{lightbox.visible=true;}"  selectable="false"/>
 			<mx:Label color="#757575" width="210" text="{activeElement.getString('date')}" />
-			<mx:Label color="#2F6B92" width="210" text="» Læs mere" useHandCursor="true" buttonMode="true" click="{goToUrl(activeElement.getString('link'))}"  selectable="false"/>
 		</mx:VBox>
 		
 		<com:VideoControls
+			id="vc3"
 			x="8"
 			y="123"
 			video="{video}"
@@ -327,6 +397,7 @@
 			playCallback="{playVideoElement}"
 			pauseCallback="{pauseVideoElement}"
 			showTime="false"
+			photos="{_photos}"
 			/>
 		
 		<mx:HBox
@@ -363,6 +434,36 @@
 				click="{goToUrl('(http://www.radio24syv.dk');}"
 				/>
 		</mx:HBox>
+		
+		<mx:Canvas 
+			id="lightbox"
+			visible="false"
+			width="100%"
+			height="100%"
+			>
+			<mx:Image
+				source="@Embed(source='assets/buttons/lightbox.png')"
+				click="{lightbox.visible=false;}"
+				/>
+			<mx:TextArea
+				color="#313030"  
+				fontFamily="Verdana"
+				borderStyle="none"
+				focusEnabled="false"
+				editable="false"
+				fontSize="12"
+				top="13"
+				left="26"
+				right="22"
+				bottom="12"
+				paddingTop="14"
+				paddingBottom="14"
+				paddingRight="10"
+				backgroundAlpha="0"
+				text="{activeElement.getString('content')}"
+				/>
+		</mx:Canvas>
+
 	</mx:Canvas>
 	
 

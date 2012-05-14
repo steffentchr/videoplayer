@@ -25,13 +25,22 @@
 		y="22"
 		/>
 	
+	<!-- Video Grid -->
+	<mx:HBox 
+		id="videoGrid" 
+		top="30" 
+		x="29"  
+		width="240" 
+		height="16" 
+		horizontalGap="0" 
+		/>
+
 	<!-- VideoProgress -->
 	<mx:Canvas id="videoProgress"
 		top="30" 
-		left="29"  
+		x="29"  
 		height="16"
 		width="240"
-		resize="drawSections();"
 		>
 		<mx:Canvas id="videoBufferProgress" 
 			x="0" 
@@ -57,18 +66,14 @@
 		text="0:00"
 		/>
 	<mx:Label 
+		id="totalTimeLabel"
 		top="29"
 		right="22"
 		selectable="false" 
 		fontFamily="Verdana, Helvetica, Arial" 
 		fontSize="11" 
 		color="white"
-		text="{formatTime(activeElement.getNumber('length'))}"
 		/>
-	
-	
-	<!-- Sections -->
-	<mx:Canvas id="sectionContainer" top="0" left="0" width="100%" height="100%" horizontalScrollPolicy="off"></mx:Canvas>
 	
 	<!-- videoTime -->
 	<mx:Canvas id="videoDragHandle"
@@ -94,7 +99,6 @@
 			fontSize="10" 
 			color="black"
 			horizontalCenter="0"
-			
 			/>
 	</mx:Canvas>
 	
@@ -107,6 +111,17 @@
 			import mx.events.VideoEvent;
 			[bindable] private var props:HashCollection = mx.core.FlexGlobals.topLevelApplication.props;
 			[bindable] private var activeElement:HashCollection = mx.core.FlexGlobals.topLevelApplication.activeElement;
+			
+			private var _photos:Array = [];
+			[Bindable] private var totalPlaylistLength:int = 1;
+			public function set photos(p:Array) {
+				_photos = p;
+				
+				for (var i:int = 0; i<_photos.length; i++) {
+					totalPlaylistLength += new Number(_photos[i].video_length);
+				}
+				totalTimeLabel.text = formatTime(totalPlaylistLength);
+			}
 
 			var scrubberStartX:int = -1;
 			var scrubberStartMouseX:int = -1;
@@ -115,12 +130,12 @@
 					if(scrubberStartMouseX<0) return;
 					var x = scrubberStartX + (e.stageX-scrubberStartMouseX);
 					videoDragHandle.x = Math.min(Math.max(x,5),245);
-					videoTimeLabel.text = formatTime(timeFromPoint(videoDragHandle.x + (videoDragHandle.width/2.0)));
+					videoTimeLabel.text = formatTime(timeFromPoint(videoDragHandle.x + 1 + Math.floor(videoDragHandle.width/2.0)));
 				});
 				this.addEventListener(MouseEvent.MOUSE_UP, function(e:MouseEvent){
 					if(scrubberStartMouseX<0) return;
 					scrubberStartMouseX = scrubberStartX = -1;
-					seekVideoTo(timeFromPoint(videoDragHandle.x + (videoDragHandle.width/2.0)));
+					seekVideoTo(timeFromPoint(videoDragHandle.x + Math.floor(videoDragHandle.width/2.0)));
 				});
 				videoDragHandle.addEventListener(MouseEvent.MOUSE_DOWN, function(e:MouseEvent){
 					scrubberStartX = videoDragHandle.x;
@@ -132,46 +147,58 @@
 			private function formatTime(time:int, totalTime:int = -1, join:String = ' / '):String {
 				if (time<0) return("");
 				if (totalTime>=0) {
-					return(Math.floor(time/60).toString() +':'+ (time%60<10?'0':'') + Math.round(time%60).toString() + join + Math.floor(totalTime/60).toString() +':'+ (totalTime%60<10?'0':'') + Math.round(totalTime%60).toString());
+					return([formatTime(time), formatTime(totalTime)].join(join));
 				} else {
-					return(Math.floor(time/60).toString() +':'+ (time%60<10?'0':'') + Math.round(time%60).toString());
+					var hours = Math.floor(time/3600);
+					time -= hours*3600;
+					return((hours>0 ? hours + ':' : '') + Math.floor(time/60).toString() +':'+ (time%60<10?'0':'') + Math.round(time%60).toString());
 				}
 			}
 			private function timeFromPoint(x:int):int {
-				return Math.round((x-videoProgress.x)/videoProgress.width*activeElement.getNumber('length'));
+				return Math.round((x-29)/240*totalPlaylistLength);
 			}
             public function seekVideoTo(time:int):void {
             	if(!_targetVideo) return;
-            	if(time>activeElement.getNumber('length')) return;
-            	var approxBufferTime:Number = (_targetVideo.totalTime * (_targetVideo.bytesLoaded/_targetVideo.bytesTotal)) + activeElement.getNumber('start');
+            	if(time>totalPlaylistLength) return;
+            	var approxBufferTime:Number = (_targetVideo.totalTime * (_targetVideo.bytesLoaded/_targetVideo.bytesTotal)) + activeElement.getNumber('offset');
         		_targetVideo.bufferTime = 2; // default buffer time is two secs
-            	if(time>new Number(activeElement.get('start')) && time<approxBufferTime) {
-            		_targetVideo.playheadTime = time-activeElement.getNumber('start');
-            		if(!_targetVideo.playing) this.parentApplication.playVideoElement();
-            	} else {
-            		if ((props.get('streaming') as Boolean)) {
-            			activeElement.put('start', Math.floor(time));
-            			activeElement.put('skip', '1');
-            			_targetVideo.bufferTime = 0; // when skipping we'll skip the buffer
+
+				var offset:Number = 0; 
+				for (var i:int = 0; i<this.parentApplication.context.photos.length; i++) {
+					offset += new Number(this.parentApplication.context.photos[i].video_length);
+					if(offset>time) {
 						if(_targetVideo.playing) _targetVideo.stop();
-            			_targetVideo.source = getFullVideoSource();
+						// Skip to clip, but don't play yet
+						this.parentApplication.setActiveElement(i, false);
+						// Set start time
+						activeElement.put('start', time-(offset-this.parentApplication.context.photos[i].video_length));
+						activeElement.put('skip', '1');
+						// Update source, then play
+						_targetVideo.source = getFullVideoSource();
 						this.parentApplication.playVideoElement();
-            		}
-            	}
+						break;
+					}
+				}
             }
+			private function updateProgressCanvas():void {
+				videoProgress.x = 29 + (activeElement.getNumber('offset')/totalPlaylistLength * 240);
+				videoProgress.width = activeElement.getNumber('length')/totalPlaylistLength * 240;
+			}
             private function updateBuffer(e:Event):void {
             	if(!_targetVideo) return;
-            	videoBufferProgress.x = activeElement.getNumber('start') / activeElement.getNumber('length') * videoProgress.width;
-            	videoBufferProgress.width = _targetVideo.bytesLoaded/_targetVideo.bytesTotal*(videoProgress.width-videoBufferProgress.x);
+				updateProgressCanvas();
+				videoBufferProgress.x = activeElement.getNumber('start') / activeElement.getNumber('length') * videoProgress.width;
+				videoBufferProgress.width = _targetVideo.bytesLoaded/_targetVideo.bytesTotal*(videoProgress.width-videoBufferProgress.x);
             }
             private function updatePlay(e:Event):void {
             	if(!_targetVideo) return;
+				updateProgressCanvas();
 				videoPlayProgress.x = activeElement.getNumber('start') / activeElement.getNumber('length') * videoProgress.width;
-				videoPlayProgress.width  = _targetVideo.playheadTime/_targetVideo.totalTime*(videoProgress.width-videoPlayProgress.x);
+				videoPlayProgress.width = _targetVideo.playheadTime/_targetVideo.totalTime*(videoProgress.width-videoPlayProgress.x);
 				videoDragHandle.visible = true;
 				if(scrubberStartMouseX<0 && e.currentTarget.state==VideoEvent.PLAYING) {
 					videoDragHandle.x = videoProgress.x + videoPlayProgress.x + videoPlayProgress.width - (videoDragHandle.width/2);
-					videoTimeLabel.text = formatTime(_targetVideo.playheadTime + activeElement.getNumber('start'));
+					videoTimeLabel.text = formatTime(_targetVideo.playheadTime + activeElement.getNumber('start') + activeElement.getNumber('offset'));
 				}
             }
 
@@ -189,42 +216,21 @@
 			}
 			public function get targetVideo():VisualVideo {return(_targetVideo);}
 			
-			private var _sections:Array = [];
-			public function setSections(s:Array):void{
-				_sections = s;
-				drawSections();
-			}			
-			private function drawSections():void{
-				// Clear current objects
-				sectionContainer.removeAllChildren();
-				// Add new ones
-				for (var i:int=0; i<_sections.length; i++) {
-					var s:Object = _sections[i];
-					var section:PlayerProgressSection = new com.PlayerProgressSection;
-					
-					// Position section indicator
-					section.labelBackgroundColor = (styleManager.getColorName(props.get('trayBackgroundColor')) as Number);
-					section.labelAlpha = props.getNumber('trayAlpha');
-					section.labelFontSize = (props.getNumber('trayTitleFontSize') || 12)-2; 
-					section.labelFontWeight = props.getString('trayTitleFontWeight'); 
-					
-					section.width = 12;
-					section.height = 12;
-					section.y = 8;
-					section.x = 8 + ((s.start_time/activeElement.getNumber('length')) * videoProgress.width);
-					section.title = s.title;
-					section.startTime = s.start_time;
-					
-					// Listen to clicks
-					section.addEventListener(MouseEvent.CLICK, function(e:Event):void{
-						e.stopPropagation();
-						seekVideoTo(e.currentTarget.startTime);
-					});
-					
-					// Add to progress bar
-					sectionContainer.addChild(section);
+			public function placeGrid():void {
+				videoGrid.removeAllChildren();
+				for (var i:int = 0; i<this.parentApplication.context.photos.length-1; i++) {
+					var g:Canvas = new mx.containers.Canvas;
+					g.height = 16;
+					g.width = (new Number(this.parentApplication.context.photos[i].video_length) / totalPlaylistLength * 240);
+					g.setStyle('borderThickness', '1');
+					g.setStyle('borderColor', '#777777');
+					g.setStyle('borderStyle', 'solid');
+					g.setStyle('borderSides', 'right');
+					videoGrid.addChild(g);
 				}
 			}
+			
+			private var _sections:Array = [];
 		]]>
 	</mx:Script>	
 </mx:Canvas>
