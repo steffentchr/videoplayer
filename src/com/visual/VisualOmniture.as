@@ -123,7 +123,8 @@ package com.visual{
 					break;
 			}
 			this.appMeasurement.eventList = [event];
-			this.appMeasurement.Media.track(this.clipName);	
+			this.appMeasurement.Media.track(this.clipName);
+			this.appMeasurement.eventList = [];
 		}
 	}
 }
