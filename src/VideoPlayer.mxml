@@ -146,11 +146,11 @@
 					} else {
 						// Reload other episodes from the same day
 						a.push('album_id=' + o.photos[0].album_id);
-						a.push('year=' + o.photos[0].publish_date_ansi.substr(0,4));
-						a.push('month=' + o.photos[0].publish_date_ansi.substr(5,2));
-						a.push('day=' + o.photos[0].publish_date_ansi.substr(8,2));
+						a.push('year=' + o.photos[0].creation_date_ansi.substr(0,4));
+						a.push('month=' + o.photos[0].creation_date_ansi.substr(5,2));
+						a.push('day=' + o.photos[0].creation_date_ansi.substr(8,2));
 						a.push('order=asc');
-						doJSON(props.getString('jsonSource').replace(/token=/, 'photo_token=') + '&' + a.join('&'), function(o2:Object):void{
+						doJSON(props.getString('jsonSource').replace(/token=/, 'ignore_token=').replace(/photo_id=/, 'ignore_photo_id=') + '&' + a.join('&'), function(o2:Object):void{
 							if(o2&&o2.photos) {
 								context=o2;
 							} else {
