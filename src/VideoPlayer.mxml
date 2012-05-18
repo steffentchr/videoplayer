@@ -66,7 +66,7 @@
 			// Default domain (used when testing from localhost)
 			private var defaultDomain:String = 'arkiv.radio24syv.dk';
 			// Default photo_id (used to if you want a specific photo/video to be shown, otherwise empty)
-			private var defaultPhotoId:String = '';
+			private var defaultPhotoId:String = '5031457';
 			private var defaultAlbumId:String = '';
 			private var playerId:String = '0';
 
@@ -137,7 +137,7 @@
 				initActiveElement();				
 				doJSON((props.get('jsonSource') as String) + '&size=1', function(o:Object):void{
 					var a = new Array();
-					if(o.photos.length==0 || o.photos[0].album_id==3561248) {
+					if(o.photos.length==0 || o.photos[0].album_id==3561248 || FlexGlobals.topLevelApplication.height<180 || !o.photos[0].title.match(/\([0-9]+\)/) ) {
 						// Empty or Nyheder
 						context=o; 
 						_photos = context.photos;
@@ -146,9 +146,10 @@
 					} else {
 						// Reload other episodes from the same day
 						a.push('album_id=' + o.photos[0].album_id);
-						a.push('year=' + o.photos[0].creation_date_ansi.substr(0,4));
-						a.push('month=' + o.photos[0].creation_date_ansi.substr(5,2));
-						a.push('day=' + o.photos[0].creation_date_ansi.substr(8,2));
+						a.push('year=' + o.photos[0].publish_date_ansi.substr(0,4));
+						a.push('month=' + o.photos[0].publish_date_ansi.substr(5,2));
+						a.push('day=' + o.photos[0].publish_date_ansi.substr(8,2));
+						a.push('datemode=published');
 						a.push('order=asc');
 						doJSON(props.getString('jsonSource').replace(/token=/, 'ignore_token=').replace(/photo_id=/, 'ignore_photo_id=') + '&' + a.join('&'), function(o2:Object):void{
 							if(o2&&o2.photos) {
