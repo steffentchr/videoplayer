@@ -66,7 +66,7 @@
 			// Default domain (used when testing from localhost)
 			private var defaultDomain:String = 'arkiv.radio24syv.dk';
 			// Default photo_id (used to if you want a specific photo/video to be shown, otherwise empty)
-			private var defaultPhotoId:String = '5031457';
+			private var defaultPhotoId:String = '';
 			private var defaultAlbumId:String = '';
 			private var playerId:String = '0';
 
