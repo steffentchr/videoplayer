@@ -118,6 +118,12 @@ private function setActiveElement(i:int, startPlaying:Boolean=false, start:Numbe
   	activeElement.put('length', o.video_length); 
   	activeElement.put('start', start);
   	activeElement.put('skip', skip);
+	
+	if(o.hide_logo=='1') {
+		logo.visible = false;
+	} else {
+		logo.visible = true;
+	}
 
 	// PlayFlow
 	activeElement.put('beforeDownloadType', o.before_download_type);

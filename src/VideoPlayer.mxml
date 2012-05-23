@@ -116,6 +116,7 @@
 			}
 			
             private function trayShow():void {
+				if(identityVideo.visible) return;
 		        tray.visible = true;
             }            
             private function trayHide():void {
@@ -216,6 +217,7 @@
 		/>
  	
 	<!-- Extra displays for identity video and photo -->
+	<mx:Canvas backgroundColor="black" width="100%" height="100%" visible="{identityVideo.visible}" />
 	<visual:VisualVideo id="identityVideo" 
 		visible="false" 
 		volume="1" 
@@ -256,6 +258,7 @@
 
 	<!-- Icon/Logo -->
 	<mx:Image 
+		id="logo"
 		source="@Embed(source='assets/buttons/next-logo.png')"
 		top="20"
 		left="20"

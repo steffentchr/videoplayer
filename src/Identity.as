@@ -10,6 +10,7 @@ public function showIdentityVideo(event:String, url:String, link:String, callbac
 	identityVideo.source = url;
 	identityVideo.visible = true;
 	identityVideo.play();
+	tray.visible = false;
 	identityVideo.addEventListener(MouseEvent.CLICK, function():void{
 			reportEvent(event=='before' ? 'preRollClick' : 'postRollClick');
 			goToUrl(link, '_blank');
@@ -21,6 +22,7 @@ public function showIdentityVideo(event:String, url:String, link:String, callbac
 			identityVideo.visible = false;
 			videoControls.visible = video.visible = true;
 			identityVideo.removeEventListener(VideoEvent.COMPLETE, onComplete);
+			trayShow();
 			callback();
 		}
 	identityVideo.addEventListener(VideoEvent.COMPLETE, onComplete);
