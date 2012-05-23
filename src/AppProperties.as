@@ -289,7 +289,7 @@ private function bootstrapAds():void {
 	ads.addEventListener('contentResumeRequested', function():void{
 		forceHideTray = false;
 		adMessage.visible = false;
-		trayShow();
+		//trayShow();
 		playVideoElement();
 	});
 	

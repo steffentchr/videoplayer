@@ -15,7 +15,6 @@
 	width="100%" 
 	height="100%" 
 	applicationComplete="init();" 
-	keyDown="trayShow()"
 	>
  	<mx:Script source="Utility.as"></mx:Script>
  	<mx:Script source="Fullscreen.as"></mx:Script>
@@ -24,11 +23,13 @@
  	<mx:Script source="ActiveElement.as"></mx:Script>
  	<mx:Script source="doJSON.as"></mx:Script>
 	<mx:Style>
+		/*
 		@font-face {
 			src:url("assets/buttons/KlavikaMedium-TF.otf");
 			fontFamily: KlavikaBold;
 			advancedAntiAliasing: true;
 		}
+		*/
 		Application {
 			fontFamily: Helvetica;
 		}
@@ -48,7 +49,7 @@
 			// Default domain (used when testing from localhost)
 			private var defaultDomain:String = 'video.nextconf.eu';
 			// Default photo_id (used to if you want a specific photo/video to be shown, otherwise empty)
-			private var defaultPhotoId:String = '4988699';
+			private var defaultPhotoId:String = '';
 			private var defaultAlbumId:String = '';
 			private var playerId:String = '0';
 
@@ -143,6 +144,8 @@
 					if(ads) ads.overlay();
 					cleanVideoState = 'playing';
 					trayShow();
+					fadeIn.duration = 400;
+					fadeOut.duration = 200;
 					embedPanel.visible = false;
 				} else if(evt.currentTarget.state==VideoEvent.LOADING || evt.currentTarget.state==VideoEvent.BUFFERING) {
 					cleanVideoState = 'buffering';
@@ -307,7 +310,7 @@
 				paddingLeft="17"
 				paddingRight="0"
 				width="100%"
-				visible="{cleanVideoState=='paused' &amp;&amp; !embedPanel.visible &amp;&amp; !formatsMenu.visible &amp;&amp; !volumeMenu.visible}"
+				visible="{cleanVideoState=='paused' &amp;&amp; !embedPanel.visible &amp;&amp; !formatsMenu.visible &amp;&amp; !volumeMenu.visible &amp;&amp; !identityVideo.visible}"
 				hideEffect="{fadeOut}"
 				showEffect="{fadeIn}"
 				>
@@ -329,12 +332,12 @@
 						maxWidth="{descBg.width}" 
 						updateComplete="trayTitle.visible = (trayTitle.text.length>0);" 
 						fontSize="23"
-						fontFamily="KlavikaBold"
+						fontFamily="Helvetica"
 						/>
 					<mx:Text id="trayContent"
 						paddingTop="5"
 						fontSize="16" 
-						fontFamily="KlavikaBold"
+						fontFamily="Helvetica"
 						htmlText="{activeElement.get('content')}" 
 						truncateToFit="true" 
 						maxWidth="{descBg.width}" 

@@ -6,6 +6,9 @@ import mx.events.VideoEvent;
 
 public var currentIdentityEvent = '';
 public function showIdentityVideo(event:String, url:String, link:String, callback:Function):void {
+	fadeIn.duration = 0;
+	fadeOut.duration = 0;
+
 	videoControls.visible = video.visible = false;
 	identityVideo.source = url;
 	identityVideo.visible = true;
