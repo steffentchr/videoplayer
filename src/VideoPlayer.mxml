@@ -48,7 +48,7 @@
 			// Default domain (used when testing from localhost)
 			private var defaultDomain:String = 'video.nextconf.eu';
 			// Default photo_id (used to if you want a specific photo/video to be shown, otherwise empty)
-			private var defaultPhotoId:String = '';
+			private var defaultPhotoId:String = '4988699';
 			private var defaultAlbumId:String = '';
 			private var playerId:String = '0';
 
@@ -133,7 +133,7 @@
 						try {
 							if(video.playing) reportPlay('start', video.playheadTime);
 						}catch(e:ErrorEvent){}
-					}, 30000);
+					}, 15000);
             }             
             private function onPlayListDone():void {
 				//
@@ -142,6 +142,7 @@
 				if(evt.currentTarget.state==VideoEvent.PLAYING || evt.currentTarget.state==VideoEvent.SEEKING) {
 					if(ads) ads.overlay();
 					cleanVideoState = 'playing';
+					trayShow();
 					embedPanel.visible = false;
 				} else if(evt.currentTarget.state==VideoEvent.LOADING || evt.currentTarget.state==VideoEvent.BUFFERING) {
 					cleanVideoState = 'buffering';

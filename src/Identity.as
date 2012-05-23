@@ -22,7 +22,6 @@ public function showIdentityVideo(event:String, url:String, link:String, callbac
 			identityVideo.visible = false;
 			videoControls.visible = video.visible = true;
 			identityVideo.removeEventListener(VideoEvent.COMPLETE, onComplete);
-			trayShow();
 			callback();
 		}
 	identityVideo.addEventListener(VideoEvent.COMPLETE, onComplete);
