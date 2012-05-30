@@ -235,11 +235,11 @@ private function getFullVideoSource():String {
 
 
 private function shareFacebook():void {
-	goToUrl(activeElement.getString('link') + '/facebook');
+	goToUrl(activeElement.getString('link') + '/facebook', '_new');
 }            
 private function shareTwitter():void {
-	goToUrl(activeElement.getString('link') + '/twitter');
+	goToUrl(activeElement.getString('link') + '/twitter', '_new');
 }            
 private function shareGoogle():void {
-	goToUrl(activeElement.getString('link') + '/google');
+	goToUrl(activeElement.getString('link') + '/google', '_new');
 }            

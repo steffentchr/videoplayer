@@ -432,7 +432,7 @@
 				buttonMode="true"
 				useHandCursor="true"
 				toolTip="Besøg Radio24syv"
-				click="{goToUrl('(http://www.radio24syv.dk');}"
+				click="{goToUrl('http://www.radio24syv.dk', '_new');}"
 				/>
 		</mx:HBox>
 		
