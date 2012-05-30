@@ -123,10 +123,8 @@ package com.visual {
 		public function get source():String {return(_source);}
 		public function set source(s:String):void {
 			if(_source==s) return;
-			trace((new Date), "Swich source from", _source, 'to', s);
 			_source=s;
 			reset();
-			trace((new Date), 'Done switching source');
 		}
 		
 		public function get playheadTime():Number {return(this.stream ? this.stream.time : 0);}
@@ -147,7 +145,6 @@ package com.visual {
 		// PUBLIC METHODS
 		public function close():void {this.stop();}
 		public function stop():void {
-			trace((new Date), 'stop()');
 			if(this.stream) {
 				this.stream.pause();
 				this.stream.close();
@@ -155,9 +152,7 @@ package com.visual {
 			}
 		}
 		public function play():void {
-			trace((new Date), 'play()');
 			if(!this.connection.connected) {
-				trace((new Date), 'play() -> not connected');
 				connect();
 			} if(this.stream) {
 				this.stream.resume();
@@ -165,7 +160,6 @@ package com.visual {
 			}
 		}
 		public function pause():void {
-			trace((new Date), 'pause()');
 			if(this.stream) {
 				this.stream.pause();
 				this.state = VideoEvent.PAUSED;
@@ -174,7 +168,6 @@ package com.visual {
 
 		// STREAM EVENTS AND LOGIC
 		private function reset():void {
-			trace((new Date), 'reset()');
 			stop();
 			try {this.video.clear();}catch(e:Object){}
 			// Reset progress
@@ -194,14 +187,12 @@ package com.visual {
 			this.connection.addEventListener(SecurityErrorEvent.SECURITY_ERROR, netSecurityErrorHandler);
 		}
 		private function connect():void {
-			trace((new Date), 'connect()');
 			reset();
 			this.state = VideoEvent.LOADING;
 			this.fcSubscribeCount = 0;
 			this.connection.connect(this.streamURL);
 		}
 		private function attachStreamToVideo():void {
-			trace((new Date), 'attachStreamToVideo()');
 			this.stream = new NetStream(this.connection);
 			this.stream.soundTransform = new SoundTransform(_volume);
 			this.stream.client = defaultClient;
@@ -221,18 +212,15 @@ package com.visual {
 			this.video.attachNetStream(this.stream);
 			this.state = VideoEvent.BUFFERING;
 			this.stream.play(this.streamName);
-			trace('displayMode = ', displayMode);
 			matchVideoSize();
 		}
 		private function subscribe():void {
-			trace((new Date), 'FCSubscribe()');
 			this.connection.call("FCSubscribe", null, this.streamName);
 		}
 
 		private var defaultClient:Object = (function(context:Object):Object {
 			return {
 				onFCSubscribe:function(info:Object):void{
-					trace((new Date), 'onFCSubscribe', info.code);
 					switch(info.code){
 						case "NetStream.Play.StreamNotFound":
 							if(fcSubscribeCount >= fcSubscribeMaxRetries){
@@ -264,11 +252,9 @@ package com.visual {
 		})(this);
 		
 		private function genericErrorEvent(event:Event):void {
-			trace('Error', event.type);
 			this.state = VideoEvent.CONNECTION_ERROR;
 		}
 		private function netStatusHandler(event:NetStatusEvent):void {
-			trace((new Date), 'netStatusHandler + ' + event.info.code);
 			switch (event.info.code) {
 				case "NetConnection.Connect.Rejected":
 				case "NetConnection.Connect.IdleTimeout":
@@ -335,7 +321,6 @@ package com.visual {
 		
 		// Match size of video to the container
 		private function matchVideoSize(e:ResizeEvent=null):void {
-			trace((new Date), 'matchVideoSize()')
 			if(this&&this.width&&this.video) {
 				_aspectRatio = (_userAspectRatio && _userAspectRatio>0 ? _userAspectRatio : _videoAspectRatio);
 				var stageAspectRatio:Number = this.width/this.height;

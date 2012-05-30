@@ -20,12 +20,12 @@ public var propDefaults:Object = {
 	trayContentFontWeight: 'normal',
 	trayAlpha: parseFloat('0.8'),
 	showTray: true,
-	showDescriptions: true,
+	showDescriptions: false,
 	logoSource: '',
 	showBigPlay: true,
 	showLogo: true,
 	showShare: true,
-	showBrowse: true,
+	showBrowse: false,
 	browseMode: false,
 	logoPosition: 'top right',
 	logoAlpha: parseFloat('0.7'),
@@ -33,8 +33,8 @@ public var propDefaults:Object = {
 	logoHeight: parseFloat('40'),
 	verticalPadding: parseFloat('0'),
 	horizontalPadding: parseFloat('0'),
-	trayTimeout: parseFloat('5000'),
-	infoTimeout: parseFloat('5000'),
+	trayTimeout: parseFloat('0'),
+	infoTimeout: parseFloat('0'),
 	recommendationHeadline: 'Also have a look at...',
 	identityCountdown: false,
 	identityAllowClose: true,
@@ -50,6 +50,7 @@ public var propDefaults:Object = {
 	enableLiveStreams: true,
 	playflowInstreamVideo: '',
 	playflowInstreamOverlay: '',
+	photos:'4982855,4982805,4982766',
 	
 	start: parseFloat('0'),
 	player_id: parseFloat('0'),
@@ -76,7 +77,7 @@ private function initLoadURL():void{
 	
 	// Determine a load parameters
 	var loadParameters:Array = new Array();
-	var options:Array = ['photo_id', 'token', 'user_id', 'search', 'tag', 'tags', 'tag_mode', 'album_id', 'year', 'month', 'day', 'datemode', 'video_p', 'audio_p', 'video_encoded_p', 'order', 'orderby', 'size', 'source', 'rand', 'liveevent_id', 'liveevent_stream_id'];
+	var options:Array = ['photo_id', 'token', 'user_id', 'search', 'tag', 'tags', 'tag_mode', 'album_id', 'year', 'month', 'day', 'datemode', 'video_p', 'audio_p', 'video_encoded_p', 'order', 'orderby', 'size', 'source', 'rand', 'liveevent_id', 'liveevent_stream_id', 'photos'];
 	for (var i:int=0; i<options.length; i++) {
 		var opt:String = options[i];
 		if (FlexGlobals.topLevelApplication.parameters[opt]) {
@@ -88,7 +89,7 @@ private function initLoadURL():void{
 	loadParameters.push('player_id=' + encodeURI(playerId));
 	
 	// Use load parameters to build JSON source
-	var jsonSource:String = props.get('site_url') + '/api/photo/list?raw&format=json&' + loadParameters.join('&');
+	var jsonSource:String = props.get('site_url') + '/api/photo/list?size=100&raw&format=json&' + loadParameters.join('&');
 	props.put('jsonSource', jsonSource);
 	
 	// Mail link from parameters 
@@ -180,50 +181,10 @@ private function initProperties(settings:Object):void {
 	
 	// Possibly auto-play
 	possiblyAutoPlay();
-	
-	// Load up featured live streams
-	if(props.get('enableLiveStreams')) {
-		var streamOptions:Object = {};
-		if (FlexGlobals.topLevelApplication.parameters['liveevent_id']) {
-			prioritizeLiveStreams = true;
-			streamOptions = {
-				liveevent_id: FlexGlobals.topLevelApplication.parameters['liveevent_id'],
-				token: (FlexGlobals.topLevelApplication.parameters['token'] ? FlexGlobals.topLevelApplication.parameters['token'] : '')
-			}
-		} else if (FlexGlobals.topLevelApplication.parameters['liveevent_stream_id']) {
-			prioritizeLiveStreams = true;
-			streamOptions = {
-				liveevent_stream_id: FlexGlobals.topLevelApplication.parameters['liveevent_stream_id'],
-				token: (FlexGlobals.topLevelApplication.parameters['token'] ? FlexGlobals.topLevelApplication.parameters['token'] : '')
-			}
-		} else {
-			streamOptions = {featured_p:1};
-		}
-		liveStreamsMenu.options = [];
-		liveStreamsMenu.value = null;
-		try {
-			doAPI('/api/liveevent/stream/list', streamOptions, function(s:Object):void{
-				var streams:Array = s.streams;
-				if(streams.length) {
-					var streamMenu:Array = [];
-					streams.forEach(function(stream:Object, i:int, ignore:Object):void{
-						streamMenu.push({value:stream, label:stream.name});
-					});
-					liveStreamsMenu.options = streamMenu;
-					
-					if(prioritizeLiveStreams) {
-						setActiveElementToLiveStream(streams[0], false);
-					}
-				} else {
-					prioritizeLiveStreams = false;
-				}
-			});
-		} catch(e:Error) {}
-	}
 }
 
 private function getRecommendationSource():String {
-	if(!context || !context.photos) return(props.get('site_url') + '/api/photo/list?raw&format=json&size=10');
+	if(!context || !context.photos) return(props.get('site_url') + '/api/photo/list?raw&format=json&size=100');
 	
 	if(context.photos.length==1) {
 		// There's only one video to play, we'll need to construct recommendation in another fashion.
@@ -232,13 +193,13 @@ private function getRecommendationSource():String {
 		switch (method) {
 			case 'site-new':
 			case 'channel-new':
-				recommendationSource = props.get('site_url') + '/api/photo/list?raw&format=json&size=10&orderby=uploaded&order=desc';
+				recommendationSource = props.get('site_url') + '/api/photo/list?raw&format=json&size=100&orderby=uploaded&order=desc';
 				break;
 			case 'site-popular':
 			case 'channel-popular':
 			case 'similar':
 			default:
-				recommendationSource = props.get('site_url') + '/api/photo/list?raw&format=json&size=10&orderby=rank&order=desc';
+				recommendationSource = props.get('site_url') + '/api/photo/list?raw&format=json&size=100&orderby=rank&order=desc';
 				break;
 		}
 		if (playerId.length) recommendationSource += '&player_id=' + encodeURI(playerId);

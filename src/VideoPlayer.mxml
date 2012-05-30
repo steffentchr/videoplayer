@@ -39,13 +39,13 @@
 			import flash.utils.setTimeout;
 			
 			// Default domain (used when testing from localhost)
-			private var defaultDomain:String = 'reference.dev.visualtube.net';
+			private var defaultDomain:String = 'katrineholm.23video.com';
 			// Default photo_id (used to if you want a specific photo/video to be shown, otherwise empty)
 			private var defaultPhotoId:String = '';
 			private var defaultAlbumId:String = '';
 			private var playerId:String = '0';
 
-			private var context:Object = {};
+			public var context:Object = {};
 			private var recommendations:Object = {};
 			
 			private var playList: PlayList;
@@ -53,6 +53,7 @@
 			[Bindable] private var showPlayList: Boolean = false;
 			[Bindable] private var cleanVideoState:String = 'paused';
 			[Bindable] private var applicationLoaded:Boolean = false;
+			[Bindable] private var _photos:Array = [];
 			public var ads = null;
 			public var forceHideTray:Boolean = false;
 			
@@ -91,6 +92,26 @@
 				for (v in FlexGlobals.topLevelApplication.parameters) {a.push(encodeURIComponent(v) + '=' + encodeURIComponent(FlexGlobals.topLevelApplication.parameters[v]));}
 				a.push('width=' + encodeURIComponent(FlexGlobals.topLevelApplication.width));
 				a.push('height=' + encodeURIComponent(FlexGlobals.topLevelApplication.height));
+
+				var breakers:Object = {};
+				for (var i:int = 0; i<rawBreakers.length; i++) {
+					breakers[rawBreakers[i].photo_id] = rawBreakers[i]; 
+				}
+				breakers['Det geografiska läget'] = breakers['5120628'];
+				breakers['Sveriges Lustgård'] = breakers['5112700'];
+				breakers['I jämförelse med andra'] = breakers['5109288'];
+				breakers['Rätt tidpunkt'] = breakers['5116374'];
+				breakers['Folkliv'] = breakers['5060275'];
+				breakers['Näringsliv'] = breakers['5060467'];
+				breakers['Kulturliv'] = breakers['5060400'];
+				breakers['Föreningsliv'] = breakers['5060341'];
+				breakers['Arbete'] = breakers['5060534'];
+				breakers['God mat'] = breakers['5126830'];
+				breakers['Lärande'] = breakers['5131688'];
+				breakers['Lek, idrott och kultur'] = breakers['5140538'];
+				breakers['Gemenskap'] = breakers['5145056'];
+				breakers['start'] = breakers['5060216'];
+				breakers['end'] = breakers['5097677'];
 				
 				// Get settings for this player from 23 Video
 				initLoadURL();
@@ -101,6 +122,34 @@
 					initActiveElement();
 					doJSON((props.get('jsonSource') as String), function(o:Object):void{
 						context=o; 
+						_photos = [];
+						_photos.push(breakers.start);
+						var paramPhotos:Array = props.getString('photos').split(',');
+						if(!paramPhotos.length) {
+							// Sorted based on data from API
+							for (var i:int = 0; i<context.photos.length; i++) {
+								if(context.photos[i].album_id = '4972159' && breakers[context.photos[i].category]) {
+									_photos.push(breakers[context.photos[i].category]);	
+								}
+								_photos.push(context.photos[i]);
+							}
+						} else {
+							// Sorted based on the parameters
+							for (var ix:int = 0; ix<paramPhotos.length; ix++) {
+								for (var i:int = 0; i<context.photos.length; i++) {
+									if(paramPhotos[ix] == context.photos[i].photo_id) { 
+										if(context.photos[i].album_id = '4972159' && breakers[context.photos[i].category]) {
+											_photos.push(breakers[context.photos[i].category]);	
+										}
+										_photos.push(context.photos[i]);
+									}
+								}
+							}
+							
+						}
+						_photos.push(breakers.end);
+						trace('_photos.length = ' + _photos.length);
+						progress.photos = context.photos = _photos;
 						build();
 					});
 				});
@@ -124,14 +173,9 @@
 						}, (props.getBoolean('browseMode') ? 0 : 5000));
 					}
 				}
-	
-				if (liveStreamsMenu.options.length>0 || (context&&context.photos&&context.photos.length>0)) {
-					trayShow();
-					infoShow();
-					applicationLoaded = true;
-				} else {
-					displayError('No video to play');				
-				}
+				trayShow();
+				infoShow();
+				applicationLoaded = true;
 			}
 			
             private function createPlayList():void  {
@@ -258,13 +302,7 @@
             }
             private function onVideoComplete(ignoreIdentity:Boolean=false):void {
 				reportPlay('end', video.playheadTime);
-     			if(!ignoreIdentity) return(handleIdentity('after', function():void {onVideoComplete(true);}));
-            	if(props.get('loop')) {
-            		var more:Boolean = nextElement();
-            		if(!more) onPlayListDone();
-            	} else {
-            		onPlayListDone();
-            	}
+				if(nextElement()) playVideoElement();
             }
             private function onPlayListResize():void {
             	var c:Array = playListHolder.getChildren();
@@ -275,8 +313,8 @@
             	resizeProgressBar();
             }
             private function resizeProgressBar():void {
-            	var x:int = progress.x = (videoControls.visible ? videoControls.width : 0) + 4; 
-            	progress.width = tray.width - (rightPanel.width + 4) - x; 
+            	var x:int = progressContainer.x = (videoControls.visible ? videoControls.width : 0) + 4;
+            	progressContainer.width = tray.width - (rightPanel.width + 4) - x; 
             }
 		]]>
 	</mx:Script>	
@@ -362,15 +400,6 @@
 		allowClose="{props.get('identityAllowClose')}"
 		close="{identityVideo.stop(); reportEvent(currentIdentityEvent=='after' ? 'postRollClose ' : 'preRollClose'); identityVideo.dispatchEvent(new Event('complete', true));}"
 		/>
-	<com:PlayerSubtitles id="subtitles"
-		 width="{this.width}"
-		 height="{this.height}"
-		 x="0"
-		 y="0"
-		 targetVideo="{video}"
-		 visible="{video.visible}"
-		 design="{props.get('subtitlesDesign')}"
-		 />
 
 	<!-- Icon/Logo -->
 	<mx:Box 
@@ -502,10 +531,23 @@
 			    	</mx:HBox>					
 						
 					<!-- Progress bar -->
-					<com:PlayerProgress id="progress"
-						targetVideo="{video}"
-						visible="{!activeElement.getBoolean('live') &amp;&amp; !identityVideo.visible}" 
-						/>
+					<mx:Canvas id="progressContainer"
+							backgroundColor="{(styleManager.getColorName(props.get('trayBackgroundColor')) as Number)}" 
+							backgroundAlpha="{(props.get('trayAlpha') as Number)}" 
+							cornerRadius="2" 
+							borderStyle="solid" 
+							borderThickness="0"
+							y="2"
+							height="28"
+							>
+						<com:PlayerProgress id="progress"
+											x="10" y="10"
+											width="{progressContainer.width-20}"
+											targetVideo="{video}"
+											visible="{!activeElement.getBoolean('live') &amp;&amp; !identityVideo.visible}"
+											/>
+					</mx:Canvas>
+
 
 					<!-- Right Panel -->
 			    	<mx:HBox id="rightPanel" 
@@ -516,33 +558,6 @@
 			    		horizontalGap="2" 
 			    		resize="resizeProgressBar();"
 			    		> 
-						<!-- Live streams -->
-						<com:PlayerButton id="liveStreamsBtn" 
-							imageSource="@Embed(source='assets/buttons/live.swf')"
-							visible="false"
-							>
-							<com:PlayerMenu 
-								id="liveStreamsMenu"
-								change="{setActiveElementToLiveStream(liveStreamsMenu.value, true)}"
-								showOneItemMenus="true"
-								backgroundColor="{(styleManager.getColorName(props.get('trayBackgroundColor')) as Number)}" 
-								backgroundAlpha="{(props.get('trayAlpha') as Number)}" 
-								fontFamily="{props.get('trayFont')}" 
-								color="{(styleManager.getColorName(props.get('trayTextColor')) as Number)}" 
-								/>
-						</com:PlayerButton>
-
-						<!-- PlayListBtn -->
-			    		<com:PlayerButton id="playlistBtn" 
-			    			imageSource="@Embed(source='assets/buttons/expand-on.swf')"
-			    			visible="{enablePlayList &amp;&amp; showPlayList}" 
-			    			click="playListHide()"
-			    			/>
-			    		<com:PlayerButton id="playlistBtnOn" 
-			    			imageSource="@Embed(source='assets/buttons/expand-off.swf')"
-			    			visible="{enablePlayList &amp;&amp; !showPlayList}" 
-			    			click="playListShow()"
-			    			/>
 
 						<!-- InfoBtn -->
 						<com:PlayerButton id="infoImage" 
@@ -566,22 +581,6 @@
 								/>
 						</com:PlayerButton>
 
-						<!-- Subtitle button-->
-						<com:PlayerButton id="subtitlesBtn" 
-						  	imageSource="@Embed(source='assets/buttons/cc.swf')"
-							visible="false"
-							>
-							<com:PlayerMenu 
-								id="subtitlesMenu"
-								value="{subtitles.locale}"
-								change="{subtitles.locale=new String(subtitlesMenu.value);}"
-								backgroundColor="{(styleManager.getColorName(props.get('trayBackgroundColor')) as Number)}" 
-								backgroundAlpha="{(props.get('trayAlpha') as Number)}" 
-								fontFamily="{props.get('trayFont')}" 
-								color="{(styleManager.getColorName(props.get('trayTextColor')) as Number)}" 
-								/>
-						</com:PlayerButton>
-						
 						<!-- Mute and Unmute -->
 			    		<com:PlayerButton id="muteImage"
 			    			imageSource="@Embed(source='assets/buttons/mute-on.swf')"

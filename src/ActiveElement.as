@@ -10,11 +10,11 @@ private var supportedFormats:Array = [];
 [Bindable] public var showBeforeIdentity:Boolean = false;
 [Bindable] public var showVideoAd:Boolean = false;
 
-private function initActiveElement():void {
+public function initActiveElement():void {
 	resetActiveElement();
 }
  
-private function resetActiveElement(skip:Boolean=false):void {
+public function resetActiveElement(skip:Boolean=false):void {
   	activeElement.put('photo_id', '');
 	activeElement.put('video_p', false);
   	activeElement.put('title', '');
@@ -36,6 +36,7 @@ private function resetActiveElement(skip:Boolean=false):void {
 	activeElement.put('start', '0');
 	activeElement.put('skip', '0');
 	activeElement.put('live', false);
+	activeElement.put('offset', 0);
 	
 	// Reset other stuff related to the active video
 	clearVideo();
@@ -43,61 +44,10 @@ private function resetActiveElement(skip:Boolean=false):void {
 	identityVideo.close();
 	showBeforeIdentity = true;
 	showVideoAd = true;
-	liveStreamsMenu.value = null;
 	updateBackground();
-
-	if(!skip) {
-		progress.setSections([]);
-		subtitles.suppportedLocales = {}; subtitlesMenu.options = [];
-	}
 }
 
-private function setActiveElementToLiveStream(stream:Object, startPlaying:Boolean=false):void {
-	resetActiveElement();
-
-	// Handle video title and description
-	var title:String = stream.name.replace(new RegExp('(<([^>]+)>)', 'ig'), '');
-	activeElement.put('video_p', true);
-	activeElement.put('photo_id', stream.liveevent_stream_id);
-	activeElement.put('title', title);
-	activeElement.put('content', "");
-	activeElement.put('hasInfo', false);
-	activeElement.put('link', stream.one);
-	activeElement.put('length', 0); 
-	activeElement.put('start', 0);
-	activeElement.put('skip', false);
-	activeElement.put('live', true);
-	activeElement.put('one', props.get('site_url') + stream.one); 
-	supportedFormats = ['live'];
-	formatsMenu.options = [];
-	activeElement.put('photoSource', props.get('site_url') + stream.large_download);
-	activeElement.put('videoSource', stream.rtmp_stream);
-	video.source = getFullVideoSource();
-	
-	showVideoElement();
-	if (startPlaying) {
-		playVideoElement();
-	} else {
-		possiblyAutoPlay();
-	}
-
-	// Aspect ratios
-	activeElement.put('aspectRatio', stream.thumbnail_large_aspect_ratio*1.0);
-	video.aspectRatio = identityVideo.aspectRatio = 0;
-	
-	// Make embed code current
-	updateCurrentVideoEmbedCode();
-	updateBackground();
-	
-	// We want the tray and possible the info box to show up when a new element starts playing
-	infoShow();
-	trayShow();
-	
-	// Note that we've loaded the video 
-	reportEvent('load');
-}
-
-private function setActiveElement(i:int, startPlaying:Boolean=false, start:Number=0, skip:int=0, format:String=null):Boolean {
+public function setActiveElement(i:int, startPlaying:Boolean=false, start:Number=0, skip:int=0, format:String=null):Boolean {
 	if (!context || !context.photos || !context.photos[i]) return(false);
 	resetActiveElement(skip);
 
@@ -119,6 +69,12 @@ private function setActiveElement(i:int, startPlaying:Boolean=false, start:Numbe
   	activeElement.put('length', o.video_length); 
   	activeElement.put('start', start);
   	activeElement.put('skip', skip);
+
+	var offset:Number = 0;
+	for(var ix:int = 0; ix<i; ix++) {
+		offset += new Number(context.photos[ix].video_length);
+	}
+	activeElement.put('offset', offset);
 
 	// PlayFlow
 	activeElement.put('beforeDownloadType', o.before_download_type);
@@ -155,42 +111,6 @@ private function setActiveElement(i:int, startPlaying:Boolean=false, start:Numbe
 	} else {
 		showImageElement();
 	}
-	
-	// Get sections and show, otherwise reset
-	if(!skip) {
-		if(o.subtitles_p && props.get('enableSubtitles')) {
-			try {
-				doAPI('/api/photo/subtitle/list', {photo_id:o.photo_id, token:o.token, subtitle_format:'json', stripped_p:'1'}, function(sub:Object):void{
-					var locales:Object = {};
-					var defaultLocale:String = '';
-					var localeMenu:Array = [];
-					localeMenu.push({value:'', label:'No subtitles'});
-					for (var i:int=0; i<sub.subtitles.length; i++) {
-						locales[sub.subtitles[i].locale] = {href:props.get('site_url') + sub.subtitles[i].href, language:sub.subtitles[i].language, locale:sub.subtitles[i].locale};
-						localeMenu.push({value:sub.subtitles[i].locale, label:sub.subtitles[i].language});
-						if(sub.subtitles[i].default_p) defaultLocale = sub.subtitles[i].locale; 
-					}
-					// Let the subtitles component know about this
-					subtitles.suppportedLocales = locales;
-					subtitles.locale = (props.get('subtitlesOnByDefault') ? defaultLocale : '');
-					// Create a menu from the same options
-					subtitlesMenu.options = localeMenu;
-					subtitlesMenu.value = subtitles.locale;
-				});
-			} catch(e:Error) {subtitles.suppportedLocales = {}; subtitlesMenu.options = [];}
-		} else {
-			subtitles.suppportedLocales = {}; subtitlesMenu.options = [];
-		}
-	
-		// Get subtitles and show, otherwise reset
-		if(o.sections_p) {
-			try {
-				doAPI('/api/photo/section/list', {photo_id:o.photo_id, token:o.token}, function(sec:Object):void{progress.setSections(sec.sections);});
-			} catch(e:Error) {progress.setSections([]);}
-		} else {
-			progress.setSections([]);
-		}
-	}
 
 	// Supported formats, default format and build menu
 	if(!skip) prepareSupportedFormats(o);
@@ -215,7 +135,7 @@ private function setActiveElement(i:int, startPlaying:Boolean=false, start:Numbe
 	return(true);
 } 	
 
-private function prepareSupportedFormats(o:Object):void {
+public function prepareSupportedFormats(o:Object):void {
 	// Reset list
 	supportedFormats = [];
 
