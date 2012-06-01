@@ -47,11 +47,10 @@
 
 	<mx:Label id="videoTimeLabel"
 			  right="-2"
-			  y="6"
+			  y="5"
 			  selectable="false"
 			  fontFamily="Helvetica, Arial"
 			  fontSize="9"
-			  height="12"
 			  color="white"
 			  />
 	

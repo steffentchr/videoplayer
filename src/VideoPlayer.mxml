@@ -539,12 +539,14 @@
 							borderThickness="0"
 							y="2"
 							height="28"
+							clipContent="false"
 							>
 						<com:PlayerProgress id="progress"
 											x="10" y="10"
 											width="{progressContainer.width-20}"
 											targetVideo="{video}"
 											visible="{!activeElement.getBoolean('live') &amp;&amp; !identityVideo.visible}"
+											clipContent="false"
 											/>
 					</mx:Canvas>
 
