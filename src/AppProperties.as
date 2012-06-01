@@ -50,7 +50,7 @@ public var propDefaults:Object = {
 	enableLiveStreams: true,
 	playflowInstreamVideo: '',
 	playflowInstreamOverlay: '',
-	photos:'4982855,4982805,4982766',
+	photos:'',
 	
 	start: parseFloat('0'),
 	player_id: parseFloat('0'),
