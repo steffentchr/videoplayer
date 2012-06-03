@@ -14,6 +14,7 @@
 	height="100%" 
 	applicationComplete="init();"
 	usePreloader="false"
+	xmlns:controls="com.saifx.controls.*"
 	>
  	<mx:Script source="Utility.as"></mx:Script>
  	<mx:Script source="Fullscreen.as"></mx:Script>
@@ -394,10 +395,11 @@
 				height="{trayContent.height}"
 				clipContent="true"
 				>
-				<mx:Text id="trayContent" 
+				<controls:TextAdv 
+						 id="trayContent" 
 						 fontSize="13"
 						 color="#666666"
-						 text="{activeElement.get('content')}" 
+						 htmlText="{activeElement.get('content')}" 
 						 truncateToFit="true" 
 						 width="100%"
 						 maxHeight="60"
@@ -410,7 +412,7 @@
 					 width="100%"
 					 visible="{trayContent.height==trayContent.maxHeight}"
 					 includeInLayout="{trayContent.height==trayContent.maxHeight}"
-					 click="{goToUrl(activeElement.getString('link'));}"
+					 click="{video.pause(); goToUrl(activeElement.getString('link') + '?start=' + (Math.floor(Math.round(activeElement.getNumber('start') + video.playheadTime))), '_new');}"
 					 useHandCursor="true"
 					 buttonMode="true"
 					 selectable="false"
