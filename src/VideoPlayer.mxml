@@ -131,48 +131,48 @@
 				initLoadURL();
 				doAPI('/api/player/settings', {player_id:(playerId?playerId:''), parameters:a.join('&')}, function(o:Object):void{
 					initProperties(o.settings);
-				});
-				// Load content
 
-				initActiveElement();				
-				doJSON((props.get('jsonSource') as String) + '&size=1', function(o:Object):void{
-					var a = new Array();
-					if(o.photos.length==0 || o.photos[0].album_id==3561248 || FlexGlobals.topLevelApplication.height<180 || !o.photos[0].title.match(/\([0-9]+\)/) ) {
-						// Empty or Nyheder
-						context=o; 
-						_photos = context.photos;
-						build();
-						resize();
-					} else {
-						// Reload other episodes from the same day
-						a.push('album_id=' + o.photos[0].album_id);
-						a.push('year=' + o.photos[0].publish_date_ansi.substr(0,4));
-						a.push('month=' + o.photos[0].publish_date_ansi.substr(5,2));
-						a.push('day=' + o.photos[0].publish_date_ansi.substr(8,2));
-						a.push('datemode=published');
-						a.push('order=asc');
-						doJSON(props.getString('jsonSource').replace(/token=/, 'ignore_token=').replace(/photo_id=/, 'ignore_photo_id=') + '&' + a.join('&'), function(o2:Object):void{
-							if(o2&&o2.photos) {
-								context=o2;
-							} else {
-								context=o;
-							}
+					// Load content
+					initActiveElement();				
+					doJSON((props.get('jsonSource') as String) + '&size=1', function(o:Object):void{
+						var a = new Array();
+						if(o.photos.length==0 || o.photos[0].album_id==3561248 || FlexGlobals.topLevelApplication.height<180 || !o.photos[0].title.match(/\([0-9]+\)/) ) {
+							// Empty or Nyheder
+							context=o; 
 							_photos = context.photos;
 							build();
 							resize();
-							
-							// We may have loaded an clip, which was first in line
-							if(FlexGlobals.topLevelApplication.parameters['photo_id']) {
-								var p:String = FlexGlobals.topLevelApplication.parameters['photo_id'];
-								for (var i:int = 0; i<context.photos.length; i++) {
-									if(p==context.photos[i].photo_id) {
-										setActiveElement(i);
-										break;
+						} else {
+							// Reload other episodes from the same day
+							a.push('album_id=' + o.photos[0].album_id);
+							a.push('year=' + o.photos[0].publish_date_ansi.substr(0,4));
+							a.push('month=' + o.photos[0].publish_date_ansi.substr(5,2));
+							a.push('day=' + o.photos[0].publish_date_ansi.substr(8,2));
+							a.push('datemode=published');
+							a.push('order=asc');
+							doJSON(props.getString('jsonSource').replace(/token=/, 'ignore_token=').replace(/photo_id=/, 'ignore_photo_id=') + '&' + a.join('&'), function(o2:Object):void{
+								if(o2&&o2.photos) {
+									context=o2;
+								} else {
+									context=o;
+								}
+								_photos = context.photos;
+								build();
+								resize();
+								
+								// We may have loaded a clip, which was first in line
+								if(FlexGlobals.topLevelApplication.parameters['photo_id']) {
+									var p:String = FlexGlobals.topLevelApplication.parameters['photo_id'];
+									for (var i:int = 0; i<context.photos.length; i++) {
+										if(p==context.photos[i].photo_id) {
+											setActiveElement(i, false, props.getNumber('start'));
+											break;
+										}
 									}
 								}
-							}
-						});
-					}
+							});
+						}
+					});
 				});
 			}
 			public function build():void {
@@ -181,7 +181,6 @@
 				vc2.progress.placeGrid();
 				vc3.progress.placeGrid();
 				applicationLoaded = true;
-				trace('NOW');
 			}
 			
             private function prepareTimers():void {
