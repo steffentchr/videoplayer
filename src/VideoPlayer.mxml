@@ -63,6 +63,7 @@
 					if (ExternalInterface.available && (objectID.length>0 && objectID!='null')) {
 						ExternalInterface.addCallback('unloadVideoPlayer', function():void {unload();});
 						ExternalInterface.addCallback('pauseVideo', function():void {pauseVideoElement();});
+						ExternalInterface.addCallback('toggleShare', function():void {toggleShare();});
 						ExternalInterface.addCallback('playVideo', function():void {playVideoElement();});
 						ExternalInterface.addCallback('getPlayState', function():String {return(cleanVideoState);});
 						ExternalInterface.addCallback('getPlayheadTime', function():Object {return(video.playheadTime + activeElement.getNumber('start'));});
@@ -102,6 +103,11 @@
 						build();
 					});
 				});
+			}
+			public function toggleShare():void {
+				var v:Boolean = embedPanel.visible; 
+				hidePopups(); 
+				embedPanel.visible=props.get('showShare') && !v;
 			}
 			public function build():void {
 				if(!prioritizeLiveStreams && context && context.photos && context.photos.length>0) setActiveElement(0, false, props.getNumber('start'));
@@ -541,7 +547,7 @@
 			    		<com:PlayerButton id="feedpanelBtn" 
 			    			imageSource="@Embed(source='assets/buttons/share.png')"
 			    			visible="{(props.get('showShare') as Boolean)}" 
-			    			click="var v:Boolean = embedPanel.visible; hidePopups(); embedPanel.visible=props.get('showShare') &amp;&amp; !v;"
+			    			click="toggleShare();"
 							activated="{embedPanel.visible}"
 			    			/>
 					</mx:HBox>
@@ -568,7 +574,7 @@
 				/>
 			<mx:Image
 				y="32"
-				width="566"
+				width="486"
 				height="39"
 				maintainAspectRatio="false"
 				source="@Embed('assets/buttons/embed-background.png', scaleGridTop='19', scaleGridBottom='20', scaleGridLeft='100', scaleGridRight='110')"
@@ -579,13 +585,13 @@
 				paddingBottom="5"
 				paddingLeft="7"
 				backgroundAlpha="0"
-				backgroundSize="561"
+				backgroundSize="481"
 				height="36"
-				width="100%"
+				width="481"
 				text="{props.get('currentVideoEmbedCode')}" 
 				click="{reportEvent('embedEngaged'); embedText.setFocus(); embedText.selectionBeginIndex = 0; embedText.selectionEndIndex = embedText.text.length;}" 
 				color="#333" 
-				fontSize="13"
+				fontSize="12"
 				borderStyle="none"
 				/>
 		</mx:Canvas>
@@ -599,7 +605,7 @@
 			/>
 		<!-- Share section -->		
 		<mx:HBox 
-			horizontalGap="43"
+			horizontalGap="25"
 			verticalAlign="bottom"
 			visible="{(props.get('showShare') as Boolean)}"
 			width="566"
