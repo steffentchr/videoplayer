@@ -107,6 +107,7 @@
 			public function toggleShare():void {
 				var v:Boolean = embedPanel.visible; 
 				hidePopups(); 
+				tray.visible=true;
 				embedPanel.visible=props.get('showShare') && !v;
 			}
 			public function build():void {
@@ -180,7 +181,7 @@
             private function prepareTimers():void {
 				// Reset timer when the mouse moves in the application
 				stage.addEventListener(Event.MOUSE_LEAVE, function():void {
-					if(!descriptions.visible && !embedPanel.visible && !showPlayList) tray.visible = false; 
+					if(!embedPanel.visible && !descriptions.visible && !embedPanel.visible && !showPlayList) tray.visible = false; 
 				});
 				stage.addEventListener(MouseEvent.MOUSE_MOVE, function():void {tray.visible=true;});
 
@@ -562,7 +563,7 @@
 
 		<!-- Embed section -->		
 		<mx:Canvas 
-			width="566"
+			width="486"
 			height="81"
 			clipContent="true"
 			horizontalScrollPolicy="off"
@@ -608,7 +609,7 @@
 			horizontalGap="25"
 			verticalAlign="bottom"
 			visible="{(props.get('showShare') as Boolean)}"
-			width="566"
+			width="486"
 			paddingTop="14"
 			clipContent="true"
 			horizontalScrollPolicy="off"
