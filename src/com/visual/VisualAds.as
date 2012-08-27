@@ -47,6 +47,7 @@ package com.visual {
 			requests.push({type:type, url:url, publisherId:publisherId, contentId:contentId});
 		}
 		public function preroll():Boolean {
+			trace('preroll()');
 			return(this.load('video'));
 		}
 		public function overlay():Boolean {
@@ -90,6 +91,7 @@ package com.visual {
 			trace('onFlashAdSizeChanged', e);
 		}
 		private function onVideoAdComplete(e:AdEvent):void {
+			trace('onVideoAdComplete');
 			// Remove video element if applicable
 			(manager as VideoAdsManager).clickTrackingElement = null;
 			this.internalVideo.visible = false;
@@ -97,10 +99,12 @@ package com.visual {
 		}
 		
 		private function onAdLoaded(e:AdLoadedEvent):void {
+			trace('onAdLoaded');
 			ns = e.netStream;
 		}
 
 		private function onAdsLoaded(e:AdsLoadedEvent):void {
+			trace('onAdsLoaded');
 			// Clear previous Flash ad stages
 			try {
 				if(this.internalFlash) this.removeChild(this.internalFlash);
@@ -112,6 +116,8 @@ package com.visual {
 			manager.addEventListener(AdEvent.CONTENT_RESUME_REQUESTED, onContentResumeRequested);
 			manager.addEventListener(AdLoadedEvent.LOADED, onAdLoaded);
 			
+			trace('manager.type');
+			trace(manager.type);
 			if (manager.type == AdsManagerTypes.FLASH) {
 				var flashAdsManager:FlashAdsManager = e.adsManager as FlashAdsManager;
 				flashAdsManager.addEventListener(AdSizeChangedEvent.SIZE_CHANGED, onFlashAdSizeChanged);
@@ -140,6 +146,7 @@ package com.visual {
 				videoAdsManager.play(this.internalVideo);
 			} else if (manager.type == AdsManagerTypes.CUSTOM_CONTENT) {
 				// Not supported
+				this.stop();
 			}
 		}
 		

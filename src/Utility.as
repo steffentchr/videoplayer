@@ -60,9 +60,4 @@ public function goToUrl(url:String, target:String = '_new'):void {
     navigateToURL(new URLRequest(url), target);
 }
 public function updateBackground():void {
-	try {
-		if(ExternalInterface.available) {
-			ExternalInterface.call('setBackground', props.getString('backgroundColor'), activeElement.get('photoSource'), props.getNumber('verticalPadding'), props.getNumber('horizontalPadding'));
-		}
-	} catch(e:Error) {}
 }

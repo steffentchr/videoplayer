@@ -36,7 +36,7 @@ public var propDefaults:Object = {
 	trayTimeout: parseFloat('5000'),
 	infoTimeout: parseFloat('5000'),
 	recommendationHeadline: 'Also have a look at...',
-	identityCountdown: false,
+	identityCountdown: true,
 	identityAllowClose: true,
 	identityCountdownTextSingular: "This advertisement will end in % second",
 	identityCountdownTextPlural: "This advertisement will end in % seconds",
@@ -48,7 +48,7 @@ public var propDefaults:Object = {
 	subtitlesDesign: 'bars',
 	playlistClickMode:'link',
 	enableLiveStreams: true,
-	playflowInstreamVideo: '',
+	playflowInstreamVideo: 'http://e2.emediate.se/eas?cu=16140;ty=video||',
 	playflowInstreamOverlay: '',
 	
 	start: parseFloat('0'),
@@ -250,6 +250,7 @@ private function bootstrapAds():void {
 		
 	// Attach VisualAd element to the stage, and make sure it's sized correctly
 	ads = new VisualAds();
+	trace(ads);
 	visualAdContainer.addChild((ads as UIComponent));
 	
 	// Make sure it's sized correctly
@@ -261,6 +262,7 @@ private function bootstrapAds():void {
 	visualAdContainer.addEventListener(ResizeEvent.RESIZE, fitSize);
 	
 	// Interface with the app through events
+	trace('add event listeners for ads');
 	ads.addEventListener('contentPauseRequested', function():void{
 		if(props.getBoolean('identityAllowClose') && props.getBoolean('identityCountdown')) {
 			adMessage.visible = true;
@@ -280,6 +282,7 @@ private function bootstrapAds():void {
 	// Append sources
 	var a:Array;
 	a = activeElement.getString('playflowInstreamVideo').split('|');
+	trace(decodeURIComponent(a[0]));
 	if(a.length==3) ads.push('video', decodeURIComponent(a[0]), decodeURIComponent(a[1]), decodeURIComponent(a[2]));
 	a = activeElement.getString('playflowInstreamOverlay').split('|');
 	if(a.length==3) ads.push('overlay', decodeURIComponent(a[0]), decodeURIComponent(a[1]), decodeURIComponent(a[2]));

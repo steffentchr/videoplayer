@@ -2,14 +2,16 @@
 <mx:Canvas 
 	xmlns:mx="http://www.adobe.com/2006/mxml" 
 	xmlns:com="com.*" 
-	width="100" 
-	height="100" 
+	width="120" 
+	height="125"
 	implements="mx.managers.IFocusManagerComponent" 
 	focusEnabled="true" 
 	tabEnabled="true"
 	tabFocusEnabled="true"
 	keyDown="if (event.keyCode==Keyboard.ENTER) event.target.dispatchEvent(new MouseEvent(MouseEvent.CLICK));"
-	creationComplete="init()">
+	creationComplete="init()"
+	verticalScrollPolicy="off" horizontalScrollPolicy="off" 
+	>
 	<mx:Script>
 		<![CDATA[
 			import com.SmoothImage;
@@ -56,7 +58,6 @@
 					moviePreview.source = _defaultURL;
 				}
 				moviePreview.maintainAspectRatio = true;
-				loadLabel.visible = false;
 				moviePreview.visible = true;
 				nameLabel.visible = true;
 			}
@@ -64,8 +65,7 @@
 			
 		]]>
 	</mx:Script>
-	<com:SmoothImage id="moviePreview" top="0" width="100" height="75" scaleContent="true" visible="false" verticalAlign="bottom"/>
-	<mx:Label id="nameLabel" color="0xFFFFFF" fontSize="10" width="100" truncateToFit="true"  bottom="2" visible="false" fontFamily="Arial"/>
-	<mx:Label id="loadLabel" color="0xFFFFFF" fontSize="10" verticalCenter="0" horizontalCenter="0" text="LOADING" fontFamily="Arial"/>
-	<mx:Canvas id="clickHolder" width="100" height="100" verticalCenter="0" horizontalCenter="0" backgroundColor="black" backgroundAlpha="0.01" useHandCursor="true" buttonMode="true"/>
+	<com:SmoothImage id="moviePreview" top="0" width="120" height="65" scaleContent="true" visible="false" verticalAlign="bottom"/>
+	<mx:Text id="nameLabel" color="0xFFFFFF" fontSize="13" width="120" truncateToFit="true" top="70" visible="false" fontFamily="'Trebuchet MS', Trebuchet MS, Trebuchet, Helvetica, Arial"/>
+	<mx:Canvas id="clickHolder" width="120" height="125" verticalCenter="0" horizontalCenter="0" backgroundColor="black" backgroundAlpha="0.01" useHandCursor="true" buttonMode="true"/>
 </mx:Canvas>
