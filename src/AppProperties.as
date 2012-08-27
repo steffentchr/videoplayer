@@ -13,7 +13,7 @@ public var propDefaults:Object = {
 	backgroundColor: 'black',
 	trayBackgroundColor: 'black',
 	trayTextColor: 'white',
-	trayFont: 'Helvetica, Arial, sans-serif',
+	trayFont: "'Trebuchet MS', Trebuchet MS, Trebuchet, Helvetica, Arial, sans-serif",
 	trayTitleFontSize: parseFloat('13'),
 	trayTitleFontWeight: 'bold',
 	trayContentFontSize: parseFloat('11'),
@@ -31,7 +31,7 @@ public var propDefaults:Object = {
 	logoAlpha: parseFloat('0.7'),
 	logoWidth: parseFloat('80'),
 	logoHeight: parseFloat('40'),
-	verticalPadding: parseFloat('0'),
+	verticalPadding: parseFloat('65'),
 	horizontalPadding: parseFloat('0'),
 	trayTimeout: parseFloat('5000'),
 	infoTimeout: parseFloat('5000'),
@@ -154,12 +154,6 @@ private function initProperties(settings:Object):void {
 	props.put('settingsLoaded', true);
 	updateBackground();
 	
-	// Tray and information timeout
-	trayTimer.delay = props.getNumber('trayTimeout');
-	trayTimer.reset();
-	infoTimer.delay = props.getNumber('infoTimeout');
-	infoTimer.reset();
-	
 	// Make the embed code current
 	updateCurrentVideoEmbedCode();
 	
@@ -199,26 +193,6 @@ private function initProperties(settings:Object):void {
 		} else {
 			streamOptions = {featured_p:1};
 		}
-		liveStreamsMenu.options = [];
-		liveStreamsMenu.value = null;
-		try {
-			doAPI('/api/liveevent/stream/list', streamOptions, function(s:Object):void{
-				var streams:Array = s.streams;
-				if(streams.length) {
-					var streamMenu:Array = [];
-					streams.forEach(function(stream:Object, i:int, ignore:Object):void{
-						streamMenu.push({value:stream, label:stream.name});
-					});
-					liveStreamsMenu.options = streamMenu;
-					
-					if(prioritizeLiveStreams) {
-						setActiveElementToLiveStream(streams[0], false);
-					}
-				} else {
-					prioritizeLiveStreams = false;
-				}
-			});
-		} catch(e:Error) {}
 	}
 }
 
@@ -295,14 +269,11 @@ private function bootstrapAds():void {
 					ads.stop();
 				});
 		}
-		forceHideTray = true;
-		trayHide();
 		pauseVideoElement();
 	});
 	ads.addEventListener('contentResumeRequested', function():void{
 		forceHideTray = false;
 		adMessage.visible = false;
-		trayShow();
 		playVideoElement();
 	});
 	

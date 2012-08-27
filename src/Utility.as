@@ -55,7 +55,7 @@ public function reportEvent(event:String):void {
 	} catch(e:Error) {}
 }
 
-public function goToUrl(url:String, target:String = '_top'):void {
+public function goToUrl(url:String, target:String = '_new'):void {
 	if(!new RegExp('\:\/\/').test(url)) url = props.get('site_url') + url;
     navigateToURL(new URLRequest(url), target);
 }

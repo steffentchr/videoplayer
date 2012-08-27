@@ -35,66 +35,16 @@ private function resetActiveElement(skip:Boolean=false):void {
 	activeElement.put('length', '0');
 	activeElement.put('start', '0');
 	activeElement.put('skip', '0');
-	activeElement.put('live', false);
 	
 	// Reset other stuff related to the active video
 	clearVideo();
-	identityVideo.visible = false;
-	identityVideo.close();
 	showBeforeIdentity = true;
 	showVideoAd = true;
-	liveStreamsMenu.value = null;
 	updateBackground();
 
 	if(!skip) {
 		progress.setSections([]);
-		subtitles.suppportedLocales = {}; subtitlesMenu.options = [];
 	}
-}
-
-private function setActiveElementToLiveStream(stream:Object, startPlaying:Boolean=false):void {
-	resetActiveElement();
-
-	// Handle video title and description
-	var title:String = stream.name.replace(new RegExp('(<([^>]+)>)', 'ig'), '');
-	activeElement.put('video_p', true);
-	activeElement.put('photo_id', stream.liveevent_stream_id);
-	activeElement.put('title', title);
-	activeElement.put('content', "");
-	activeElement.put('hasInfo', false);
-	activeElement.put('link', stream.one);
-	activeElement.put('length', 0); 
-	activeElement.put('start', 0);
-	activeElement.put('skip', false);
-	activeElement.put('live', true);
-	activeElement.put('one', props.get('site_url') + stream.one); 
-	supportedFormats = ['live'];
-	formatsMenu.options = [];
-	activeElement.put('photoSource', props.get('site_url') + stream.large_download);
-	activeElement.put('videoSource', stream.rtmp_stream);
-	video.source = getFullVideoSource();
-	
-	showVideoElement();
-	if (startPlaying) {
-		playVideoElement();
-	} else {
-		possiblyAutoPlay();
-	}
-
-	// Aspect ratios
-	activeElement.put('aspectRatio', stream.thumbnail_large_aspect_ratio*1.0);
-	video.aspectRatio = identityVideo.aspectRatio = 0;
-	
-	// Make embed code current
-	updateCurrentVideoEmbedCode();
-	updateBackground();
-	
-	// We want the tray and possible the info box to show up when a new element starts playing
-	infoShow();
-	trayShow();
-	
-	// Note that we've loaded the video 
-	reportEvent('load');
 }
 
 private function setActiveElement(i:int, startPlaying:Boolean=false, start:Number=0, skip:int=0, format:String=null):Boolean {
@@ -143,7 +93,6 @@ private function setActiveElement(i:int, startPlaying:Boolean=false, start:Numbe
 	var ar:Number = parseInt(o.large_width) / parseInt(o.large_height);
 	activeElement.put('aspectRatio', ar);
 	video.aspectRatio = ar;
-	identityVideo.aspectRatio = (props.getBoolean('maintainIdentityAspectRatio') ? 0 : ar);
 	showImageElement();
 	
 	// Link back to the video
@@ -158,30 +107,6 @@ private function setActiveElement(i:int, startPlaying:Boolean=false, start:Numbe
 	
 	// Get sections and show, otherwise reset
 	if(!skip) {
-		if(o.subtitles_p && props.get('enableSubtitles')) {
-			try {
-				doAPI('/api/photo/subtitle/list', {photo_id:o.photo_id, token:o.token, subtitle_format:'json', stripped_p:'1'}, function(sub:Object):void{
-					var locales:Object = {};
-					var defaultLocale:String = '';
-					var localeMenu:Array = [];
-					localeMenu.push({value:'', label:'No subtitles'});
-					for (var i:int=0; i<sub.subtitles.length; i++) {
-						locales[sub.subtitles[i].locale] = {href:props.get('site_url') + sub.subtitles[i].href, language:sub.subtitles[i].language, locale:sub.subtitles[i].locale};
-						localeMenu.push({value:sub.subtitles[i].locale, label:sub.subtitles[i].language});
-						if(sub.subtitles[i].default_p) defaultLocale = sub.subtitles[i].locale; 
-					}
-					// Let the subtitles component know about this
-					subtitles.suppportedLocales = locales;
-					subtitles.locale = (props.get('subtitlesOnByDefault') ? defaultLocale : '');
-					// Create a menu from the same options
-					subtitlesMenu.options = localeMenu;
-					subtitlesMenu.value = subtitles.locale;
-				});
-			} catch(e:Error) {subtitles.suppportedLocales = {}; subtitlesMenu.options = [];}
-		} else {
-			subtitles.suppportedLocales = {}; subtitlesMenu.options = [];
-		}
-	
 		// Get subtitles and show, otherwise reset
 		if(o.sections_p) {
 			try {
@@ -204,10 +129,6 @@ private function setActiveElement(i:int, startPlaying:Boolean=false, start:Numbe
 	// Make embed code current
 	updateCurrentVideoEmbedCode();
 	updateBackground();
-
-	// We want the tray and possible the info box to show up when a new element starts playing
-	infoShow();
-	trayShow();
 
 	// Note that we've loaded the video 
 	reportEvent('load');
@@ -241,7 +162,7 @@ private function prepareSupportedFormats(o:Object):void {
 	for (var i:Object in supportedFormats) {
 		_formats.push({value:supportedFormats[i].format, label:supportedFormats[i].label});
 	}
-	formatsMenu.options = _formats;	
+	///formatsMenu.options = _formats;	
 }
 public function setVideoFormat(format:String):void {
 	var o:Object = null;
@@ -286,7 +207,6 @@ private function createItemsArray(p:Object) : Array {
 private function clearVideo():void {
 	video.source = null; video.visible = false;
 	image.source = null; image.visible = false;
-	if(identityVideo.playing) {identityVideo.stop(); identityVideo.dispatchEvent(new Event('complete', true));}
     if(video.playing) {video.stop(); video.close();}
 }
 private function previousElement():Boolean {
@@ -329,14 +249,6 @@ public function playVideoElement():void {
 	video.source = getFullVideoSource();
 	if(showVideoAd&&ads&&ads.preroll()) {
 		showVideoAd = false;
-		return;
-	}
-	if(showBeforeIdentity) {
-		video.stop();
-		video.pause();
-		// We'll only do this once for every element, otherwise the preroll will start on every pause/play.
-		showBeforeIdentity = false;
-		handleIdentity('before', function():void {playVideoElement();});
 		return;
 	}
 	video.play();	
