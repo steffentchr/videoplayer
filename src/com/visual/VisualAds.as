@@ -64,6 +64,8 @@ package com.visual {
 						var request:AdsRequest = new AdsRequest();
 						request.adType = req.type;
 						request.adTagUrl = req.url;
+						trace('req.url');
+						trace(req.url);
 						request.publisherId = req.publisherId;
 						request.contentId = req.contentId;
 						request.adSlotWidth = this.width;

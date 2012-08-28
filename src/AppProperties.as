@@ -48,7 +48,7 @@ public var propDefaults:Object = {
 	subtitlesDesign: 'bars',
 	playlistClickMode:'link',
 	enableLiveStreams: true,
-	playflowInstreamVideo: 'http://e2.emediate.se/eas?cu=16140;ty=video||',
+	playflowInstreamVideo: 'http://e2.emediate.se/eas?cu=16140&ty=video||',
 	playflowInstreamOverlay: '',
 	
 	start: parseFloat('0'),
