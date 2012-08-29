@@ -32,6 +32,7 @@ package com.visual {
 		private var internalFlash:UIComponent = null;
 		private var internalVideo:Video = null;
 		public var ns:NetStream = null;
+		public var totalTime:Number = 0;
 		
 		public function VisualAds() {
 			super();
@@ -47,7 +48,6 @@ package com.visual {
 			requests.push({type:type, url:url, publisherId:publisherId, contentId:contentId});
 		}
 		public function preroll():Boolean {
-			trace('preroll()');
 			return(this.load('video'));
 		}
 		public function overlay():Boolean {
@@ -64,8 +64,6 @@ package com.visual {
 						var request:AdsRequest = new AdsRequest();
 						request.adType = req.type;
 						request.adTagUrl = req.url;
-						trace('req.url');
-						trace(req.url);
 						request.publisherId = req.publisherId;
 						request.contentId = req.contentId;
 						request.adSlotWidth = this.width;
@@ -103,6 +101,7 @@ package com.visual {
 		private function onAdLoaded(e:AdLoadedEvent):void {
 			trace('onAdLoaded');
 			ns = e.netStream;
+			ns.client = defaultClient;
 		}
 
 		private function onAdsLoaded(e:AdsLoadedEvent):void {
@@ -117,9 +116,8 @@ package com.visual {
 			manager.addEventListener(AdEvent.CONTENT_PAUSE_REQUESTED, onContentPauseRequested);
 			manager.addEventListener(AdEvent.CONTENT_RESUME_REQUESTED, onContentResumeRequested);
 			manager.addEventListener(AdLoadedEvent.LOADED, onAdLoaded);
+			manager.addEventListener(AdEvent.CLICK, onAdClicked);
 			
-			trace('manager.type');
-			trace(manager.type);
 			if (manager.type == AdsManagerTypes.FLASH) {
 				var flashAdsManager:FlashAdsManager = e.adsManager as FlashAdsManager;
 				flashAdsManager.addEventListener(AdSizeChangedEvent.SIZE_CHANGED, onFlashAdSizeChanged);
@@ -151,7 +149,16 @@ package com.visual {
 				this.stop();
 			}
 		}
-		
+
+		private function onAdClicked(e:Object):void {
+			try {
+				manager.unload();
+				if(ns) ns.close();
+				onVideoAdComplete(null);
+			}catch(e:Object){}
+			dispatchEvent(new Event('contentClicked'));
+		}
+
 		private function handleChildrenSizes(e:ResizeEvent=null):void {
 			// Video is simple, just fill the screen
 			if(this&&this.width&&this.internalVideo) {
@@ -177,5 +184,17 @@ package com.visual {
 			}catch(e:Object){}
 			dispatchEvent(new Event('contentResumeRequested'));
 		}
+		
+		private var defaultClient:Object = (function(context:Object):Object {
+			return {
+				onFCSubscribe:function(info:Object):void{},
+				onFCUnsubscribe:function(info:Object):void{},
+				onMetaData:function(item:Object):void{
+					try {
+						totalTime = item.duration;
+					}catch(e:ErrorEvent){totalTime=0;}
+				}
+			}
+		})(this);
 	}
 }

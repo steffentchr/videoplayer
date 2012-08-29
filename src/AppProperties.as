@@ -261,11 +261,19 @@ private function bootstrapAds():void {
 	fitSize();
 	visualAdContainer.addEventListener(ResizeEvent.RESIZE, fitSize);
 	
+	setInterval(function(){
+		if(adMessage.visible && ads.ns && ads.totalTime>0) {
+			//adMessage.message = ads.ns.time;
+			var t:int = Math.floor(Math.round(ads.totalTime-ads.ns.time));
+			adMessage.message = 'Reklame: Videoen starter om ' + t + (t==1 ? ' sekund' : ' sekunder');
+			
+		}
+	}, 200);
 	// Interface with the app through events
 	ads.addEventListener('contentPauseRequested', function():void{
 		if(props.getBoolean('identityAllowClose') || props.getBoolean('identityCountdown')) {
 			adMessage.visible = true;
-			adMessage.message = 'STUFF STUFF STUFF';
+			adMessage.message = '';
 			adMessage.allowClose = props.getBoolean('identityAllowClose');
 			adMessage.addEventListener(Event.CLOSE, function(e:Event):void{
 					ads.stop();
@@ -277,6 +285,10 @@ private function bootstrapAds():void {
 		forceHideTray = false;
 		adMessage.visible = false;
 		playVideoElement();
+	});
+	ads.addEventListener('contentClicked', function():void{
+		forceHideTray = false;
+		adMessage.visible = false;
 	});
 	
 	// Append sources

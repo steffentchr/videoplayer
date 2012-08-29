@@ -384,6 +384,7 @@
 				 imageSource="@Embed(source='assets/buttons/share.png')"
 				 activeSource="@Embed(source='assets/buttons/share-active.png')"
 				 click="{embedPanel.visible = !embedPanel.visible;}"
+				 visible="false"
 				 />
 			<!-- Twitter -->
 			<com:PlayerButton 
