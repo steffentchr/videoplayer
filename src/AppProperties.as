@@ -37,7 +37,7 @@ public var propDefaults:Object = {
 	infoTimeout: parseFloat('5000'),
 	recommendationHeadline: 'Also have a look at...',
 	identityCountdown: true,
-	identityAllowClose: true,
+	identityAllowClose: false,
 	identityCountdownTextSingular: "This advertisement will end in % second",
 	identityCountdownTextPlural: "This advertisement will end in % seconds",
 	recommendationMethod: 'channel-popular',
@@ -262,11 +262,11 @@ private function bootstrapAds():void {
 	visualAdContainer.addEventListener(ResizeEvent.RESIZE, fitSize);
 	
 	// Interface with the app through events
-	trace('add event listeners for ads');
 	ads.addEventListener('contentPauseRequested', function():void{
-		if(props.getBoolean('identityAllowClose') && props.getBoolean('identityCountdown')) {
+		if(props.getBoolean('identityAllowClose') || props.getBoolean('identityCountdown')) {
 			adMessage.visible = true;
-			adMessage.message = '';
+			adMessage.message = 'STUFF STUFF STUFF';
+			adMessage.allowClose = props.getBoolean('identityAllowClose');
 			adMessage.addEventListener(Event.CLOSE, function(e:Event):void{
 					ads.stop();
 				});

@@ -31,7 +31,7 @@ package com.visual {
 		private var requests:Array = [];
 		private var internalFlash:UIComponent = null;
 		private var internalVideo:Video = null;
-		private var ns:NetStream = null;
+		public var ns:NetStream = null;
 		
 		public function VisualAds() {
 			super();
