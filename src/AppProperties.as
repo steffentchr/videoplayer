@@ -250,7 +250,6 @@ private function bootstrapAds():void {
 		
 	// Attach VisualAd element to the stage, and make sure it's sized correctly
 	ads = new VisualAds();
-	trace(ads);
 	visualAdContainer.addChild((ads as UIComponent));
 	
 	// Make sure it's sized correctly
@@ -265,7 +264,7 @@ private function bootstrapAds():void {
 		if(adMessage.visible && ads.ns && ads.totalTime>0) {
 			//adMessage.message = ads.ns.time;
 			var t:int = Math.floor(Math.round(ads.totalTime-ads.ns.time));
-			adMessage.message = 'Reklame: Videoen starter om ' + t + (t==1 ? ' sekund' : ' sekunder');
+			adMessage.message = 'Reklame: Videoen '+(video.completed ? 'slutter' : 'starter')+' om ' + t + (t==1 ? ' sekund' : ' sekunder');
 			
 		}
 	}, 200);
@@ -279,13 +278,19 @@ private function bootstrapAds():void {
 					ads.stop();
 				});
 		}
+		playListHide();
+		embedPanel.visible=false;
 		pauseVideoElement();
 	});
 	ads.addEventListener('contentResumeRequested', function():void{
 		forceHideTray = false;
 		toggleTray(true);
 		adMessage.visible = false;
-		playVideoElement();
+		if(!video.completed) { 
+			playVideoElement();
+		} else {	
+			playListShow();
+		}
 	});
 	ads.addEventListener('contentClicked', function():void{
 		forceHideTray = false;

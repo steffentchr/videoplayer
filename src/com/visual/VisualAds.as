@@ -18,6 +18,7 @@ package com.visual {
 	import flash.geom.Point;
 	import flash.media.Video;
 	import flash.net.NetStream;
+	import flash.media.SoundTransform;
 	
 	import mx.core.UIComponent;
 	import mx.events.ResizeEvent;
@@ -45,9 +46,10 @@ package com.visual {
 			loader.addEventListener(AdErrorEvent.AD_ERROR, onAdError);
 		}
 		public function push(type:String, url:String, publisherId:String = '', contentId:String = ''):void {
-			requests.push({type:type, url:url, publisherId:publisherId, contentId:contentId});
+			requests = [{type:type, url:url, publisherId:publisherId, contentId:contentId}];
 		}
 		public function preroll():Boolean {
+			trace('CALL PREROLL');
 			return(this.load('video'));
 		}
 		public function overlay():Boolean {
@@ -68,7 +70,7 @@ package com.visual {
 						request.contentId = req.contentId;
 						request.adSlotWidth = this.width;
 						request.adSlotHeight = this.height;
-						requests.push(request);
+						requests = [request];
 						loader.requestAds(request);
 						this.visible = true;
 						return(true);
@@ -132,6 +134,9 @@ package com.visual {
 				var videoAdsManager:VideoAdsManager = e.adsManager as VideoAdsManager;
 				videoAdsManager.addEventListener(AdEvent.COMPLETE, onVideoAdComplete); 
 				videoAdsManager.clickTrackingElement = this;
+				
+				trace('length');
+				trace(videoAdsManager.ads.length);
 
 				// Add a video element to play within
 				if(!internalVideo) {
@@ -141,8 +146,9 @@ package com.visual {
 					this.addChild(internalVideo);
 				}
 				handleChildrenSizes();
-				videoAdsManager.load(this.internalVideo);
+				videoAdsManager.load(this.internalVideo);				
 				this.internalVideo.visible = true;
+				trace('PLAY AD');
 				videoAdsManager.play(this.internalVideo);
 			} else if (manager.type == AdsManagerTypes.CUSTOM_CONTENT) {
 				// Not supported
@@ -178,8 +184,15 @@ package com.visual {
 		
 		public function stop():void{
 			try {
+				ns.soundTransform = new SoundTransform(0);
+			}catch(e){trace('ERROR'); trace(e);}
+
+			try {
 				manager.unload();
-				if(ns) ns.close();
+				if(ns) {
+					ns.close();
+					ns = null;
+				}
 				onVideoAdComplete(null);
 			}catch(e:Object){}
 			dispatchEvent(new Event('contentResumeRequested'));

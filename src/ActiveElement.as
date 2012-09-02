@@ -247,7 +247,6 @@ public function playVideoElement():void {
 	videoControls.visible=true;
 	progress.visible=(!video.isLive);
 	video.source = getFullVideoSource();
-	trace('showVideoAd&&ads&&ads.preroll()');
 	if(showVideoAd&&ads&&ads.preroll()) {
 		forceHideTray = true;
 		toggleTray(false);

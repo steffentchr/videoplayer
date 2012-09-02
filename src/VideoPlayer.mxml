@@ -164,7 +164,7 @@
 				}
             }
 			private function playListShow():void {
-				if (!props.get('showTray') || !props.get('showBrowse')) return;
+				if(forceHideTray) return;
 				embedPanel.visible = false;
 				showPlayList = true;
             }
@@ -202,10 +202,10 @@
 				if(evt.currentTarget.state==VideoEvent.PLAYING || evt.currentTarget.state==VideoEvent.SEEKING) {
 					if(ads) ads.overlay();
 					cleanVideoState = 'playing';
-					playListHide()
+					playListHide();
 				} else if(evt.currentTarget.state==VideoEvent.LOADING || evt.currentTarget.state==VideoEvent.BUFFERING) {
 					cleanVideoState = 'buffering';
-					playListHide()
+					playListHide();
 				} else if(evt.currentTarget.state==VideoEvent.DISCONNECTED || evt.currentTarget.state==VideoEvent.COMPLETE || evt.currentTarget.state==VideoEvent.PAUSED || evt.currentTarget.state==VideoEvent.STOPPED) {
 					cleanVideoState = 'paused';
 					playListShow();
@@ -224,14 +224,16 @@
                 }
             }
             private function onVideoComplete(ignoreIdentity:Boolean=false):void {
+				if(forceHideTray) return;
 				reportPlay('end', video.playheadTime);
-            	if(props.get('loop')) {
-            		var more:Boolean = nextElement();
-            		if(!more) onPlayListDone();
-            	} else {
-            		onPlayListDone();
-            	}
-            }
+				bootstrapAds();
+				if(ads.postroll()) {
+					forceHideTray = true;
+					toggleTray(false);
+					showVideoAd = false;
+					return;
+				}
+			}
             private function onPlayListResize():void {
             	var c:Array = playListHolder.getChildren();
             	if (c.length) c[0].width = playListContainer.width;
@@ -250,7 +252,7 @@
 				if(!show&&tray.visible) {
 					tray.visible = false;
 					embedPanel.visible = false;
-					playListContainer.visible = false;
+					playListHide();
 				}
 			}
 		]]>
@@ -391,7 +393,7 @@
 		<com:PlayerProgress id="progress"
 			top="30"
 			left="78"
-			width="{FlexGlobals.topLevelApplication.width-281}"
+			width="{FlexGlobals.topLevelApplication.width-284}"
 			targetVideo="{video}"
 			/>
 
