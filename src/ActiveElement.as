@@ -249,6 +249,8 @@ public function playVideoElement():void {
 	video.source = getFullVideoSource();
 	trace('showVideoAd&&ads&&ads.preroll()');
 	if(showVideoAd&&ads&&ads.preroll()) {
+		forceHideTray = true;
+		toggleTray(false);
 		showVideoAd = false;
 		return;
 	}
