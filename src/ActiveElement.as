@@ -248,6 +248,7 @@ public function playVideoElement():void {
 	progress.visible=(!video.isLive);
 	video.source = getFullVideoSource();
 	if(showVideoAd&&ads&&ads.preroll()) {
+		reportEvent('preroll');
 		forceHideTray = true;
 		toggleTray(false);
 		showVideoAd = false;

@@ -66,9 +66,10 @@
 						ExternalInterface.addCallback('pauseVideo', function():void {pauseVideoElement();});
 						ExternalInterface.addCallback('playVideo', function():void {playVideoElement();});
 						ExternalInterface.addCallback('getPlayState', function():String {return(cleanVideoState);});
+						ExternalInterface.addCallback('getLink', function():String {return(activeElement.getString('link'));});
 						ExternalInterface.addCallback('getPlayheadTime', function():Object {return(video.playheadTime + activeElement.getNumber('start'));});
 						ExternalInterface.addCallback('setPlayheadTime', function(time:int):void {progress.seekVideoTo(time);});
-						ExternalInterface.addCallback('getTotalTime', function():Object {return(video.totalTime);});
+						ExternalInterface.addCallback('getTotalTime', function():Object {return(video.totalTime + activeElement.getNumber('start'));});
 						ExternalInterface.addCallback('getCurrentPhotoID', function():Object {return(activeElement.get('photo_id'));});
 						ExternalInterface.addCallback('getJSONSource', function():Object {return(props.get('jsonSource'));});
 						ExternalInterface.addCallback('echo', function(x:Object):Object {return(x);});
@@ -185,7 +186,7 @@
 						try {
 							if(video.playing) reportPlay('start', video.playheadTime);
 						}catch(e:ErrorEvent){}
-					}, 30000);
+					}, 8000);
             }             
             private function onPlayListDone():void {
             	if(props.get('loop')) { 
@@ -228,6 +229,7 @@
 				reportPlay('end', video.playheadTime);
 				bootstrapAds();
 				if(ads.postroll()) {
+					reportEvent('postroll');
 					forceHideTray = true;
 					toggleTray(false);
 					showVideoAd = false;

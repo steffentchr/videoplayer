@@ -32,8 +32,16 @@ public function expandReportObject(o:Object):Object {
 	return(o);
 }
 
+
+public function track(event:String, data:Object=null):void {
+	try {
+		ExternalInterface.call("track", event, data);
+	} catch(e:ErrorEvent) {}
+}
+
 private var lastPlayTimeStart:String = '0';
 public function reportPlay(event:String, time:Number):void {
+	track(event, time);
 	try {
 		if(event=='start' || time<=0) {
 			var time_start:String = new String(time+activeElement.getNumber('start'));
@@ -49,6 +57,7 @@ public function reportPlay(event:String, time:Number):void {
 	} catch(e:Error) {}
 }
 public function reportEvent(event:String):void {
+	track(event);
 	try {
 		var photo_id:int = context.photos[currentElementIndex].photo_id;
 		doAPI('/api/analytics/report/event', expandReportObject({photo_id:photo_id, event:event, uuid:uuid}), function():void{});
