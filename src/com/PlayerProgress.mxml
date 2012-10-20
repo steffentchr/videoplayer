@@ -196,7 +196,11 @@
 					section.title = s.title;
 					section.startTime = s.start_time;
 					section.endTime = (_sections[i+1] ? _sections[i+1].start_time : props.getNumber('length'));
-					
+
+					// If the start_time match the player's start, we've preselected a section
+					if(s.start_time==props.getNumber('start')){
+						props.put('section_id', s.section_id);
+					}
 					// If a section has been preselected, set an end time
 					if(s.section_id==props.getNumber('section_id')){
 						props.put('section_end_time', section.endTime);
