@@ -53,6 +53,8 @@ public var propDefaults:Object = {
 	
 	start: parseFloat('0'),
 	player_id: parseFloat('0'),
+	section_id: parseFloat('0'),
+	section_end_time: parseFloat('0'),
 	rssLink: '',
 	podcastLink: '',
 	embedCode: '',
@@ -76,7 +78,7 @@ private function initLoadURL():void{
 	
 	// Determine a load parameters
 	var loadParameters:Array = new Array();
-	var options:Array = ['photo_id', 'token', 'user_id', 'search', 'tag', 'tags', 'tag_mode', 'album_id', 'year', 'month', 'day', 'datemode', 'video_p', 'audio_p', 'video_encoded_p', 'order', 'orderby', 'size', 'source', 'rand', 'liveevent_id', 'liveevent_stream_id'];
+	var options:Array = ['photo_id', 'token', 'user_id', 'search', 'tag', 'tags', 'tag_mode', 'album_id', 'year', 'month', 'day', 'datemode', 'video_p', 'audio_p', 'video_encoded_p', 'order', 'orderby', 'size', 'source', 'rand', 'liveevent_id', 'liveevent_stream_id', 'section_id'];
 	for (var i:int=0; i<options.length; i++) {
 		var opt:String = options[i];
 		if (FlexGlobals.topLevelApplication.parameters[opt]) {

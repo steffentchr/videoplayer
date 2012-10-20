@@ -19,67 +19,67 @@
 	>
 	<!-- VideoProgress -->
 	<mx:Canvas id="videoProgress"
-		top="11" 
-		left="10" 
-		right="10" 
-		height="6" 
-		resize="drawSections();"
-		backgroundColor="0xCCCCCC" 
-		backgroundAlpha="0.6">
+			   top="11" 
+			   left="10" 
+			   right="10" 
+			   height="6" 
+			   resize="drawSections();"
+			   backgroundColor="0xCCCCCC" 
+			   backgroundAlpha="0.6">
 		<mx:Canvas id="videoBufferProgress" 
-			x="0" 
-			height="6" 
-			backgroundColor="white" 
-			backgroundAlpha="0.2" 
-			/>
+				   x="0" 
+				   height="6" 
+				   backgroundColor="white" 
+				   backgroundAlpha="0.2" 
+				   />
 		<mx:Canvas id="videoPlayProgress" 
-			x="0"
-			height="6" 
-			backgroundColor="{(styleManager.getColorName(props.get('trayBackgroundColor')) as Number)}" 
-			backgroundAlpha="0.6" 
-			/>
+				   x="0"
+				   height="6" 
+				   backgroundColor="{(styleManager.getColorName(props.get('trayBackgroundColor')) as Number)}" 
+				   backgroundAlpha="0.6" 
+				   />
 	</mx:Canvas>					
-
+	
 	<!-- Sections -->
 	<mx:Canvas id="sectionContainer" top="0" left="0" width="100%" height="100%" horizontalScrollPolicy="off"></mx:Canvas>
 	
 	<!-- videoTime -->
 	<mx:HBox id="videoDragHandle"
-		 visible="false" 
-		 y="{(this.height-videoTimeLabel.height)/2}" 
-		 width="{videoTimeLabel.width}"
-		 height="{videoTimeLabel.height}"
-		 backgroundColor="0xFFFFFF" 
-		 cornerRadius="2" 
-		 borderStyle="solid" 
-		 borderColor="white"
-		 clipContent="false"
-		 useHandCursor="true"
-		 buttonMode="true"
-		>
-		<mx:VBox id="videoTime"
+			 visible="false" 
+			 y="{(this.height-videoTimeLabel.height)/2}" 
+			 width="{videoTimeLabel.width}"
+			 height="{videoTimeLabel.height}"
+			 backgroundColor="0xFFFFFF" 
+			 cornerRadius="2" 
+			 borderStyle="solid" 
+			 borderColor="white"
 			 clipContent="false"
-			>
+			 useHandCursor="true"
+			 buttonMode="true"
+			 >
+		<mx:VBox id="videoTime"
+				 clipContent="false"
+				 >
 			<mx:Label id="videoTimeLabel" 
-				selectable="false" 
-				fontFamily="Helvetica, Arial" 
-				fontSize="9" 
-				height="12" 
-				color="black"
-				/>
+					  selectable="false" 
+					  fontFamily="Helvetica, Arial" 
+					  fontSize="9" 
+					  height="12" 
+					  color="black"
+					  />
 		</mx:VBox>	
 	</mx:HBox>
 	
 	<mx:Script>
 		<![CDATA[
 			import com.philemonworks.flex.util.HashCollection;
-			
 			import com.visual.VisualVideo;
+			
 			import mx.core.Application;
 			import mx.events.VideoEvent;
 			[bindable] private var props:HashCollection = mx.core.FlexGlobals.topLevelApplication.props;
 			[bindable] private var activeElement:HashCollection = mx.core.FlexGlobals.topLevelApplication.activeElement;
-
+			
 			var scrubberStartX:int = -1;
 			var scrubberStartMouseX:int = -1;
 			private function init():void {
@@ -100,7 +100,7 @@
 					scrubberStartMouseX = e.stageX;
 				});
 			}
-
+			
 			// Component-specific functions and event-handlers
 			private function formatTime(time:int, totalTime:int = -1, join:String = ' / '):String {
 				if (time<0) return("");
@@ -113,45 +113,54 @@
 			private function timeFromPoint(x:int):int {
 				return Math.round((x-5)/videoProgress.width*activeElement.getNumber('length'));
 			}
-            public function seekVideoTo(time:int):void {
-            	if(!_targetVideo) return;
-            	if(time>activeElement.getNumber('length')) return;
-            	var approxBufferTime:Number = (_targetVideo.totalTime * (_targetVideo.bytesLoaded/_targetVideo.bytesTotal)) + activeElement.getNumber('start');
-        		_targetVideo.bufferTime = 2; // default buffer time is two secs
-            	if(time>new Number(activeElement.get('start')) && time<approxBufferTime) {
-            		_targetVideo.playheadTime = time-activeElement.getNumber('start');
-            		if(!_targetVideo.playing) this.parentApplication.playVideoElement();
-            	} else {
-            		if ((props.get('streaming') as Boolean)) {
-            			activeElement.put('start', Math.floor(time));
-            			activeElement.put('skip', '1');
-            			_targetVideo.bufferTime = 0; // when skipping we'll skip the buffer
+			public function seekVideoTo(time:int):void {
+				if(!_targetVideo) return;
+				if(time>activeElement.getNumber('length')) return;
+				var approxBufferTime:Number = (_targetVideo.totalTime * (_targetVideo.bytesLoaded/_targetVideo.bytesTotal)) + activeElement.getNumber('start');
+				_targetVideo.bufferTime = 2; // default buffer time is two secs
+				if(time>new Number(activeElement.get('start')) && time<approxBufferTime) {
+					_targetVideo.playheadTime = time-activeElement.getNumber('start');
+					if(!_targetVideo.playing) this.parentApplication.playVideoElement();
+				} else {
+					if ((props.get('streaming') as Boolean)) {
+						activeElement.put('start', Math.floor(time));
+						activeElement.put('skip', '1');
+						_targetVideo.bufferTime = 0; // when skipping we'll skip the buffer
 						if(_targetVideo.playing) _targetVideo.stop();
-            			_targetVideo.source = getFullVideoSource();
+						_targetVideo.source = getFullVideoSource();
 						this.parentApplication.playVideoElement();
-            		}
-            	}
-            }
-            private function updateBuffer(e:Event):void {
-            	if(!_targetVideo) return;
-            	videoBufferProgress.x = activeElement.getNumber('start') / activeElement.getNumber('length') * videoProgress.width;
-            	videoBufferProgress.width = _targetVideo.bytesLoaded/_targetVideo.bytesTotal*(videoProgress.width-videoBufferProgress.x);
-            }
-            private function updatePlay(e:Event):void {
-            	if(!_targetVideo) return;
+					}
+				}
+			}
+			private function updateBuffer(e:Event):void {
+				if(!_targetVideo) return;
+				videoBufferProgress.x = activeElement.getNumber('start') / activeElement.getNumber('length') * videoProgress.width;
+				videoBufferProgress.width = _targetVideo.bytesLoaded/_targetVideo.bytesTotal*(videoProgress.width-videoBufferProgress.x);
+			}
+			private function updatePlay(e:Event):void {
+				if(!_targetVideo) return;
+				
+				// Handle end time
+				var endTime:Number = props.getNumber('section_end_time');
+				if(endTime>0 && endTime<=(activeElement.getNumber('start')+_targetVideo.playheadTime)) {
+					_targetVideo.pause();
+					props.put('section_end_time', 0)
+				}
+				
+				// Handle play progress
 				videoPlayProgress.x = activeElement.getNumber('start') / activeElement.getNumber('length') * videoProgress.width;
 				videoPlayProgress.width  = _targetVideo.playheadTime/_targetVideo.totalTime*(videoProgress.width-videoPlayProgress.x);
 				if(scrubberStartMouseX<0) {
 					videoDragHandle.x = 5 + videoPlayProgress.x + videoPlayProgress.width - (videoDragHandle.width/2);
 					videoTimeLabel.text = formatTime(_targetVideo.playheadTime + activeElement.getNumber('start'));
 				}
-            }
-
+			}
+			
 			private function getFullVideoSource():String {
 				return(activeElement.getString('videoSource') + '?start=' + encodeURIComponent(activeElement.getString('start')) + '&skip=' + encodeURIComponent(activeElement.getString('skip')));
 			}            
-            		
-
+			
+			
 			// Which video display are we binding to? (and attach to events)
 			private var _targetVideo:VisualVideo;
 			public function set targetVideo(v:VisualVideo):void {
@@ -186,10 +195,19 @@
 					section.x = 8 + ((s.start_time/activeElement.getNumber('length')) * videoProgress.width);
 					section.title = s.title;
 					section.startTime = s.start_time;
+					section.endTime = (_sections[i+1] ? _sections[i+1].start_time : props.getNumber('length'));
+					
+					// If a section has been preselected, set an end time
+					if(s.section_id==props.getNumber('section_id')){
+						props.put('section_end_time', section.endTime);
+					}
 					
 					// Listen to clicks
 					section.addEventListener(MouseEvent.CLICK, function(e:Event):void{
 						e.stopPropagation();
+						// Set an end time for when to stop automatically
+						props.put('section_end_time', e.currentTarget.endTime);
+						// Jump to start time
 						seekVideoTo(e.currentTarget.startTime);
 					});
 					
