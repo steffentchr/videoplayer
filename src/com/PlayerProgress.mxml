@@ -142,7 +142,7 @@
 				
 				// Handle end time
 				var endTime:Number = props.getNumber('section_end_time');
-				if(endTime>0 && endTime<=(activeElement.getNumber('start')+_targetVideo.playheadTime)) {
+				if(activeElement.getNumber('start')>0 && endTime>0 && endTime<=(activeElement.getNumber('start')+_targetVideo.playheadTime)) {
 					_targetVideo.pause();
 					props.put('section_end_time', 0)
 				}
