@@ -172,6 +172,9 @@ private function initProperties(settings:Object):void {
 			break;
 	}
 	
+	if(props.getString('source')=='admin') 
+		props.put('playflowInstreamVideo', '');
+	
 	// Possibly auto-play
 	possiblyAutoPlay();
 	
