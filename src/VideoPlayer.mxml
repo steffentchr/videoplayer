@@ -172,7 +172,13 @@
 			private function playListHide():void {
 				showPlayList = false;
             }
-            private function prepareTimers():void {
+
+			private var trayTimer:Timer = new Timer(5000,1);
+			private function prepareTimers():void {
+				trayTimer.start();
+				trayTimer.addEventListener(TimerEvent.TIMER_COMPLETE, function():void {
+					toggleTray(false);
+				});
 				stage.addEventListener(Event.MOUSE_LEAVE, function():void {
 					toggleTray(false); 
 				});
@@ -247,6 +253,7 @@
             }
 
 			private function toggleTray(show:Boolean){
+				trayTimer.reset(); trayTimer.start();
 				if(forceHideTray) show=false;
 				if(show&&!tray.visible) {
 					tray.visible = true;
